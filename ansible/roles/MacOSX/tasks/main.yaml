@@ -1,0 +1,24 @@
+---
+- name: Install Brew Apps
+  community.general.homebrew:
+    name: "{{ item }}"
+  vars:
+    jmesquery: "[?method=='brew'].items"
+  with_items: "{{ apps.mac | community.general.json_query(jmesquery) | list }}"
+- name: Install Brew Cask Apps
+  community.general.homebrew_cask:
+    name: "{{ item }}"
+  vars:
+    jmesquery: "[?method=='brew-cask'].items"
+  with_items: "{{ apps.mac | community.general.json_query(jmesquery) | list }}"
+- name: Install Script Apps
+  ansible.builtin.script: "{{ PWD }}/scripts/{{ item }}.sh"
+  register: script_install
+  vars:
+    jmesquery: "[?method=='script'].items"
+  with_items: "{{ apps.mac | community.general.json_query(jmesquery) | list }}"
+- name: Symlink dotfiles
+  include_tasks: "{{ PWD }}/ansible/shared-tasks/symlink.yaml"
+  with_items: "{{ dotfiles.mac | list }}"
+- name: Setup VSCode
+  include_tasks: "{{PWD}}/ansible/shared-tasks/setup-vscode.yaml"

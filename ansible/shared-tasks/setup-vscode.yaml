@@ -1,0 +1,10 @@
+---
+- name: Test if VS Code is installed
+  command: command -v code >/dev/null 2/&1
+  register: code_exists
+- name: Install VS Code extensions
+  command: code --install-extension {{ item }}
+  with_items: "{{ extensions }}"
+  register: extension_install
+  changed_when: "'successfully installed' in extension_install.stdout"
+  when: code_exists.rc == 0

@@ -1,0 +1,15 @@
+---
+- name: "Bootstrapping Machine"
+  hosts: localhost
+  connection: local
+  ignore_errors: true
+  vars:
+    apps: "{{ lookup('file', '../apps.json') | from_json }}"
+    dotfiles: "{{ lookup('file', '../dotfiles.json') | from_json }}"
+    extensions: "{{ lookup('file', '../dotfiles/vscode/extensions.txt').splitlines() }}"
+    PWD: "{{ lookup('env', 'PWD') }}"
+  roles:
+    - role: "MacOSX"
+      when: "ansible_distribution == 'MacOSX'"
+    - role: "Windows"
+      when: "ansible_distribution == 'Windows'"

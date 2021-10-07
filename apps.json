@@ -1,0 +1,44 @@
+{
+  "windows": [
+    {
+      "method": "chocolately",
+      "items": [
+        "vscode",
+        "googlechrome",
+        "postman",
+        "bitwarden-cli"
+      ]
+    }
+  ],
+  "mac": [
+    {
+      "method": "brew-cask",
+      "items": [
+        "visual-studio-code",
+        "iterm2",
+        "google-chrome",
+        "firefox-developer-edition",
+        "postman"
+      ]
+    },
+    {
+      "method": "brew",
+      "items": [
+        "fluxcd/tap/flux",
+        "kubectl",
+        "starship",
+        "gh",
+        "fish",
+        "docker",
+        "gpg2",
+        "bitwarden-cli"
+      ]
+    },
+    {
+      "method": "script",
+      "items": [
+        "krew"
+      ]
+    }
+  ]
+}

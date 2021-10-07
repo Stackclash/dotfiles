@@ -1,0 +1,15 @@
+{
+  "windows": [],
+  "mac": [
+    {
+      "name": ".gitconfig",
+      "src": "",
+      "destination": "$HOME"
+    },
+    {
+      "name": "settings.json",
+      "src": "vscode",
+      "destination": "$HOME/Library/Application Support/Code/User"
+    }
+  ]
+}
