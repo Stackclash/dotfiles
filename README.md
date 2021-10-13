@@ -62,10 +62,6 @@ Note: All playbooks assume you run them from project's root directory.
 - bootstrap.yaml: Installs applications and symlinks dotfiles
 
 ## Roles
-- MacOSX: Installs applications from apps.json using brew and brew-cask for mac machines
-- Windows: Installs application from apps.json using chocolately for window machines
-
-## Tasks
-Note: There are shared-tasks in `ansible/shared-tasks` for use for mac and windows
-- setup-vscode.yaml: Installs VSCode extensions from `dotfiles/vscode/extensions.txt`
-- symlink.yaml: Using items passed in, it symlinks the files from `dotfiles.json` to the appropriate destinations
+- apps: Installs applications from `apps.json` using various methods
+- symlink: Symlinks the files from `dotfiles.json` to the appropriate destinations
+- vscode: Installs VSCode extensions from `dotfiles/vscode/extensions.txt`
