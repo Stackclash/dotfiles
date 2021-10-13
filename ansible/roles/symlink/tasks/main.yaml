@@ -1,0 +1,5 @@
+---
+- name: Symlink files
+  include_tasks: "./symlink.yaml"
+  with_items: "{{ dotfiles }}"
+  

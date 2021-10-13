@@ -1,0 +1,12 @@
+- name: "{{ item.name }} : Substitute environment variables in destination"
+  set_fact:
+    env: "{{ item.destination | regex_search('\\$(\\w+)', '\\1') | first }}"
+  when: item.destination | regex_search('\\$(\\w+)')
+- name: "{{ item.name }} : Symlink file"
+  ansible.builtin.file:
+    src: "{{ PWD }}/dotfiles/{{ item.src | ternary(item.src + '/', '') }}{{ item.name }}"
+    dest: "{{ destination }}/{{ item.name }}"
+    state: link
+    force: yes
+  vars:
+    destination: "{{ item.destination | regex_replace('\\$\\w+', lookup('env', env)) | default(item.description) }}"

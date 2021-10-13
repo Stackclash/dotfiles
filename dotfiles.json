@@ -1,6 +1,6 @@
 {
   "windows": [],
-  "mac": [
+  "MacOSX": [
     {
       "name": ".gitconfig",
       "src": "",

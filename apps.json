@@ -12,7 +12,7 @@
       ]
     }
   ],
-  "mac": [
+  "MacOSX": [
     {
       "method": "brew-cask",
       "items": [
