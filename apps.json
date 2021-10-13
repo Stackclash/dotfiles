@@ -6,7 +6,9 @@
         "vscode",
         "googlechrome",
         "postman",
-        "bitwarden-cli"
+        "bitwarden-cli",
+        "gpg4win",
+        "veracrypt"
       ]
     }
   ],
@@ -18,7 +20,8 @@
         "iterm2",
         "google-chrome",
         "firefox-developer-edition",
-        "postman"
+        "postman",
+        "veracrypt"
       ]
     },
     {
@@ -30,8 +33,8 @@
         "gh",
         "fish",
         "docker",
-        "gpg2",
-        "bitwarden-cli"
+        "bitwarden-cli",
+        "gnupg"
       ]
     },
     {

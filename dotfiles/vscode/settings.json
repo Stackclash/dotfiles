@@ -8,5 +8,7 @@
     ],
     "explorer.confirmDelete": false,
     "git.autofetch": true,
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "sops.binPath": "/usr/local/bin/sops",
+    "sops.defaults.gcpCredentialsPath": "~/.gnupg"
 }

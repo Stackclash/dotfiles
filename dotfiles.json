@@ -7,6 +7,11 @@
       "destination": "$HOME"
     },
     {
+      "name": "config.fish",
+      "src": "",
+      "destination": "$HOME/.config/fish"
+    },
+    {
       "name": "settings.json",
       "src": "vscode",
       "destination": "$HOME/Library/Application Support/Code/User"
