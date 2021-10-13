@@ -9,6 +9,6 @@
     extensions: "{{ lookup('file', '../dotfiles/vscode/extensions.txt').splitlines() }}"
     PWD: "{{ lookup('env', 'PWD') }}"
   roles:
-    # - role: "apps"
+    - role: "apps"
     - role: "symlink"
     - role: "vscode"
