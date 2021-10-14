@@ -21,7 +21,8 @@
         "google-chrome",
         "firefox-developer-edition",
         "postman",
-        "veracrypt"
+        "veracrypt",
+        "evernote"
       ]
     },
     {
@@ -40,7 +41,8 @@
     {
       "method": "script",
       "items": [
-        "krew"
+        "krew",
+        "nvm"
       ]
     }
   ]
