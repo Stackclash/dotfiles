@@ -3,6 +3,12 @@
   "MacOSX": [
     {
       "name": ".gitconfig",
+      "src": "git",
+      "destination": "$HOME"
+    },
+    {
+      "name": ".gitmessage.txt",
+      "src": "git",
       "destination": "$HOME"
     },
     {
