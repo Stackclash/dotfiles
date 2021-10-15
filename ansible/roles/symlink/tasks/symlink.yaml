@@ -4,8 +4,8 @@
   when: item.destination | regex_search('\\$(\\w+)')
 - name: "{{ item.name }} : Symlink file"
   ansible.builtin.file:
-    src: "{{ PWD }}/dotfiles/{{ item.src | default('') }}{{ item.name }}"
-    dest: "{{ destination }}/{{ item.name }}"
+    src: "{{ PWD }}/dotfiles/{{ item.src | default('') }}/{{ item.name }}"
+    path: "{{ destination }}/{{ item.name }}"
     state: link
     force: yes
   vars:
