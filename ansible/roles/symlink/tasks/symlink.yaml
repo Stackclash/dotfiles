@@ -7,6 +7,5 @@
     src: "{{ PWD }}/dotfiles/{{ item.src | default('') }}/{{ item.name }}"
     path: "{{ destination }}/{{ item.name }}"
     state: link
-    force: yes
   vars:
     destination: "{{ item.destination | regex_replace('\\$\\w+', lookup('env', env)) | default(item.description) }}"
