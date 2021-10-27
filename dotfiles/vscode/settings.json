@@ -11,5 +11,6 @@
     "editor.tabSize": 2,
     "sops.binPath": "/usr/local/bin/sops",
     "sops.defaults.gcpCredentialsPath": "~/.gnupg",
-    "git.enableCommitSigning": true
+    "git.enableCommitSigning": true,
+    "git.confirmSync": false
 }

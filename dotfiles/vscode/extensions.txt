@@ -9,3 +9,4 @@ redhat.vscode-yaml
 signageos.signageos-vscode-sops
 WallabyJs.quokka-vscode
 yzhang.markdown-all-in-one
+adam-bender.commit-message-editor
