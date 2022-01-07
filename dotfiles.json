@@ -1,5 +1,24 @@
 {
-  "windows": [],
+  "Ubuntu": [
+    {
+      "name": ".gitconfig",
+      "src": "git",
+      "destination": "$HOME"
+    },
+    {
+      "name": ".gitmessage.txt",
+      "src": "git",
+      "destination": "$HOME"
+    },
+    {
+      "name": "config.fish",
+      "destination": "$HOME/.config/fish"
+    },
+    {
+      "name": "gpg-agent.conf",
+      "destination": "$HOME/.gnupg"
+    }
+  ],
   "MacOSX": [
     {
       "name": ".gitconfig",

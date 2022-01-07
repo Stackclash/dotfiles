@@ -1,8 +1,30 @@
 {
+  "Ubuntu": [
+    {
+      "method": "apt",
+      "items": [
+        "gnupg2"
+      ]
+    },
+    {
+      "method": "apt-repository",
+      "items": []
+    },
+    {
+      "method": "script",
+      "items": [
+        "krew",
+        "nvm",
+        "starship"
+      ]
+    }
+  ],
   "windows": [
     {
       "method": "chocolately",
       "items": [
+        "chocolatey",
+        "chocolatey-core.extension",
         "vscode",
         "googlechrome",
         "postman",
