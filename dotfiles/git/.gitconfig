@@ -92,3 +92,5 @@
 	signingkey = 11A7B620BCDE882C4BFA15431D64330B094BD0D0
 [init]
 	defaultBranch = main
+[core]
+	autocrlf = true
