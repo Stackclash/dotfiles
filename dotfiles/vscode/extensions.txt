@@ -1,3 +1,4 @@
+ms-vscode-remote.remote-wsl
 adamhartford.vscode-base64
 alefragnani.project-manager
 eamodio.gitlens
