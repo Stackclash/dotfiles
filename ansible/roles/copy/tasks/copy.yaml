@@ -5,7 +5,7 @@
 - name: "{{ item.name }} : Symlink file"
   ansible.builtin.file:
     src: "{{ PWD }}/dotfiles/{{ item.src | default('') }}/{{ item.name }}"
-    path: "{{ destination }}/{{ item.name }}"
-    state: link
+    dest: "{{ destination }}/{{ item.name }}"
+    force: yes
   vars:
-    destination: "{{ item.destination | regex_replace('\\$\\w+', lookup('env', env)) | default(item.description) }}"
+    destination: "{{ item.destination | regex_replace('\\$\\w+', lookup('env', env)) | default(item.destination) }}"
