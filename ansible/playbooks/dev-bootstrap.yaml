@@ -1,5 +1,5 @@
 ---
-- name: "Bootstrapping Machine"
+- name: "Bootstrapping Dev Machine"
   hosts: localhost
   connection: local
   ignore_errors: true
@@ -8,7 +8,12 @@
     dotfiles: "{{ lookup('file', '../dotfiles.json') | from_json | community.general.json_query(ansible_distribution) }}"
     extensions: "{{ lookup('file', '../dotfiles/vscode/extensions.txt').splitlines() }}"
     PWD: "{{ lookup('env', 'PWD') }}"
+  vars_prompt:
+    name: "ansible_become_pass"
+    prompt: "What is the sudo password?"
+    private: true
   roles:
     - role: "apps"
+      become: yes
     - role: "symlink"
     - role: "vscode"
