@@ -28,9 +28,7 @@
         "vscode",
         "googlechrome",
         "postman",
-        "bitwarden-cli",
-        "gpg4win",
-        "veracrypt"
+        "gpg4win"
       ]
     }
   ],
