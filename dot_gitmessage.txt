@@ -1,0 +1,3 @@
+# <type>([optional scope])[optional !]: <description>
+# [optional body]
+# [optional footer(s)]
