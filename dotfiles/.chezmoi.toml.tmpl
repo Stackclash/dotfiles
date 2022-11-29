@@ -1,0 +1,14 @@
+{{- $name := promptStringOnce . "name" "Name" -}}
+{{- $email := promptStringOnce . "email" "Personal email address" -}}
+{{- $workEmail := promptStringOnce . "work email" "Work email address" -}}
+{{- $githubUsername := promptStringOnce . "github username" "Github username" -}}
+
+[data]
+    name = {{ $name | quote }}
+    email = {{ $email | quote }}
+    workEmail = {{ $workEmail | quote }}
+    githubUsername = {{ $githubUsername | quote }}
+
+[edit]
+    command = "code"
+    args = ["--wait"]

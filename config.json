@@ -13,10 +13,7 @@
                 "args": "",
                 "script": ""
             }
-        },
-        "dependencies": [
-            "git"
-        ]
+        }
     },
     {
         "name": "git",
@@ -32,18 +29,6 @@
                 "args": "",
                 "script": ""
             }
-        },
-        "config": [
-            {
-                "file": "git/.gitconfig",
-                "destination": "~/",
-                "method": "copy"
-            },
-            {
-                "file": "git/.gitmessage.txt",
-                "destination": "~/",
-                "method": "copy"
-            }
-        ]
+        }
     }
 ]

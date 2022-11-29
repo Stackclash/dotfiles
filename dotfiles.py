@@ -1,14 +1,20 @@
 from subprocess import run, PIPE
-import logging, platform, argparse, json, shutil
+import logging
+import platform
+import argparse
+import json
+import shutil
+
 
 def run_jq(filter, data):
     data = json.dumps(data)
     proc = run(['jq', '-r', filter],
-        stderr=PIPE, stdout=PIPE, input=data, encoding='UTF-8')
+               stderr=PIPE, stdout=PIPE, input=data, encoding='UTF-8')
     if proc.returncode != 0:
         logging.error(proc.stderr)
         exit(1)
     return proc.stdout
+
 
 def build_install_script(install_object):
     if (len(install_object['script']) > 0):
@@ -20,12 +26,14 @@ def build_install_script(install_object):
     logging.debug(f'Using "{script}" as install script')
     return script
 
+
 def select_app(name, os, config):
     result = run_jq(
         f'.[] | select((.name == "{name}") and (.install | has("{os}")))',
         config)
     result = json.loads(result)
     return result
+
 
 def setup_apps(os, apps, config):
     # check for elevated permissions
@@ -38,21 +46,25 @@ def setup_apps(os, apps, config):
         if (proc.returncode != 0):
             exit(1)
 
+
 def setup_dotfiles(os, apps, config):
 
     for app in apps:
         install_object = select_app(app, os, config)
-        
+
         if ('config' in install_object):
             for dotfile in install_object['config']:
                 method = dotfile["method"]
-                logging.info(f'Moving {dotfile["file"]} to {dotfile["destination"]} by {method}')
+                logging.info(
+                    f'Moving {dotfile["file"]} to {dotfile["destination"]} by {method}')
                 # test if file exists
                 # test if destination exists
                 if (method == 'copy'):
-                    shutil.copy(f'dotfiles/{dotfile["file"]}', dotfile["destination"])
+                    shutil.copy(
+                        f'dotfiles/{dotfile["file"]}', dotfile["destination"])
                 elif (method == 'symlink'):
-                    os.symlink(f'dotfiles/{dotfile["file"]}', dotfile["destination"])
+                    os.symlink(
+                        f'dotfiles/{dotfile["file"]}', dotfile["destination"])
 
 
 def filter_config(args):
@@ -99,6 +111,7 @@ def init():
     args = parser.parse_args()
     logging.basicConfig(level=args.log_level)
     filter_config(args)
+
 
 if __name__ == '__main__':
     init()
