@@ -1,8 +1,13 @@
-{{- if eq .chezmoi.os "windows" }}
+{{- if eq .chezmoi.os "windows" -}}
 # Chrome - couldn't install on D: no matter what I tried
 # Spotify need to investigate install location switch
 # VLC - install location switch is not working
 # Firefox Developer
+{{- if not .workComputer }}
+choco install cura-new -y --ia /D="D:\Program Files\Cura"
+choco install steam-client -y --ia /D="D:\Program Files\Steam"
+choco install rainmeter -y --ia /D="D:\Program Files\Rainmeter"
+{{- end }}
 choco install flux -y
 choco install go-task -y
 choco install kubernetes-cli -y
@@ -13,7 +18,6 @@ choco install velero -y
 choco install firefox-dev --pre -y
 choco install googlechrome -y
 choco install 7zip.install --ia /D="D:\Program Files\7Zip"
-choco install cura-new -y --ia /D="D:\Program Files\Cura"
 choco install firefox -y --ia /D="D:\Program Files\Firefox"
 choco install gh -y --ia "INSTALLDIR=""D:\Program Files\Github-CLI"""
 choco install git.install -y --ia "/DIR=""D:\Program Files\Git"""
@@ -21,7 +25,5 @@ choco install gpg4win -y --ia /D="D:\Program Files\GPG4Win"
 choco install icloud -y --ia "INSTALLDIR=""D:\Program Files\iCloud"""
 choco install notion-repackaged -y --ia /D="D:\Program Files\Notion"
 choco install obsidian -y --ia /D="D:\Program Files\Obsidian"
-choco install rainmeter -y --ia /D="D:\Program Files\Rainmeter"
-choco install steam-client -y --ia /D="D:\Program Files\Steam"
 choco install vscode-insiders.install -y --ia "/DIR=""D:\Program Files\VSCode"""
 {{- end }}
