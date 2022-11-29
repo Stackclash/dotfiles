@@ -23,7 +23,7 @@ def build_install_script(install_object):
         script = f'{install_object["cmd"]} install {install_object["name"]}'
         if (len(install_object['args']) > 0):
             script += f' {install_object["args"]}'
-    logging.debug(f'Using "{script}" as install script')
+    logging.debug(f'Using [{script}] as install script')
     return script
 
 
@@ -42,7 +42,7 @@ def setup_apps(os, apps, config):
         install_object = select_app(app, os, config)['install'][os]
         logging.info(f'Installing {app} with {install_object["cmd"]}')
         script = build_install_script(install_object)
-        proc = run(script.split(' '), stderr=PIPE)
+        proc = run(script, stderr=PIPE)
         if (proc.returncode != 0):
             exit(1)
 

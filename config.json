@@ -10,8 +10,11 @@
             "Windows": {
                 "name": "gh",
                 "cmd": "choco",
-                "args": "",
-                "script": ""
+                "args": "-y --ia \"INSTALLDIR=\"\"D:\\Program Files\\Github-CLI\"\"\""
+            },
+            "Darwin": {
+                "name": "gh",
+                "cmd": "brew"
             }
         }
     },
@@ -26,8 +29,277 @@
             "Windows": {
                 "name": "git.install",
                 "cmd": "choco",
-                "args": "",
-                "script": ""
+                "args": "-y --ia \"/DIR=\"\"D:\\Program Files\\Git\"\"\""
+            }
+        }
+    },
+    {
+        "name": "VSCode Insiders",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "vscode-insiders.install",
+                "cmd": "choco",
+                "args": "-y --ia \"/DIR=\"\"D:\\Program Files\\VSCode\"\"\""
+            },
+            "Darwin": {
+                "script": "brew install --cask visual-studio-code-insiders"
+            }
+        }
+    },
+    {
+        "name": "7zip",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "7zip.install",
+                "cmd": "choco",
+                "args": "-y --ia \"/D=\"\"D:\\Program Files\\7Zip\"\"\""
+            }
+        }
+    },
+    {
+        "name": "Firefox Developer Edition",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "firefox-dev",
+                "cmd": "choco",
+                "args": "-y --pre"
+            },
+            "Darwin": {
+                "name": "firefox-developer-edition",
+                "cmd": "brew"
+            }
+        }
+    },
+    {
+        "name": "NVM",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "nvm.install",
+                "cmd": "choco",
+                "args": "-y"
+            },
+            "Darwin": {
+                "name": "nvm",
+                "cmd": "brew"
+            }
+        }
+    },
+    {
+        "name": "Kubectl",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "kubernetes-cli",
+                "cmd": "choco",
+                "args": "-y"
+            },
+            "Darwin": {
+                "name": "kubectl",
+                "cmd": "brew"
+            }
+        }
+    },
+    {
+        "name": "Kubectl",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "kubernetes-cli",
+                "cmd": "choco",
+                "args": "-y"
+            },
+            "Darwin": {
+                "name": "kubectl",
+                "cmd": "brew"
+            }
+        }
+    },
+    {
+        "name": "Steam",
+        "enabled": true,
+        "tags": [
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "steam-client",
+                "cmd": "choco",
+                "args": "-y --ia \"/D=\"\"D:\\Program Files\\Steam\"\"\""
+            }
+        }
+    },
+    {
+        "name": "Notion Repackaged",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "notion-repackaged",
+                "cmd": "choco",
+                "args": "-y --ia \"/D=\"\"D:\\Program Files\\Notion\"\"\""
+            }
+        }
+    },
+    {
+        "name": "Cura",
+        "enabled": true,
+        "tags": [
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "cura-new",
+                "cmd": "choco",
+                "args": "-y --ia \"/D=\"\"D:\\Program Files\\Cura\"\"\""
+            }
+        }
+    },
+    {
+        "name": "Flux",
+        "enabled": true,
+        "tags": [
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "flux",
+                "cmd": "choco",
+                "args": "-y"
+            },
+            "Darwin": {
+                "name": "fluxcd/tap/flux",
+                "cmd": "brew"
+            }
+        }
+    },
+    {
+        "name": "Task",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "go-task",
+                "cmd": "choco",
+                "args": "-y"
+            },
+            "Darwin": {
+                "name": "go-task/tap/go-task",
+                "cmd": "brew"
+            }
+        }
+    },
+    {
+        "name": "Rainmeter",
+        "enabled": true,
+        "tags": [
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "rainmeter",
+                "cmd": "choco",
+                "args": "-y"
+            }
+        }
+    },
+    {
+        "name": "Terraform",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "terraform",
+                "cmd": "choco",
+                "args": "-y"
+            },
+            "Darwin": {
+                "name": "hashicorp/tap/terraform",
+                "cmd": "brew"
+            }
+        }
+    },
+    {
+        "name": "Obsidian",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "obsidian",
+                "cmd": "choco",
+                "args": "-y --ia \"/D=\"\"D:\\Program Files\\Obsidian\"\"\""
+            },
+            "Darwin": {
+                "script": "brew install --cask obsidian"
+            }
+        }
+    },
+    {
+        "name": "GPG4Win",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "gpg4win",
+                "cmd": "choco",
+                "args": "-y --ia \"/DIR=\"\"D:\\Program Files\\GPG4Win\"\"\""
+            }
+        }
+    },
+    {
+        "name": "Pyenv-win",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "pyenv-win",
+                "cmd": "choco",
+                "args": "-y"
             }
         }
     }

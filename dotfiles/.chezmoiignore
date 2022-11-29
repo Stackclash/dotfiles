@@ -1,1 +1,3 @@
-**/authorized_keys
+{{- if eq .chezmoi.os "windows" }}
+**/fish
+{{- end }}

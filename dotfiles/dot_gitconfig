@@ -78,19 +78,25 @@
 
 	insteadOf = "gist:"
 
+[includeIf "gitdir:**/Personal/"]
+  path = ~/.gitconfig_personal
+
+[includeIf "gitdir:**/Work/"]
+  path = ~/.gitconfig_work
+
 [commit]
 #	gpgsign = true
 	template = ~/.gitmessage.txt
+
 [pull]
 	rebase = true
+
 #[gpg]
 #	program = /usr/bin/gpg
 
 [user]
-#	email = 6799456+RickCoxDev@users.noreply.github.com
-	email = cox.richard200@gmail.com
-	name = Richard Cox
 #	signingkey = 11A7B620BCDE882C4BFA15431D64330B094BD0D0
+
 [init]
 	defaultBranch = main
 [core]
