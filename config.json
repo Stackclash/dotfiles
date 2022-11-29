@@ -1,0 +1,49 @@
+[
+    {
+        "name": "git-cli",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "gh",
+                "cmd": "choco",
+                "args": "",
+                "script": ""
+            }
+        },
+        "dependencies": [
+            "git"
+        ]
+    },
+    {
+        "name": "git",
+        "enabled": true,
+        "tags": [
+            "Work",
+            "Personal"
+        ],
+        "install": {
+            "Windows": {
+                "name": "git.install",
+                "cmd": "choco",
+                "args": "",
+                "script": ""
+            }
+        },
+        "config": [
+            {
+                "file": "git/.gitconfig",
+                "destination": "~/",
+                "method": "copy"
+            },
+            {
+                "file": "git/.gitmessage.txt",
+                "destination": "~/",
+                "method": "copy"
+            }
+        ]
+    }
+]
