@@ -1,0 +1,22 @@
+{{- if eq .chezmoi.os "darwin" -}}
+#!/bin/bash
+brew update
+brew upgrade
+
+brew install gh
+brew install --cask visual-studio-code-insiders
+brew install firefox-developer-edition
+brew install nvm
+brew install kubectl
+brew install --cask notion-enhanced
+brew install fluxcd/tap/flux
+brew install go-task/tap/go-task
+brew install hashicorp/tap/terraform
+brew install --cask obsidian
+brew install --cask iterm2
+brew install --cask google-chrome
+brew install --cask postman
+brew install starship
+brew install bitwarden-cli
+brew install gnupg
+{{- end }}

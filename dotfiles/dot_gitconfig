@@ -79,10 +79,10 @@
 	insteadOf = "gist:"
 
 [includeIf "gitdir:**/Personal/"]
-  path = ~/.gitconfig_personal
+  path = ~/.gitconfig-personal
 
 [includeIf "gitdir:**/Work/"]
-  path = ~/.gitconfig_work
+  path = ~/.gitconfig-work
 
 [commit]
 #	gpgsign = true
@@ -99,8 +99,12 @@
 
 [init]
 	defaultBranch = main
+	templatedir = ~/.git-templates
+
 [core]
 	autocrlf = true
+	editor = code
+
 [credential "https://github.com"]
 	helper = 
 	helper = !/usr/bin/gh auth git-credential
