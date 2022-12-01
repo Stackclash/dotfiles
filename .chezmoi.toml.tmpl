@@ -11,8 +11,8 @@
     workComputer = {{ $workComputer }}
     workEmail = {{ $workEmail | quote }}
     githubUsername = {{ $githubUsername | quote }}
-    projectPath = {{ $projectPath }}
-    bitwardenServer = {{ $bitwardenServer }}
+    projectPath = {{ $projectPath |quote }}
+    bitwardenServer = {{ $bitwardenServer | quote }}
 [edit]
     command = "code"
     args = ["--wait"]
