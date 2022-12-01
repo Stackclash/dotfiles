@@ -1,7 +1,7 @@
 {{- if ne .chezmoi.os "windows" -}}
 #!/bin/bash
-nvm install --lts
-nvm use --lta
+nvm install lts
+nvm use lts
 
 pyenv install 3.10
 pyenv global 3.10

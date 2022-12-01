@@ -1,0 +1,19 @@
+sourceDir = ~/.dotfiles
+[data]
+{{- $name := promptStringOnce . "name" "Name" -}}
+    name = {{ $name | quote }}
+{{- $email := promptStringOnce . "email" "Personal email address" -}}
+    email = {{ $email | quote }}
+{{- $workComputer := promptStringOnce . "workComputer" "Is this a work computer" -}}
+    workComputer = {{ $workComputer }}
+{{- $workEmail := promptStringOnce . "workEmail" "Work email address" -}}
+    workEmail = {{ $workEmail | quote }}
+{{- $githubUsername := promptStringOnce . "githubUsername" "Github username" -}}
+    githubUsername = {{ $githubUsername | quote }}
+{{- $projectPath := promptStringOnce . "projectPath" "What path to use for Projects" -}}
+    projectPath = {{ $projectPath }}
+{{- $bitwardenServer := promptStringOnce . "bitwardenServer" "What is the bitwarden server" -}}
+    bitwardenServer = {{ $bitwardenServer }}
+[edit]
+    command = "code"
+    args = ["--wait"]
