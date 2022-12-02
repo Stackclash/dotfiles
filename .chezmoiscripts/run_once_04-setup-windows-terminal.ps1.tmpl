@@ -3,10 +3,12 @@
 
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
+:::: SET .cmdrc.cmd AS AUTORUN
 $CommandProcessor="HKLM:\SOFTWARE\Microsoft\Command Processor"
 $cmdRcPath="$env:USERPROFILE\.cmdrc.cmd"
 Set-Itemproperty -path $CommandProcessor -Name "AutoRun" -value $cmdRcPath
 
+:::: MOVE Microsoft.Powershell_profile.ps1 SCRIPT TO CORRECT LOCATION
 # Microsoft.Powershell_profile.ps1 hash: {{ include "Microsoft.Powershell_profile.ps1" | sha256sum }}
 Move-Item -Path {{ .chezmoi.sourceDir }}\Microsoft.Powershell_profile.ps1 -Destination "$PROFILE"
 {{- end -}}

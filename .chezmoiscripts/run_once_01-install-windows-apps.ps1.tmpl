@@ -6,31 +6,54 @@
 # VLC - install location switch is not working
 # Firefox Developer
 # Postman
+
 {{- if not .workComputer }}
 choco install cura-new -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Cura" }}"{{ end }}
 choco install steam-client -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Steam" }}"{{ end }}
 choco install rainmeter -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Rainmeter" }}"{{ end }}
 {{- end }}
+
+:::: CLI TOOLS
 choco install bitwarden-cli -y
+choco install clink-maintained -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Clink" }}"{{ end }}
 choco install flux -y
+choco install gh -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "Github-CLI" }}"""{{ end }}
+choco install git.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "Git" }}"""{{ end }}
 choco install go-task -y
 choco install kubernetes-cli -y
 choco install nvm.install -y
 choco install pyenv-win -y
+choco install starship -y
 choco install terraform -y
 choco install velero -y
+
+:::: BROWSERS
 choco install firefox-dev --pre -y
 choco install googlechrome -y
-choco install postman -y
-choco install 7zip.install {{ if .programPath }}--ia /D="{{ joinPath .programPath "7Zip" }}"{{ end }}
-choco install gh -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "Github-CLI" }}"""{{ end }}
-choco install git.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "Git" }}"""{{ end }}
-choco install gpg4win -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "GPG4Win" }}"{{ end }}
+
+:::: MEDIA
 choco install icloud -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "iCloud" }}"""{{ end }}
+
+:::: DEV TOOLS
+choco install postman -y
+choco install vscode-insiders.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "VSCode" }}"""{{ end }}
+
+:::: UTILS
+choco install 7zip.install {{ if .programPath }}--ia /D="{{ joinPath .programPath "7Zip" }}"{{ end }}
+choco install gpg4win -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "GPG4Win" }}"{{ end }}
+
+:::: SECOND BRAIN APPS
 choco install notion-repackaged -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Notion" }}"{{ end }}
 choco install obsidian -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Obsidian" }}"{{ end }}
-choco install vscode-insiders.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "VSCode" }}"""{{ end }}
-choco install starship -y
-choco install clink-maintained -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Clink" }}"{{ end }}
+
+:::: FONTS
 choco install firacode -y
+choco upgrade cascadiacode -y
+choco upgrade cascadiacodepl -y
+choco upgrade cascadiafonts -y
+choco upgrade cascadiamono -y
+choco upgrade cascadiamonopl -y
+choco upgrade fontbase -y
+choco upgrade hackfont -y
+choco upgrade sourcecodepro -y
 {{- end }}

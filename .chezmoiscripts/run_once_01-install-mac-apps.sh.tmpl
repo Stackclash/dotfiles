@@ -4,24 +4,24 @@ brew update
 brew upgrade
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
-brew 'gh'
-cask 'visual-studio-code-insiders'
+brew 'bitwarden-cli'
 brew 'firefox-developer-edition'
-brew 'nvm'
-brew 'kubectl'
-cask 'notion-enhanced'
 brew 'fluxcd/tap/flux'
+brew 'gh'
+brew 'gnupg'
 brew 'go-task/tap/go-task'
 brew 'hashicorp/tap/terraform'
-cask 'obsidian'
-cask 'iterm2'
-cask 'google-chrome'
-cask 'postman'
-brew 'starship
-brew 'bitwarden-cli'
-brew 'gnupg'
+brew 'kubectl'
+brew 'nvm'
 brew 'pyenv'
+brew 'starship
 brew 'terraform'
 brew 'velero'
+cask 'google-chrome'
+cask 'iterm2'
+cask 'notion-enhanced'
+cask 'obsidian'
+cask 'postman'
+cask 'visual-studio-code-insiders'
 EOF
 {{- end }}
