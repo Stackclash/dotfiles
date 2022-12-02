@@ -4,8 +4,8 @@ brew update
 brew upgrade
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
+#### CLI TOOLS
 brew 'bitwarden-cli'
-brew 'firefox-developer-edition'
 brew 'fluxcd/tap/flux'
 brew 'gh'
 brew 'gnupg'
@@ -17,11 +17,18 @@ brew 'pyenv'
 brew 'starship
 brew 'terraform'
 brew 'velero'
+
+#### BROWSERS
+brew 'firefox-developer-edition'
 cask 'google-chrome'
+
+#### DEV TOOLS
 cask 'iterm2'
-cask 'notion-enhanced'
-cask 'obsidian'
 cask 'postman'
 cask 'visual-studio-code-insiders'
+
+#### SECOND BRAIN APPS
+cask 'notion-enhanced'
+cask 'obsidian'
 EOF
 {{- end }}
