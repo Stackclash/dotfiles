@@ -1,11 +1,15 @@
 [aws]
-format = '\[[$symbol($profile)(\($region\))(\[$duration\])]($style)\]'
 symbol = "  "
+format = '\[[$symbol($profile)(\($region\))(\[$duration\])]($style)\]'
+
+[buf]
+symbol = " "
 
 [bun]
 format = '\[[$symbol($version)]($style)\]'
 
 [c]
+symbol = " "
 format = '\[[$symbol($version(-$name))]($style)\]'
 
 [cmake]
@@ -18,6 +22,7 @@ format = '\[[ΓÅ▒ $duration]($style)\]'
 format = '\[[$symbol($version)]($style)\]'
 
 [conda]
+symbol = " "
 format = '\[[$symbol$environment]($style)\]'
 
 [crystal]
@@ -27,21 +32,28 @@ format = '\[[$symbol($version)]($style)\]'
 format = '\[[$symbol($version)]($style)\]'
 
 [dart]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
+
+[directory]
+read_only = " "
 
 [deno]
 format = '\[[$symbol($version)]($style)\]'
 
 [docker_context]
+symbol = " "
 format = '\[[$symbol$context]($style)\]'
 
 [dotnet]
 format = '\[[$symbol($version)(≡ƒÄ» $tfm)]($style)\]'
 
 [elixir]
+symbol = " "
 format = '\[[$symbol($version \(OTP $otp_version\))]($style)\]'
 
 [elm]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [erlang]
@@ -54,24 +66,30 @@ format = '\[[$symbol$account(@$domain)(\($region\))]($style)\]'
 format = '\[[$symbol$branch]($style)\]'
 
 [git_status]
+symbol = " "
 format = '([\[$all_status$ahead_behind\]]($style))'
 
 [golang]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [haskell]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [helm]
 format = '\[[$symbol($version)]($style)\]'
 
 [hg_branch]
+symbol = " "
 format = '\[[$symbol$branch]($style)\]'
 
 [java]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [julia]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [kotlin]
@@ -81,21 +99,27 @@ format = '\[[$symbol($version)]($style)\]'
 format = '\[[$symbol$context( \($namespace\))]($style)\]'
 
 [lua]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [memory_usage]
+symbol = " "
 format = '\[$symbol[$ram( | $swap)]($style)\]'
 
 [meson]
+symbol = "喝 "
 format = '\[[$symbol$project]($style)\]'
 
 [nim]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [nix_shell]
+symbol = " "
 format = '\[[$symbol$state( \($name\))]($style)\]'
 
 [nodejs]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [ocaml]
@@ -105,6 +129,7 @@ format = '\[[$symbol($version)(\($switch_indicator$switch_name\))]($style)\]'
 format = '\[[$symbol$cloud(\($project\))]($style)\]'
 
 [package]
+symbol = " "
 format = '\[[$symbol$version]($style)\]'
 
 [perl]
@@ -120,6 +145,7 @@ format = '\[[$symbol$stack]($style)\]'
 format = '\[[$symbol($version)]($style)\]'
 
 [python]
+symbol = " "
 format = '\[[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style)\]'
 
 [raku]
@@ -128,16 +154,22 @@ format = '\[[$symbol($version-$vm_version)]($style)\]'
 [red]
 format = '\[[$symbol($version)]($style)\]'
 
+[rlang]
+symbol = "ﳒ "
+
 [ruby]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [rust]
 format = '\[[$symbol($version)]($style)\]'
 
 [scala]
+symbol = " "
 format = '\[[$symbol($version)]($style)\]'
 
 [spack]
+symbol = "🅢 "
 format = '\[[$symbol$environment]($style)\]'
 
 [sudo]
