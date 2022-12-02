@@ -1,10 +1,11 @@
 {{- $name := promptStringOnce . "name" "Name" -}}
 {{- $email := promptStringOnce . "email" "Personal email address" -}}
-{{- $workComputer := promptStringOnce . "workComputer" "Is this a work computer" -}}
+{{- $workComputer := promptBoolOnce . "workComputer" "Is this a work computer" -}}
 {{- $workEmail := promptStringOnce . "workEmail" "Work email address" -}}
 {{- $githubUsername := promptStringOnce . "githubUsername" "Github username" -}}
 {{- $projectPath := promptStringOnce . "projectPath" "What path to use for Projects" -}}
 {{- $bitwardenServer := promptStringOnce . "bitwardenServer" "What is the bitwarden server" -}}
+{{- $programPath := promptStringOnce . "programPath" "Where should programs be installed" -}}
 [data]
     name = {{ $name | quote }}
     email = {{ $email | quote }}
@@ -13,6 +14,7 @@
     githubUsername = {{ $githubUsername | quote }}
     projectPath = {{ $projectPath |quote }}
     bitwardenServer = {{ $bitwardenServer | quote }}
+    programPath = {{ $programPath | quote }}
 [edit]
     command = "code"
     args = ["--wait"]

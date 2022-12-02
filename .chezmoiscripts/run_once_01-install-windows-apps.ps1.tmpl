@@ -1,12 +1,5 @@
 {{- if eq .chezmoi.os "windows" -}}
-# Self-elevate the script
-if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] 'Administrator')) {
-  if ([int](Get-CimInstance -Class Win32_OperatingSystem | Select-Object -ExpandProperty BuildNumber) -ge 6000) {
-    $CommandLine = "-NoExit -File `"" + $MyInvocation.MyCommand.Path + "`" " + $MyInvocation.UnboundArguments
-    Start-Process -FilePath PowerShell.exe -Verb Runas -ArgumentList $CommandLine
-    Exit
-  }
-}
+{{- template "elevate-powershell" }}
 
 # Chrome - couldn't install on D: no matter what I tried
 # Spotify need to investigate install location switch
@@ -14,9 +7,9 @@ if (-Not ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdent
 # Firefox Developer
 # Postman
 {{- if not .workComputer }}
-choco install cura-new -y --ia /D="D:\Program Files\Cura"
-choco install steam-client -y --ia /D="D:\Program Files\Steam"
-choco install rainmeter -y --ia /D="D:\Program Files\Rainmeter"
+choco install cura-new -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Cura" }}"{{ end }}
+choco install steam-client -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Steam" }}"{{ end }}
+choco install rainmeter -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Rainmeter" }}"{{ end }}
 {{- end }}
 choco install bitwarden-cli -y
 choco install flux -y
@@ -29,12 +22,15 @@ choco install velero -y
 choco install firefox-dev --pre -y
 choco install googlechrome -y
 choco install postman -y
-choco install 7zip.install --ia /D="D:\Program Files\7Zip"
-choco install gh -y --ia "INSTALLDIR=""D:\Program Files\Github-CLI"""
-choco install git.install -y --ia "/DIR=""D:\Program Files\Git"""
-choco install gpg4win -y --ia /D="D:\Program Files\GPG4Win"
-choco install icloud -y --ia "INSTALLDIR=""D:\Program Files\iCloud"""
-choco install notion-repackaged -y --ia /D="D:\Program Files\Notion"
-choco install obsidian -y --ia /D="D:\Program Files\Obsidian"
-choco install vscode-insiders.install -y --ia "/DIR=""D:\Program Files\VSCode"""
+choco install 7zip.install {{ if .programPath }}--ia /D="{{ joinPath .programPath "7Zip" }}"{{ end }}
+choco install gh -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "Github-CLI" }}"""{{ end }}
+choco install git.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "Git" }}"""{{ end }}
+choco install gpg4win -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "GPG4Win" }}"{{ end }}
+choco install icloud -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "iCloud" }}"""{{ end }}
+choco install notion-repackaged -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Notion" }}"{{ end }}
+choco install obsidian -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Obsidian" }}"{{ end }}
+choco install vscode-insiders.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "VSCode" }}"""{{ end }}
+choco install starship -y
+choco install clink-maintained -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Clink" }}"{{ end }}
+choco install firacode -y
 {{- end }}
