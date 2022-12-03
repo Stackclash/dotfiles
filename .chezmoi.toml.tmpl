@@ -4,7 +4,6 @@
 {{- $workEmail := promptStringOnce . "workEmail" "Work email address" -}}
 {{- $githubUsername := promptStringOnce . "githubUsername" "Github username" -}}
 {{- $projectPath := promptStringOnce . "projectPath" "What path to use for Projects" -}}
-{{- $bitwardenServer := promptStringOnce . "bitwardenServer" "What is the bitwarden server" -}}
 {{- $programPath := promptStringOnce . "programPath" "Where should programs be installed" -}}
 [data]
     name = {{ $name | quote }}
@@ -13,7 +12,6 @@
     workEmail = {{ $workEmail | quote }}
     githubUsername = {{ $githubUsername | quote }}
     projectPath = {{ $projectPath |quote }}
-    bitwardenServer = {{ $bitwardenServer | quote }}
     programPath = {{ $programPath | quote }}
 [edit]
     command = "code"
