@@ -1,5 +1,8 @@
-{{- if eq .chezmoi.os "windows" }}
+{{- if eq .chezmoi.os "windows" -}}
 **/fish
+{{- end -}}
+{{- if ne .chezmoi.os "windows" -}}
+AppData
 {{- end }}
 setup
 README.md
