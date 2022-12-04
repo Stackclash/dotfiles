@@ -4,6 +4,10 @@ brew update
 brew upgrade
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
+#### BREW TAPS
+tap 'homebrew/cask-versions'
+tap 'homebrew/cask-drivers'
+
 #### CLI TOOLS
 brew 'bitwarden-cli'
 brew 'fluxcd/tap/flux'
@@ -17,9 +21,9 @@ brew 'pyenv'
 brew 'starship'
 brew 'terraform'
 brew 'velero'
+brew 'ykman'
 
 #### BROWSERS
-tap 'homebrew/cask-versions'
 cask 'firefox-developer-edition'
 cask 'google-chrome'
 
@@ -27,6 +31,7 @@ cask 'google-chrome'
 cask 'iterm2'
 cask 'postman'
 cask 'visual-studio-code-insiders'
+cask 'yubico-yubikey-manager'
 
 #### SECOND BRAIN APPS
 cask 'notion-enhanced'

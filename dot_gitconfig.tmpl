@@ -102,8 +102,12 @@
 	templatedir = ~/.git-templates
 
 [core]
-	autocrlf = true
 	editor = code
+	{{ if eq .chezmoi.os "windows" }}
+	autocrlf = true
+	{{- else -}}
+	autocrlf = input
+	{{- end }}
 
 [credential "https://github.com"]
 	helper = !/usr/bin/gh auth git-credential
