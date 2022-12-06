@@ -1,54 +1,54 @@
 {{- if eq .chezmoi.os "windows" -}}
 {{- template "elevate-powershell" }}
 
-# Chrome - couldn't install on D: no matter what I tried
-# Spotify need to investigate install location switch
-# VLC - install location switch is not working
+# Chrome - couldn't upgrade on D: no matter what I tried
+# Spotify need to investigate upgrade location switch
+# VLC - upgrade location switch is not working
 # Firefox Developer
 # Postman
 
 {{- if not .workComputer }}
-choco install cura-new -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Cura" }}"{{ end }}
-choco install steam-client -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Steam" }}"{{ end }}
-choco install rainmeter -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Rainmeter" }}"{{ end }}
+choco upgrade cura-new -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Cura" }}"{{ end }}
+choco upgrade steam-client -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Steam" }}"{{ end }}
+choco upgrade rainmeter -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Rainmeter" }}"{{ end }}
 {{- end }}
 
 #### CLI TOOLS
-choco install bitwarden-cli -y
-choco install clink-maintained -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Clink" }}"{{ end }}
-choco install flux -y
-choco install gh -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "Github-CLI" }}"""{{ end }}
-choco install git.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "Git" }}"""{{ end }}
-choco install go-task -y
-choco install kubernetes-cli -y
-choco install nvm.install -y
-choco install pyenv-win -y
-choco install starship -y
-choco install terraform -y
-choco install velero -y
+choco upgrade bitwarden-cli -y
+choco upgrade clink-maintained -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Clink" }}"{{ end }}
+choco upgrade flux -y
+choco upgrade gh -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "Github-CLI" }}"""{{ end }}
+choco upgrade git.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "Git" }}"""{{ end }}
+choco upgrade go-task -y
+choco upgrade kubernetes-cli -y
+choco upgrade nvm.install -y
+choco upgrade pyenv-win -y
+choco upgrade starship -y
+choco upgrade terraform -y
+choco upgrade velero -y
 
 #### BROWSERS
-choco install firefox-dev --pre -y
-choco install googlechrome -y
+choco upgrade firefox-dev --pre -y
+choco upgrade googlechrome -y
 
 #### MEDIA
-choco install icloud -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "iCloud" }}"""{{ end }}
+choco upgrade icloud -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "iCloud" }}"""{{ end }}
 
 #### DEV TOOLS
-choco install postman -y
-choco install vscode-insiders.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "VSCode" }}"""{{ end }}
-choco install yubikey-manager -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Yubikey" }}"{{ end }}
+choco upgrade postman -y
+choco upgrade vscode-insiders.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "VSCode" }}"""{{ end }}
+choco upgrade yubikey-manager -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Yubikey" }}"{{ end }}
 
 #### UTILS
-choco install 7zip.install {{ if .programPath }}--ia /D="{{ joinPath .programPath "7Zip" }}"{{ end }}
-choco install gpg4win -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "GPG4Win" }}"{{ end }}
+choco upgrade 7zip.install {{ if .programPath }}--ia /D="{{ joinPath .programPath "7Zip" }}"{{ end }}
+choco upgrade gpg4win -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "GPG4Win" }}"{{ end }}
 
 #### SECOND BRAIN APPS
-choco install notion-repackaged -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Notion" }}"{{ end }}
-choco install obsidian -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Obsidian" }}"{{ end }}
+choco upgrade notion-repackaged -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Notion" }}"{{ end }}
+choco upgrade obsidian -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Obsidian" }}"{{ end }}
 
 #### FONTS
-choco install firacode -y
+choco upgrade firacode -y
 choco upgrade cascadiacode -y
 choco upgrade cascadiacodepl -y
 choco upgrade cascadiafonts -y
