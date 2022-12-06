@@ -1,0 +1,10 @@
+enable-ssh-support
+use-standard-socket
+default-cache-ttl 60
+max-cache-ttl 120
+{{- if eq .chezmoi.os "windows" }}
+enable-putty-support
+{{- end }}
+{{- if eq .chezmoi.os "darwin" }}
+pinentry-program /usr/local/bin/pinentry-mac
+{{- end -}}
