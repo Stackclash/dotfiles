@@ -7,7 +7,9 @@
 {{- if ne .chezmoi.os "windows" -}}
 .cmdrc.cmd
 AppData
-Microsoft.PowerShell_profile.ps1
 {{- end }}
 setup
 README.md
+
+# This File is moved by a script
+Microsoft.PowerShell_profile.ps1
