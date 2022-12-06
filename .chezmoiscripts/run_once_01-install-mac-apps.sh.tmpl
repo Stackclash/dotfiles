@@ -7,6 +7,7 @@ brew bundle --no-lock --file=/dev/stdin <<EOF
 #### BREW TAPS
 tap 'homebrew/cask-versions'
 tap 'homebrew/cask-drivers'
+tap 'homebrew/cask-fonts'
 
 #### CLI TOOLS
 brew 'bitwarden-cli'
@@ -36,5 +37,14 @@ cask 'yubico-yubikey-manager'
 #### SECOND BRAIN APPS
 cask 'notion-enhanced'
 cask 'obsidian'
+
+#### FONTS
+cask 'font-fira-code'
+cask 'font-fira-mono'
+cask 'font-cascadia-code'
+cask 'font-cascadia-code-pl'
+cask 'font-cascadia-mono'
+cask 'font-cascadia-mono-pl'
+cask 'font-fira-mono-nerd-font'
 EOF
 {{- end }}
