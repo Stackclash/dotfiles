@@ -1,4 +1,5 @@
 {{- if eq .chezmoi.os "windows" -}}
+.gnupg
 .config/fish/
 {{- end -}}
 {{- if ne .chezmoi.os "windows" -}}
