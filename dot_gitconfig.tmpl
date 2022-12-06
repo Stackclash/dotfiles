@@ -110,4 +110,4 @@
 	{{- end }}
 
 [credential "https://github.com"]
-	helper = !/usr/bin/gh auth git-credential
+	helper = !{{ lookPath "gh" }} auth git-credential

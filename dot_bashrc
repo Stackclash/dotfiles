@@ -1,0 +1,4 @@
+#!/bin/bash
+
+#### INITIALIZE STARSHIP
+eval "$(starship init bash)"
