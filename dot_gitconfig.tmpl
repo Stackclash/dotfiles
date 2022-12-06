@@ -92,7 +92,10 @@
 	rebase = true
 
 [gpg]
-	program = {{ lookPath "gpg" }}
+	{{- if eq .chezmoi.os "windows" }}
+	program = 'D:\\Program Files\\GnuPG\\bin\\gpg.exe'
+	{{- end }}
+	
 
 [user]
 #	signingkey = 11A7B620BCDE882C4BFA15431D64330B094BD0D0
@@ -110,4 +113,4 @@
 	{{- end }}
 
 [credential "https://github.com"]
-	helper = !{{ lookPath "gh" }} auth git-credential
+	helper = "!D:\Program Files\Github-CLI\gh.exe auth git-credential"
