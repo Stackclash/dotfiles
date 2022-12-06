@@ -7,7 +7,7 @@
 {{- if ne .chezmoi.os "windows" -}}
 .cmdrc.cmd
 AppData
+Microsoft.PowerShell_profile.ps1
 {{- end }}
 setup
 README.md
-Microsoft.PowerShell_profile.ps1
