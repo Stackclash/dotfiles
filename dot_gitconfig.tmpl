@@ -94,7 +94,7 @@
 [gpg]
 	# I need to think of a way to avoid hard coding the path
 	{{- if eq .chezmoi.os "windows" }}
-	program = 'D:\\Program Files\\GnuPG\\bin\\gpg.exe'
+	program = D:\\Program Files\\GnuPG\\bin\\gpg.exe
 	{{- else -}}
 	program = /opt/homebrew/bin/gpg
 	{{- end }}
