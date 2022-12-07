@@ -72,3 +72,4 @@ chezmoi init --apply RickCoxDev
 - Save VSCode configuration
 - Create dotfile for iTerm
 - research how to create aliases
+- test setup with WSL
