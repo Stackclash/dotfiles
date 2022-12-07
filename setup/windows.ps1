@@ -1,1 +1,1 @@
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply $GITHUB_USERNAME
+(Invoke-RestMethod -useb https://get.chezmoi.io/ps1) | powershell -c -
