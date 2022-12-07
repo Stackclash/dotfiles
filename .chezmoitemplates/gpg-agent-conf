@@ -6,5 +6,5 @@ max-cache-ttl 120
 enable-putty-support
 {{- end }}
 {{- if eq .chezmoi.os "darwin" }}
-pinentry-program /usr/local/bin/pinentry-mac
+pinentry-program {{ lookPath "pinentry-mac" }}
 {{- end -}}
