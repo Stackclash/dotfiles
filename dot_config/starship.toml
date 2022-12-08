@@ -96,7 +96,9 @@ format = '\[[$symbol($version)]($style)\]'
 format = '\[[$symbol($version)]($style)\]'
 
 [kubernetes]
+disabled = false
 format = '\[[$symbol$context( \($namespace\))]($style)\]'
+detect_folders = ['cluster']
 
 [lua]
 symbol = " "
@@ -147,6 +149,7 @@ format = '\[[$symbol($version)]($style)\]'
 [python]
 symbol = " "
 format = '\[[${symbol}${pyenv_prefix}(${version})(\($virtualenv\))]($style)\]'
+pyenv_version_name = true
 
 [raku]
 format = '\[[$symbol($version-$vm_version)]($style)\]'
