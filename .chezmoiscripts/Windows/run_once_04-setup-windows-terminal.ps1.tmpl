@@ -7,7 +7,7 @@ $cmdRcPath="$env:USERPROFILE\.cmdrc.cmd"
 Set-Itemproperty -path $CommandProcessor -Name "AutoRun" -value $cmdRcPath
 
 #### DISABLE CLINK WELCOME MESSAGE
-clink autorun install -- --quiet
+cmd.exe "clink autorun install -- --quiet"
 
 #### CREATE wsl-ssh-pageant STARTUP SHORTCUT
 $objShell = New-Object -ComObject ("WScript.Shell")
