@@ -110,6 +110,7 @@
 	editor = code
 	{{- if eq .chezmoi.os "windows" }}
 	autocrlf = true
+	sshCommand = 'C:\\Windows\\System32\\OpenSSH\\ssh.exe'
 	{{- else -}}
 	autocrlf = input
 	{{- end }}

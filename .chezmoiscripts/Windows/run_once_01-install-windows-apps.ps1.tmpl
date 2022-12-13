@@ -38,6 +38,8 @@ choco upgrade icloud -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .pro
 choco upgrade postman -y
 choco upgrade vscode-insiders.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "VSCode" }}"""{{ end }}
 choco upgrade yubikey-manager -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Yubikey" }}"{{ end }}
+choco upgrade putty.install -y
+choco upgrade wsl-ssh-pageant -y
 
 #### UTILS
 choco upgrade 7zip.install {{ if .programPath }}--ia /D="{{ joinPath .programPath "7Zip" }}"{{ end }}

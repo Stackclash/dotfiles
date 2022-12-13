@@ -6,6 +6,16 @@ $CommandProcessor="HKLM:\SOFTWARE\Microsoft\Command Processor"
 $cmdRcPath="$env:USERPROFILE\.cmdrc.cmd"
 Set-Itemproperty -path $CommandProcessor -Name "AutoRun" -value $cmdRcPath
 
+#### DISABLE CLINK WELCOME MESSAGE
+clink autorun install -- --quiet
+
+#### CREATE wsl-ssh-pageant STARTUP SHORTCUT
+$objShell = New-Object -ComObject ("WScript.Shell")
+$objShortCut = $objShell.CreateShortcut($env:USERPROFILE + "\Start Menu\Programs\Startup" + "\wsl-ssh-pageant.lnk")
+$objShortCut.TargetPath = '{{ lookPath "wsl-ssh-pageant.exe" }}'
+$objShortCut.Arguments = '--winssh ssh-pageant --systray'
+$objShortCut.Save()
+
 #### MOVE Microsoft.Powershell_profile.ps1 SCRIPT TO CORRECT LOCATION
 # Microsoft.Powershell_profile.ps1 hash: {{ include "Microsoft.Powershell_profile.ps1" | sha256sum }}
 Copy-Item -Force -Path {{ .chezmoi.sourceDir }}\Microsoft.Powershell_profile.ps1 -Destination "$PROFILE"

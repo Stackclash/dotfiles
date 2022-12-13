@@ -11,5 +11,10 @@ gh completion -s powershell | Out-String | Invoke-Expression
 kubectl completion powershell | Out-String | Invoke-Expression
 starship completions powershell | Out-String | Invoke-Expression
 
+#### SET ENVIRONMENT VARIABLES
+$env:SSH_AUTH_SOCK = "\\.\pipe\ssh-pageant"
+
 #### START GPG-AGENT
-gpg-connect-agent /bye
+(gpg-connect-agent killagent /bye) *> $null
+(gpg-connect-agent /bye) *> $null
+gpgconf --launch gpg-agent
