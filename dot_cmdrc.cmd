@@ -4,4 +4,5 @@
 set BW_SESSION=""
 
 :::: START GPG-AGENT
-gpg-connect-agent /bye
+(gpg-connect-agent killagent /bye) > nul 2>&1
+(gpg-connect-agent /bye) > nul 2>&1
