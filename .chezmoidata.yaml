@@ -1,0 +1,109 @@
+apps:
+  # Personal Apps
+  cura:
+    forPersonal: true
+    id: "Ultimaker.Cura"
+    folder: "Cura"
+    method: "winget"
+  steam:
+    forPersonal: true
+    id: "Valve.Steam"
+    folder: "Steam"
+    method: "winget"
+  rainmeter:
+    forPersonal: true
+    id: "Rainmeter.Rainmeter"
+    folder: "Rainmeter"
+    method: "winget"
+  # CLI Tools
+  terraform:
+    forPersonal: false
+    id: "terraform"
+    method: "choco"
+  velero:
+    forPersonal: false
+    id: "velero"
+    method: "choco"
+  bitwarden-cli:
+    forPersonal: false
+    id: "bitwarden-cli"
+    method: "choco"
+  flux:
+    forPersonal: false
+    id: "flux"
+    method: "choco"
+  go-task:
+    forPersonal: false
+    id: "go-task"
+    method: "choco"
+  pyenv-win:
+    forPersonal: false
+    id: "pyenv-win"
+    method: "choco"
+  github-cli:
+    forPersonal: false
+    id: "GitHub.cli"
+    folder: "Github-CLI"
+    method: "winget"
+  clink:
+    forPersonal: false
+    id: "chrisant996.Clink"
+    folder: "Clink"
+    method: "winget"
+  git:
+    forPersonal: false
+    id: "Git.Git"
+    folder: "Git"
+    method: "winget"
+  kubectl:
+    forPersonal: false
+    id: "Kubernetes.kubectl"
+    folder: "Kubectl"
+    method: "winget"
+  nvm:
+    forPersonal: false
+    id: "CoreyButler.NVMforWindows"
+    folder: "NVM"
+    method: "winget"
+  starship:
+    forPersonal: false
+    id: "Starship.Starship"
+    folder: "Starship"
+    method: "winget"
+  # Browser
+  firefox-dev:
+    forPersonal: false
+    id: "Mozilla.Firefox.DeveloperEdition"
+    folder: "Firefox-Dev"
+    method: "winget"
+  chrome:
+    forPersonal: false
+    id: "Google.Chrome"
+    folder: "Chrome"
+    method: "winget"
+  # Media
+  icloud:
+    forPersonal: false
+    id: "icloud"
+    method: "choco"
+  # Developer Tools
+  vscode:
+    forPersonal: false
+    id: "Microsoft.VisualStudioCode.Insiders"
+    folder: "VSCode"
+    method: "winget"
+  postman:
+    forPersonal: false
+    id: "Postman.Postman"
+    folder: "Postman"
+    method: "winget"
+  yubikey-manager:
+    forPersonal: false
+    id: "Yubico-YubikeyManager"
+    folder: "Yubikey"
+    method: "winget"
+  putty:
+    forPersonal: false
+    id: "PuTTY.PuTTY"
+    folder: "Putty"
+    method: "winget"

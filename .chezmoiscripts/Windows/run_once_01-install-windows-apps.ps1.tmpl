@@ -7,36 +7,35 @@
 # Firefox Developer
 # Postman
 
-{{- if not .workComputer }}
-choco upgrade cura-new -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Cura" }}"{{ end }}
-choco upgrade steam-client -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Steam" }}"{{ end }}
-choco upgrade rainmeter -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Rainmeter" }}"{{ end }}
-{{- end }}
+{{- $programPath := .programPath -}}
+{{- $workComputer := .workComputer -}}
+{{- range $index, $element := .apps -}}
+{{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
+{{- if eq $element.method "winget" }}
 
-#### CLI TOOLS
-choco upgrade bitwarden-cli -y
-choco upgrade clink-maintained -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Clink" }}"{{ end }}
-choco upgrade flux -y
-choco upgrade gh -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "Github-CLI" }}"""{{ end }}
-choco upgrade git.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "Git" }}"""{{ end }}
-choco upgrade go-task -y
-choco upgrade kubernetes-cli -y
-choco upgrade nvm.install -y
-choco upgrade pyenv-win -y
-choco upgrade starship -y
-choco upgrade terraform -y
-choco upgrade velero -y
+winget list -e --ie {{ $element.id }}
+if ($?) {
+  winget upgrade -e --id {{ $element.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.folder }}"{{ end }}
+} else {
+  winget install -e --id {{ $element.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.folder }}"{{ end }}
+}
 
-#### BROWSERS
-choco upgrade firefox-dev --pre -y
-choco upgrade googlechrome -y
+{{- else if eq $element.method "choco" }}
+
+choco upgrade {{ $element.id }}
+
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{if .test}}test{{end}}
 
 #### MEDIA
 choco upgrade icloud -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "iCloud" }}"""{{ end }}
 
 #### DEV TOOLS
 choco upgrade postman -y
-choco upgrade vscode-insiders.install -y {{ if .programPath }}--ia "/DIR=""{{ joinPath .programPath "VSCode" }}"""{{ end }}
+winget install -e --id Microsoft.VisualStudioCode.Insiders{{ if .programPath }} --l "{{ joinPath .programPath "VSCode" }}"{{ end }}
 choco upgrade yubikey-manager -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Yubikey" }}"{{ end }}
 choco upgrade putty.install -y
 choco upgrade wsl-ssh-pageant -y
