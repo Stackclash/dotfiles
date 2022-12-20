@@ -2,108 +2,130 @@ apps:
   # Personal Apps
   cura:
     forPersonal: true
-    id: "Ultimaker.Cura"
-    folder: "Cura"
-    method: "winget"
+    windows:
+      id: "Ultimaker.Cura"
+      folder: "Cura"
+      method: "winget"
   steam:
     forPersonal: true
-    id: "Valve.Steam"
-    folder: "Steam"
-    method: "winget"
+    windows:
+      id: "Valve.Steam"
+      folder: "Steam"
+      method: "winget"
   rainmeter:
     forPersonal: true
-    id: "Rainmeter.Rainmeter"
-    folder: "Rainmeter"
-    method: "winget"
+    windows:
+      id: "Rainmeter.Rainmeter"
+      folder: "Rainmeter"
+      method: "winget"
   # CLI Tools
   terraform:
     forPersonal: false
-    id: "terraform"
-    method: "choco"
+    windows:
+      id: "terraform"
+      method: "choco"
   velero:
     forPersonal: false
-    id: "velero"
-    method: "choco"
+    windows:
+      id: "velero"
+      method: "choco"
   bitwarden-cli:
     forPersonal: false
-    id: "bitwarden-cli"
-    method: "choco"
+    windows:
+      id: "bitwarden-cli"
+      method: "choco"
   flux:
     forPersonal: false
-    id: "flux"
-    method: "choco"
+    windows:
+      id: "flux"
+      method: "choco"
   go-task:
     forPersonal: false
-    id: "go-task"
-    method: "choco"
+    windows:
+      id: "go-task"
+      method: "choco"
   pyenv-win:
     forPersonal: false
-    id: "pyenv-win"
-    method: "choco"
+    windows:
+      id: "pyenv-win"
+      method: "choco"
   github-cli:
     forPersonal: false
-    id: "GitHub.cli"
-    folder: "Github-CLI"
-    method: "winget"
+    windows:
+      id: "GitHub.cli"
+      folder: "Github-CLI"
+      method: "winget"
   clink:
     forPersonal: false
-    id: "chrisant996.Clink"
-    folder: "Clink"
-    method: "winget"
+    windows:
+      id: "chrisant996.Clink"
+      folder: "Clink"
+      method: "winget"
   git:
     forPersonal: false
-    id: "Git.Git"
-    folder: "Git"
-    method: "winget"
+    windows:
+      id: "Git.Git"
+      folder: "Git"
+      method: "winget"
   kubectl:
     forPersonal: false
-    id: "Kubernetes.kubectl"
-    folder: "Kubectl"
-    method: "winget"
+    windows:
+      id: "Kubernetes.kubectl"
+      folder: "Kubectl"
+      method: "winget"
   nvm:
     forPersonal: false
-    id: "CoreyButler.NVMforWindows"
-    folder: "NVM"
-    method: "winget"
+    windows:
+      id: "CoreyButler.NVMforWindows"
+      folder: "NVM"
+      method: "winget"
   starship:
     forPersonal: false
-    id: "Starship.Starship"
-    folder: "Starship"
-    method: "winget"
+    windows:
+      id: "Starship.Starship"
+      folder: "Starship"
+      method: "winget"
   # Browser
   firefox-dev:
     forPersonal: false
-    id: "Mozilla.Firefox.DeveloperEdition"
-    folder: "Firefox-Dev"
-    method: "winget"
+    windows:
+      id: "Mozilla.Firefox.DeveloperEdition"
+      folder: "Firefox-Dev"
+      method: "winget"
   chrome:
     forPersonal: false
-    id: "Google.Chrome"
-    folder: "Chrome"
-    method: "winget"
+    windows:
+      id: "Google.Chrome"
+      folder: "Chrome"
+      method: "winget"
   # Media
   icloud:
     forPersonal: false
-    id: "icloud"
-    method: "choco"
+    windows:
+      id: "icloud"
+      method: "choco"
   # Developer Tools
   vscode:
     forPersonal: false
-    id: "Microsoft.VisualStudioCode.Insiders"
-    folder: "VSCode"
-    method: "winget"
+    windows:
+      id: "Microsoft.VisualStudioCode.Insiders"
+      folder: "VSCode"
+      method: "winget"
   postman:
     forPersonal: false
-    id: "Postman.Postman"
-    folder: "Postman"
-    method: "winget"
+    windows:
+      id: "Postman.Postman"
+      folder: "Postman"
+      method: "winget"
   yubikey-manager:
     forPersonal: false
-    id: "Yubico-YubikeyManager"
-    folder: "Yubikey"
-    method: "winget"
+    windows:
+      id: "Yubico-YubikeyManager"
+      folder: "Yubikey"
+      method: "winget"
   putty:
     forPersonal: false
-    id: "PuTTY.PuTTY"
-    folder: "Putty"
-    method: "winget"
+    windows:
+      id: "PuTTY.PuTTY"
+      folder: "Putty"
+      method: "winget"
