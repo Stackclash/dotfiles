@@ -1,61 +1,27 @@
 {{- if eq .chezmoi.os "windows" -}}
 {{- template "elevate-powershell" }}
 
-# Chrome - couldn't upgrade on D: no matter what I tried
-# Spotify need to investigate upgrade location switch
-# VLC - upgrade location switch is not working
-# Firefox Developer
-# Postman
-
 {{- $programPath := .programPath -}}
 {{- $workComputer := .workComputer -}}
 {{- range $index, $element := .apps -}}
-{{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
-{{- if eq $element.method "winget" }}
 
-winget list -e --ie {{ $element.id }}
+{{- if $element.windows -}}
+{{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
+{{- if eq $element.windows.method "winget" }}
+
+winget list -e {{ $element.windows.id }}
 if ($?) {
-  winget upgrade -e --id {{ $element.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.folder }}"{{ end }}
+  winget upgrade -e --id {{ $element.windows.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.windows.folder }}"{{ end }}
 } else {
-  winget install -e --id {{ $element.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.folder }}"{{ end }}
+  winget install -e --id {{ $element.windows.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.windows.folder }}"{{ end }}
 }
 
-{{- else if eq $element.method "choco" }}
+{{- else if eq $element.windows.method "choco" }}
 
-choco upgrade {{ $element.id }}
+choco upgrade {{ $element.windows.id }}
 
 {{- end -}}
 {{- end -}}
 {{- end -}}
-
-{{if .test}}test{{end}}
-
-#### MEDIA
-choco upgrade icloud -y {{ if .programPath }}--ia "INSTALLDIR=""{{ joinPath .programPath "iCloud" }}"""{{ end }}
-
-#### DEV TOOLS
-choco upgrade postman -y
-winget install -e --id Microsoft.VisualStudioCode.Insiders{{ if .programPath }} --l "{{ joinPath .programPath "VSCode" }}"{{ end }}
-choco upgrade yubikey-manager -y {{ if .programPath }}--ia "/D={{ joinPath .programPath "Yubikey" }}"{{ end }}
-choco upgrade putty.install -y
-choco upgrade wsl-ssh-pageant -y
-
-#### UTILS
-choco upgrade 7zip.install {{ if .programPath }}--ia /D="{{ joinPath .programPath "7Zip" }}"{{ end }}
-choco upgrade gpg4win -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "GPG4Win" }}"{{ end }}
-
-#### SECOND BRAIN APPS
-choco upgrade notion-repackaged -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Notion" }}"{{ end }}
-choco upgrade obsidian -y {{ if .programPath }}--ia /D="{{ joinPath .programPath "Obsidian" }}"{{ end }}
-
-#### FONTS
-choco upgrade firacode -y
-choco upgrade cascadiacode -y
-choco upgrade cascadiacodepl -y
-choco upgrade cascadiafonts -y
-choco upgrade cascadiamono -y
-choco upgrade cascadiamonopl -y
-choco upgrade fontbase -y
-choco upgrade hackfont -y
-choco upgrade sourcecodepro -y
-{{- end }}
+{{- end -}}
+{{- end -}}

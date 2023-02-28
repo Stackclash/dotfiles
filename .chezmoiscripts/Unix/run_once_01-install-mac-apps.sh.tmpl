@@ -4,47 +4,25 @@ brew update
 brew upgrade
 
 brew bundle --no-lock --file=/dev/stdin <<EOF
-#### BREW TAPS
-tap 'homebrew/cask-versions'
-tap 'homebrew/cask-drivers'
-tap 'homebrew/cask-fonts'
 
-#### CLI TOOLS
-brew 'bitwarden-cli'
-brew 'fluxcd/tap/flux'
-brew 'gh'
-brew 'gnupg'
-brew 'go-task/tap/go-task'
-brew 'hashicorp/tap/terraform'
-brew 'kubectl'
-brew 'nvm'
-brew 'pyenv'
-brew 'starship'
-brew 'terraform'
-brew 'velero'
-brew 'ykman'
-brew 'zsh-autosuggestions'
+{{- $workComputer := .workComputer -}}
+{{- range $index, $element := .apps -}}
 
-#### BROWSERS
-cask 'firefox-developer-edition'
-cask 'google-chrome'
+{{- if $element.darwin -}}
+{{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
 
-#### DEV TOOLS
-cask 'iterm2'
-cask 'postman'
-cask 'visual-studio-code-insiders'
-cask 'yubico-yubikey-manager'
+{{ if eq $element.darwin.method "brew" }}
+brew '{{ $element.darwin.id }}'
 
-#### SECOND BRAIN APPS
-cask 'notion-enhanced'
+{{- else if eq $element.darwin.method "brew-cask" }}
+cask '{{ $element.darwin.id }}'
 
-#### FONTS
-cask 'font-fira-code'
-cask 'font-fira-mono'
-cask 'font-cascadia-code'
-cask 'font-cascadia-code-pl'
-cask 'font-cascadia-mono'
-cask 'font-cascadia-mono-pl'
-cask 'font-fira-mono-nerd-font'
+{{- else if eq $element.darwin.method "brew-tap" }}
+tap '{{ $element.darwin.id }}'
+{{- end -}}
+
+{{- end -}}
+{{- end -}}
+{{- end }}
 EOF
 {{- end }}
