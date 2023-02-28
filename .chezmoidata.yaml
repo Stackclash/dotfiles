@@ -1,4 +1,5 @@
 apps:
+
   # Personal Apps
   cura:
     forPersonal: true
@@ -6,85 +7,136 @@ apps:
       id: "Ultimaker.Cura"
       folder: "Cura"
       method: "winget"
+
   steam:
     forPersonal: true
     windows:
       id: "Valve.Steam"
       folder: "Steam"
       method: "winget"
+
   rainmeter:
     forPersonal: true
     windows:
       id: "Rainmeter.Rainmeter"
       folder: "Rainmeter"
       method: "winget"
+
   # CLI Tools
   terraform:
     forPersonal: false
     windows:
       id: "terraform"
       method: "choco"
+    darwin:
+      id: "hashicorp/tap/terraform"
+      method: "brew"
+
   velero:
     forPersonal: false
     windows:
       id: "velero"
       method: "choco"
+    darwin:
+      id: "velero"
+      method: "brew"
+
   bitwarden-cli:
     forPersonal: false
     windows:
       id: "bitwarden-cli"
       method: "choco"
+    darwin:
+      id: "bitwarden-cli"
+      method: "brew"
+
   flux:
     forPersonal: false
     windows:
       id: "flux"
       method: "choco"
+    darwin:
+      id: "fluxcd/tap/flux"
+      method: "brew"
+
   go-task:
     forPersonal: false
     windows:
       id: "go-task"
       method: "choco"
-  pyenv-win:
+    darwin:
+      id: "go-task/tap/go-task"
+      method: "brew"
+
+  pyenv:
     forPersonal: false
     windows:
       id: "pyenv-win"
       method: "choco"
+    darwin:
+      id: "pyenv"
+      method: "brew"
+
   github-cli:
     forPersonal: false
     windows:
       id: "GitHub.cli"
       folder: "Github-CLI"
       method: "winget"
+    darwin:
+      id: "gh"
+      method: "brew"
+
   clink:
     forPersonal: false
     windows:
       id: "chrisant996.Clink"
       folder: "Clink"
       method: "winget"
+
   git:
     forPersonal: false
     windows:
       id: "Git.Git"
       folder: "Git"
       method: "winget"
+
   kubectl:
     forPersonal: false
     windows:
       id: "Kubernetes.kubectl"
       folder: "Kubectl"
       method: "winget"
+    darwin:
+      id: "kubectl"
+      method: "brew"
+
   nvm:
     forPersonal: false
     windows:
       id: "CoreyButler.NVMforWindows"
       folder: "NVM"
       method: "winget"
+    darwin:
+      id: "nvm"
+      method: "brew"
+
   starship:
     forPersonal: false
     windows:
       id: "Starship.Starship"
       folder: "Starship"
       method: "winget"
+    darwin:
+      id: "starship"
+      method: "brew"
+
+  wsl-ssh-pageant:
+    forPersonal: false
+    windows:
+      id: "wsl-ssh-pageant"
+      method: "choco"
+
   # Browser
   firefox-dev:
     forPersonal: false
@@ -92,18 +144,37 @@ apps:
       id: "Mozilla.Firefox.DeveloperEdition"
       folder: "Firefox-Dev"
       method: "winget"
+    darwin:
+      id: "firefox-developer-edition"
+      method: "brew-cask"
+
   chrome:
     forPersonal: false
     windows:
       id: "Google.Chrome"
       folder: "Chrome"
       method: "winget"
+    darwin:
+      id: "google-chrome"
+      method: "brew-cask"
+
   # Media
   icloud:
-    forPersonal: false
+    forPersonal: true
     windows:
       id: "icloud"
       method: "choco"
+
+  vlc:
+    forPersonal: true
+    windows:
+      id: "VideoLAN.VLC"
+      folder: "VLC"
+      method: "winget"
+    darwin:
+      id: "vlc"
+      method: "brew-cask"
+
   # Developer Tools
   vscode:
     forPersonal: false
@@ -111,21 +182,134 @@ apps:
       id: "Microsoft.VisualStudioCode.Insiders"
       folder: "VSCode"
       method: "winget"
+    darwin:
+      id: "visual-studio-code-insiders"
+      method: "brew-cask"
+
   postman:
     forPersonal: false
     windows:
       id: "Postman.Postman"
       folder: "Postman"
       method: "winget"
+    darwin:
+      id: "postman"
+      method: "brew-cask"
+
   yubikey-manager:
     forPersonal: false
     windows:
       id: "Yubico-YubikeyManager"
       folder: "Yubikey"
       method: "winget"
+
   putty:
     forPersonal: false
     windows:
       id: "PuTTY.PuTTY"
       folder: "Putty"
       method: "winget"
+
+  gnupg:
+    forPersonal: false
+    darwin:
+      id: "gnupg"
+      method: "brew"
+
+  iterm2:
+    forPersonal: false
+    darwin:
+      id: "starship"
+      method: "brew-cask"
+
+  # Second Brain
+  notion:
+    forPersonal: false
+    windows:
+      id: "Notion.Notion"
+      folder: "Notion"
+      method: "winget"
+    darwin:
+      id: "notion"
+      method: "brew-cask"
+
+  obsidian:
+    forPersonal: false
+    windows:
+      id: "Obsidian.Obsidian"
+      folder: "Obsidian"
+      method: "winget"
+    darwin:
+      id: "obsidian"
+      method: "brew-cast"
+
+  # Extra
+  cask-versions:
+    forPersonal: false
+    darwin:
+      id: "homebrew/cask-versions"
+      method: "brew-tap"
+
+  cask-drivers:
+    forPersonal: false
+    darwin:
+      id: "homebrew/cask-drivers"
+      method: "brew-tap"
+
+  cask-fonts:
+    forPersonal: false
+    darwin:
+      id: "homebrew/cask-fonts"
+      method: "brew-tap"
+
+  zsh-autosuggestions:
+    forPersonal: false
+    darwin:
+      id: "zsh-autosuggestions"
+      method: "brew"
+  
+  # Fonts
+  fira-code:
+    forPersonal: false
+    windows:
+      id: "firacode"
+      method: "choco"
+    darwin:
+      id: "font-fira-code"
+      method: "brew-cask"
+  
+  cascadia-code:
+    forPersonal: false
+    windows:
+      id: "cascadiacode"
+      method: "choco"
+    darwin:
+      id: "font-cascadia-code"
+      method: "brew-cask"
+  
+  cascadia-code-pl:
+    forPersonal: false
+    windows:
+      id: "cascadiacodepl"
+      method: "choco"
+    darwin:
+      id: "font-cascadia-code-pl"
+      method: "brew-cask"
+  
+  cascadia-mono:
+    forPersonal: false
+    windows:
+      id: "firacode"
+      method: "choco"
+    darwin:
+      id: "font-cascadia-mono"
+      method: "brew-cask"
+  
+  cascadia-mono-pl:
+    forPersonal: false
+    windows:
+      id: "firacode"
+      method: "choco"
+    darwin:
+      id: "font-cascadia-mono-pl"
+      method: "brew-cask"
