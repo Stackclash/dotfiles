@@ -107,7 +107,7 @@
 	templatedir = ~/.git-templates
 
 [core]
-	editor = code
+	editor = code-insiders
 	{{- if eq .chezmoi.os "windows" }}
 	autocrlf = true
 	sshCommand = 'C:\\Windows\\System32\\OpenSSH\\ssh.exe'
@@ -121,3 +121,6 @@
 	{{- else -}}
 	helper = !/opt/homebrew/bin/gh auth git-credential
 	{{ end }}
+
+[push]
+	autoSetupRemote = true

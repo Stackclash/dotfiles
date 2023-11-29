@@ -22,12 +22,27 @@ apps:
       folder: "Rainmeter"
       method: "winget"
 
+  blender:
+    forPersonal: true
+    windows:
+      id: "BlenderFoundation.Blender"
+      folder: "Blender"
+      method: "winget"
+
+  calibre:
+    forPersonal: true
+    windows: 
+      id: "calibre.calibre"
+      folder: "Calibre"
+      method: "winget"
+
   # CLI Tools
   terraform:
     forPersonal: false
     windows:
-      id: "terraform"
-      method: "choco"
+      id: "Hashicorp.Terraform"
+      folder: "Terraform"
+      method: "winget"
     darwin:
       id: "hashicorp/tap/terraform"
       method: "brew"
@@ -44,8 +59,9 @@ apps:
   bitwarden-cli:
     forPersonal: false
     windows:
-      id: "bitwarden-cli"
-      method: "choco"
+      id: "Bitwarden.CLI"
+      folder: "Bitwarden"
+      method: "winget"
     darwin:
       id: "bitwarden-cli"
       method: "brew"
@@ -62,8 +78,9 @@ apps:
   go-task:
     forPersonal: false
     windows:
-      id: "go-task"
-      method: "choco"
+      id: "Task.Task"
+      folder: "Go-Task"
+      method: "winget"
     darwin:
       id: "go-task/tap/go-task"
       method: "brew"
@@ -174,6 +191,13 @@ apps:
     darwin:
       id: "vlc"
       method: "brew-cask"
+
+  open-office:
+    forPersonal: false
+    windows:
+      id: "Apache.OpenOffice"
+      folder: "OpenOffice"
+      method: "winget"
 
   # Developer Tools
   vscode:
