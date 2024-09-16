@@ -1,0 +1,9 @@
+{{- if ne .chezmoi.os "windows" -}}
+#!/bin/bash
+
+{{- $rootDir := .chezmoi.sourceDir }}
+
+# default-packages hash: {{ include "default-packages" | sha256sum }}
+
+cp {{ $rootDir }}\default-packages $NVM_HOME
+{{- end -}}

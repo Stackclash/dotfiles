@@ -1,0 +1,12 @@
+{{- if eq .chezmoi.os "windows" -}}
+{{ template "elevate-powershell" }}
+
+{{- $programPath := .programPath -}}
+{{- $rootDir := .chezmoi.sourceDir }}
+
+# default-packages hash: {{ include "default-packages" | sha256sum }}
+
+$packages = Get-Content -path "{{ $rootDir }}\default-packages"
+npm install -g @packages
+
+{{- end -}}
