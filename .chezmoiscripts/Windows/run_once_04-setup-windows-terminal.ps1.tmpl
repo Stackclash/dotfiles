@@ -6,8 +6,8 @@ $CommandProcessor="HKLM:\SOFTWARE\Microsoft\Command Processor"
 $cmdRcPath="$env:USERPROFILE\.cmdrc.cmd"
 Set-Itemproperty -path $CommandProcessor -Name "AutoRun" -value $cmdRcPath
 
-#### DISABLE CLINK WELCOME MESSAGE
-cmd.exe "clink autorun install -- --quiet"
+#### ENABLE CLINK AUTORUN AND DISABLE WELCOME MESSAGE
+cmd.exe /c '"%CLINK_DIR%\clink.bat" autorun install -a -- --quiet'
 
 #### CREATE wsl-ssh-pageant STARTUP SHORTCUT
 $action = New-ScheduledTaskAction -Execute 'powershell.exe' -Argument '-NoExit -noprofile -WindowStyle Hidden -Command "wsl-ssh-pageant --winssh ssh-pageant --systray"'
