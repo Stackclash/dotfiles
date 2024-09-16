@@ -18,7 +18,7 @@ if ($?) {
 
 {{- else if eq $element.windows.method "choco" }}
 
-choco upgrade {{ $element.windows.id }}
+choco upgrade {{ $element.windows.id }} --install-if-not-installed -y
 
 {{- end -}}
 {{- end -}}
