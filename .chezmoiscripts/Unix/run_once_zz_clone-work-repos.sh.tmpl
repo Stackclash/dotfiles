@@ -1,0 +1,23 @@
+{{- if ne .chezmoi.os "windows" -}}
+#!/bin/bash
+
+{{- $projectPath := .projectPath -}}
+{{- $workGithubOrg := .workGithubOrg -}}
+{{- $githubUsername := .githubUsername -}}
+
+if ! gh auth status >/dev/null 2>&1; then
+    echo "You need to login: gh auth login"
+    exit 1
+fi
+
+PROJECT_PATH = "{{ $projectPath }}\Personal"
+WORK_GITHUB_ORG = {{ $workGithubOrg | quote }}
+GITHUB_USERNAME = {{ $githubUsername | quote }}
+DATE_QUERY = ">=" + date -v-6m +%F # 6 months ago
+REPOS = gh repo list --source --json nameWithOwner --jq ".[].nameWithOwner" -L 5
+
+for REPO in $REPOS; do
+# TO DO
+done
+
+{{- end -}}

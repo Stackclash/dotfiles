@@ -154,6 +154,16 @@ apps:
       id: "wsl-ssh-pageant"
       method: "choco"
 
+  jq:
+    forPersonal: false
+    windows:
+      id: "jqlang.jq"
+      folder: "JQ"
+      method: "winget"
+    darwin:
+      id: "jq"
+      method: "brew"
+
   # Browser
   firefox-dev:
     forPersonal: false
