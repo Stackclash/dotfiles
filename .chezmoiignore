@@ -12,6 +12,7 @@ AppData
 setup
 README.md
 
-# These File is moved by a script
+# These are handled by a script
 Microsoft.PowerShell_profile.ps1
 default-packages
+vscode-extensions

@@ -1,0 +1,14 @@
+{{- if eq .chezmoi.os "windows" -}}
+{{ template "elevate-powershell" }}
+
+{{- $programPath := .programPath -}}
+{{- $rootDir := .chezmoi.sourceDir }}
+
+# default-packages hash: {{ include "vscode-extensions.txt" | sha256sum }}
+
+$extensions = Get-Content -path "{{ $rootDir }}\vscode-extensions.txt"
+foreach ($extension in $extensions) {
+    vscode-insiders --install-extension $extension
+}
+
+{{- end -}}
