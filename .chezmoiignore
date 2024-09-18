@@ -3,6 +3,7 @@
 .bashrc
 .gnupg
 .zshrc
+Library
 {{- end -}}
 {{- if ne .chezmoi.os "windows" -}}
 .cmdrc.cmd

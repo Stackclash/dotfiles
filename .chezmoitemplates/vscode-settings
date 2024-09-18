@@ -1,0 +1,13 @@
+{
+    "projectManager.git.baseFolders": [{{ .projectPath | quote}}],
+    "editor.fontFamily": "FiraCode NF",
+    "security.workspace.trust.untrustedFiles": "open",
+    "workbench.colorTheme": "The Dark Knight",
+    "git.autofetch": true,
+    "explorer.confirmDelete": false,
+    "javascript.updateImportsOnFileMove.enabled": "always",
+    "gitlens.gitCommands.skipConfirmations": [
+        "fetch:command",
+        "switch:command"
+    ]
+}
