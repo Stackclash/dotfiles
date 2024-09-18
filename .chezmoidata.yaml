@@ -256,6 +256,12 @@ apps:
       id: "starship"
       method: "brew-cask"
 
+  windows-terminal:
+    forPersonal: false
+    windows:
+      id: Microsoft.WindowsTerminal
+      method: winget
+
   # Second Brain
   notion:
     forPersonal: false
