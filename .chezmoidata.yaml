@@ -172,7 +172,7 @@ apps:
       folder: "Firefox-Dev"
       method: "winget"
     darwin:
-      id: "firefox-developer-edition"
+      id: "firefox@developer-edition"
       method: "brew-cask"
 
   chrome:
@@ -253,14 +253,14 @@ apps:
   iterm2:
     forPersonal: false
     darwin:
-      id: "starship"
+      id: "iterm2"
       method: "brew-cask"
 
   windows-terminal:
     forPersonal: false
     windows:
-      id: Microsoft.WindowsTerminal
-      method: winget
+      id: "Microsoft.WindowsTerminal"
+      method: "winget"
 
   # Second Brain
   notion:
@@ -288,12 +288,6 @@ apps:
     forPersonal: false
     darwin:
       id: "homebrew/cask-versions"
-      method: "brew-tap"
-
-  cask-drivers:
-    forPersonal: false
-    darwin:
-      id: "homebrew/cask-drivers"
       method: "brew-tap"
 
   cask-fonts:

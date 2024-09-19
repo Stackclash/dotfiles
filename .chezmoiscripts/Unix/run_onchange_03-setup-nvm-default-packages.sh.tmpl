@@ -5,5 +5,5 @@
 
 # default-packages hash: {{ include "default-packages" | sha256sum }}
 
-cp {{ $rootDir }}\default-packages $NVM_HOME
+cp {{ $rootDir }}/default-packages $NVM_DIR
 {{- end -}}

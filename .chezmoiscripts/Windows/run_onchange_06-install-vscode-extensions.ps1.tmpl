@@ -8,7 +8,7 @@
 
 $extensions = Get-Content -path "{{ $rootDir }}\vscode-extensions.txt"
 foreach ($extension in $extensions) {
-    vscode-insiders --install-extension $extension
+    vscode-insiders --install-extension $extension --force
 }
 
 {{- end -}}

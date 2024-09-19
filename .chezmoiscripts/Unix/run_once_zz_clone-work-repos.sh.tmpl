@@ -9,7 +9,7 @@ if ! gh auth status >/dev/null 2>&1; then
     gh auth login -p ssh --web
 fi
 
-PROJECT_PATH="{{ $projectPath }}\Personal"
+PROJECT_PATH="{{ $projectPath }}/Work"
 WORK_GITHUB_ORG={{ $workGithubOrg | quote }}
 GITHUB_USERNAME={{ $githubUsername | quote }}
 DATE_QUERY=">=$(date -v-6m +%F)" # 6 months ago
