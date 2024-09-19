@@ -15,4 +15,4 @@ README.md
 # These are handled by a script
 Microsoft.PowerShell_profile.ps1
 default-packages
-vscode-extensions
+vscode-extensions.txt

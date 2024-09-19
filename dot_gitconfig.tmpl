@@ -93,9 +93,9 @@
 
 [gpg]
 	# I need to think of a way to avoid hard coding the path
-	{{- if eq .chezmoi.os "windows" }}
+	{{ if eq .chezmoi.os "windows" }}
 	program = D:\\Program Files\\GnuPG\\bin\\gpg.exe
-	{{- else -}}
+	{{ else }}
 	program = /opt/homebrew/bin/gpg
 	{{- end }}
 	
@@ -111,15 +111,15 @@
 	{{- if eq .chezmoi.os "windows" }}
 	autocrlf = true
 	sshCommand = 'C:\\Windows\\System32\\OpenSSH\\ssh.exe'
-	{{- else -}}
+	{{ else }}
 	autocrlf = input
 	{{- end }}
 
 [credential "https://github.com"]
 	{{- if eq .chezmoi.os "windows" }}
-	helper = '!D:\\Program Files\\Github-CLI\\gh.exe auth git-credential'
-	{{- else -}}
-	helper = !/opt/homebrew/bin/gh auth git-credential
+	helper = 'D:\\Program Files\\Github-CLI\\gh.exe auth git-credential'
+	{{ else }}
+	helper = /opt/homebrew/bin/gh auth git-credential
 	{{ end }}
 
 [push]
