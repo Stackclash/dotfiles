@@ -6,18 +6,28 @@
 {{- $githubUsername := .githubUsername -}}
 
 if ! gh auth status >/dev/null 2>&1; then
-    echo "You need to login: gh auth login"
-    exit 1
+    gh auth login -p ssh --web
 fi
 
-PROJECT_PATH = "{{ $projectPath }}\Personal"
-WORK_GITHUB_ORG = {{ $workGithubOrg | quote }}
-GITHUB_USERNAME = {{ $githubUsername | quote }}
-DATE_QUERY = ">=" + date -v-6m +%F # 6 months ago
-REPOS = gh repo list --source --json nameWithOwner --jq ".[].nameWithOwner" -L 5
+PROJECT_PATH="{{ $projectPath }}\Personal"
+WORK_GITHUB_ORG={{ $workGithubOrg | quote }}
+GITHUB_USERNAME={{ $githubUsername | quote }}
+DATE_QUERY=">=$(date -v-6m +%F)" # 6 months ago
+REPOS=$(gh repo list $WORK_GITHUB_ORG --source --json name,nameWithOwner)
 
-for REPO in $REPOS; do
-# TODO
+for REPO in $(jq --compact-output '.[]' <<< $REPOS); do
+    REPO_NAME_WITH_OWNER=$(jq '.nameWithOwner' <<< $REPO | tr -d '"')
+    COMMITS=$(gh search commits --repo $REPO_NAME_WITH_OWNER --committer $GITHUB_USERNAME --committer-date $DATE_QUERY)
+
+    if [ -n "$COMMITS" ]; then
+        REPO_NAME=$(jq '.name' <<< $REPO | tr -d '"')
+        REPO_PATH="$PROJECT_PATH/$REPO_NAME"
+
+        if [ ! -d $REPO_PATH ]; then
+            gh repo clone $REPO_NAME_WITH_OWNER $REPO_PATH
+        else
+            echo "$REPO_PATH already exists"
+        fi
+    fi
 done
-
 {{- end -}}
