@@ -11,6 +11,7 @@ AppData
 {{- end }}
 setup
 README.md
+docs
 
 # These are handled by a script
 Microsoft.PowerShell_profile.ps1

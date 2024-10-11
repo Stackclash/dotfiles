@@ -1,9 +1,9 @@
 <h1 align="center">
-    <a name="top" title="dotfiles">~/.&nbsp;📂</a><br/>My Cross-Platform Dotfiles<br/> <sup><sub>powered by  <a href="https://www.chezmoi.io/">chezmoi</a>
+    <a name="top" title="dotfiles">~/.&nbsp;📂</a><br/>My Cross-Platform Dotfiles<br/> <sup><sub>powered by <a href="https://www.chezmoi.io/">chezmoi</a>
 </h1>
 <br />
 
----
+[![Static Badge](https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=gitbook)](https://stackclash.github.io/dotfiles)
 
 This project provisions my development environment on either Windows or Mac machines. It uses [chezmoi](https://chezmoi.io) to install applications and copy dotfiles to their respective locations. This setup also allows me to use my Yubikey.
 
@@ -47,23 +47,7 @@ This project provisions my development environment on either Windows or Mac mach
 - GPG
 - SSH
 
-# :wrench: Setup
-In the `setup` folder there is a script to install chezmoi. See more information on chezmoi init and apply [here](https://www.chezmoi.io/quick-start/#set-up-a-new-machine-with-a-single-command).
 
-### **Powershell**
-```powershell
-.\setup\windows.ps1
-```
-### **Bash**
-```bash
-./setup/unix.sh
-```
-
-After the chezmoi cli is installed you can init chezmoi and apply the dotfiles.
-
-```
-chezmoi init --apply RickCoxDev
-```
 
 # To-Do
 - Write documentation on GPG, Git, and SSH configuration
