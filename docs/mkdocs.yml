@@ -9,7 +9,5 @@ nav:
   - Setup: setup.md
 theme:
   name: material
-plugins:
-  - include-markdown
 markdown_extensions:
   - github-callouts
