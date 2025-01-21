@@ -9,6 +9,8 @@
 {{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
 {{- if eq $element.windows.method "winget" }}
 
+Write-Host "{{$element.windows.id}} -> {{$element.windows.folder}}"
+
 winget list -e {{ $element.windows.id }}
 if ($?) {
   winget upgrade -e --id {{ $element.windows.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.windows.folder }}"{{ end }}
