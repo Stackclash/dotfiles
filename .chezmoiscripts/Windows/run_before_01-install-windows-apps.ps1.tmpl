@@ -5,11 +5,11 @@
 {{- $workComputer := .workComputer -}}
 {{- range $index, $element := .apps -}}
 
+Write-Host "{{$element}}"
+
 {{- if $element.windows -}}
 {{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
 {{- if eq $element.windows.method "winget" }}
-
-Write-Host "{{$element.windows.id}} -> {{$element.windows.folder}}"
 
 winget list -e {{ $element.windows.id }}
 if ($?) {
