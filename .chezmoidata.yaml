@@ -164,6 +164,12 @@ apps:
       id: "jq"
       method: "brew"
 
+  setuserfta:
+    forPersonal: false
+    windows:
+      id: "setuserfta"
+      method: "choco"
+
   # Browser
   firefox-dev:
     forPersonal: false
@@ -213,12 +219,12 @@ apps:
   vscode:
     forPersonal: false
     windows:
-      id: "Microsoft.VisualStudioCode.Insiders"
+      id: "Microsoft.VisualStudioCode"
       folder: "VSCode"
       method: "winget"
     darwin:
-      id: "visual-studio-code-insiders"
-      method: "brew-cask"
+      id: "visual-studio-code"
+      method: "brew"
 
   postman:
     forPersonal: false
@@ -246,6 +252,10 @@ apps:
 
   gnupg:
     forPersonal: false
+    windows:
+      id: "GnuPG.Gpg4win"
+      folder: "GnuPG"
+      method: "winget"
     darwin:
       id: "gnupg"
       method: "brew"
@@ -255,12 +265,6 @@ apps:
     darwin:
       id: "iterm2"
       method: "brew-cask"
-
-  windows-terminal:
-    forPersonal: false
-    windows:
-      id: "Microsoft.WindowsTerminal"
-      method: "winget"
 
   # Second Brain
   notion:

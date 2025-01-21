@@ -5,8 +5,6 @@
 {{- $workComputer := .workComputer -}}
 {{- range $index, $element := .apps -}}
 
-Write-Host "{{$element}}"
-
 {{- if $element.windows -}}
 {{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
 {{- if eq $element.windows.method "winget" }}
@@ -26,4 +24,6 @@ choco upgrade {{ $element.windows.id }} --install-if-not-installed -y
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
+refreshenv
 {{- end -}}
