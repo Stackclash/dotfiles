@@ -305,6 +305,15 @@ apps:
     darwin:
       id: "zsh-autosuggestions"
       method: "brew"
+
+  7zip:
+    forPersonal: false
+    windows:
+      id: "7zip"
+      method: "choco"
+    darwin:
+      id: "p7zip"
+      method: "brew"
   
   # Fonts
   fira-code:

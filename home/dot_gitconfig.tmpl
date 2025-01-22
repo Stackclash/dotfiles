@@ -78,6 +78,10 @@
 
 	insteadOf = "gist:"
 
+[user]
+  name = {{ .name }}
+  email = {{ .email }}
+
 [includeIf "gitdir:**/Personal/"]
   path = ~/.gitconfig-personal
 
