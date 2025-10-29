@@ -316,13 +316,13 @@ apps:
       method: "brew"
   
   # Fonts
-  fira-code:
+  fira-code-mono:
     forPersonal: false
     windows:
-      id: "firacode"
+      id: "nerd-fonts-firamono"
       method: "choco"
     darwin:
-      id: "font-fira-code"
+      id: "font-fira-mono"
       method: "brew-cask"
   
   cascadia-code:

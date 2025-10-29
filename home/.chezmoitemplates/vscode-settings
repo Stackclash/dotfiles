@@ -1,14 +1,25 @@
 {
-    "projectManager.git.baseFolders": [{{ .projectPath | quote}}],
-    "editor.fontFamily": "FiraCode NF",
-    "security.workspace.trust.untrustedFiles": "open",
-    "workbench.colorTheme": "The Dark Knight",
-    "git.autofetch": true,
-    "explorer.confirmDelete": false,
-    "javascript.updateImportsOnFileMove.enabled": "always",
-    "explorer.confirmDragAndDrop": false,
-    "gitlens.gitCommands.skipConfirmations": [
-        "fetch:command",
-        "switch:command"
-    ]
+  "projectManager.git.baseFolders": [{{ .projectPath | quote }}],
+  "editor.fontFamily": "FiraMono Nerd Font",
+  "terminal.integrated.fontFamily": "FiraMono Nerd Font",
+  "workbench.colorTheme": "The Dark Knight",
+  "security.workspace.trust.untrustedFiles": "open",
+  "git.autofetch": true,
+  "explorer.confirmDelete": false,
+  "javascript.updateImportsOnFileMove.enabled": "always",
+  "explorer.confirmDragAndDrop": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "eslint.format.enable": true,
+  "jest.runMode": "on-demand",
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  }
 }
