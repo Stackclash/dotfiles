@@ -1,7 +1,7 @@
 {{- if eq .chezmoi.os "windows" -}}
 {{- template "elevate-powershell" }}
 
-{{- $projectPath := .projectPath -}}
+{{- $projectPath := .projectPath }}
 
 try {
     gh auth status

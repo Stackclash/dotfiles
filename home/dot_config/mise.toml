@@ -1,0 +1,12 @@
+[tools]
+node = "latest"
+python = "latest"
+terraform = "latest"
+"ubi:cli/cli" = "latest"
+"aqua:kubernetes/kubernetes/kubectl" = "latest"
+"ubi:jqlang/jq" = "latest"
+"ubi:starship/starship" = "latest"
+
+[env]
+_.file = ".env"
+_.path = ['{{config_root}}/node_modules/.bin']

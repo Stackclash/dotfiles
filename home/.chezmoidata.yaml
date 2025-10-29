@@ -5,177 +5,50 @@ apps:
     forPersonal: true
     windows:
       id: "Ultimaker.Cura"
-      folder: "Cura"
       method: "winget"
 
   steam:
     forPersonal: true
     windows:
       id: "Valve.Steam"
-      folder: "Steam"
-      method: "winget"
-
-  rainmeter:
-    forPersonal: true
-    windows:
-      id: "Rainmeter.Rainmeter"
-      folder: "Rainmeter"
       method: "winget"
 
   blender:
     forPersonal: true
     windows:
       id: "BlenderFoundation.Blender"
-      folder: "Blender"
       method: "winget"
 
   calibre:
     forPersonal: true
     windows: 
       id: "calibre.calibre"
-      folder: "Calibre"
       method: "winget"
 
   # CLI Tools
-  terraform:
+  mise:
     forPersonal: false
     windows:
-      id: "Hashicorp.Terraform"
-      folder: "Terraform"
+      id: "jdx.mise"
       method: "winget"
-    darwin:
-      id: "hashicorp/tap/terraform"
-      method: "brew"
-
-  velero:
-    forPersonal: false
-    windows:
-      id: "velero"
-      method: "choco"
-    darwin:
-      id: "velero"
-      method: "brew"
-
-  bitwarden-cli:
-    forPersonal: false
-    windows:
-      id: "Bitwarden.CLI"
-      folder: "Bitwarden"
-      method: "winget"
-    darwin:
-      id: "bitwarden-cli"
-      method: "brew"
-
-  flux:
-    forPersonal: false
-    windows:
-      id: "flux"
-      method: "choco"
-    darwin:
-      id: "fluxcd/tap/flux"
-      method: "brew"
-
-  go-task:
-    forPersonal: false
-    windows:
-      id: "Task.Task"
-      folder: "Go-Task"
-      method: "winget"
-    darwin:
-      id: "go-task/tap/go-task"
-      method: "brew"
-
-  pyenv:
-    forPersonal: false
-    windows:
-      id: "pyenv-win"
-      method: "choco"
-    darwin:
-      id: "pyenv"
-      method: "brew"
-
-  github-cli:
-    forPersonal: false
-    windows:
-      id: "GitHub.cli"
-      folder: "Github-CLI"
-      method: "winget"
-    darwin:
-      id: "gh"
-      method: "brew"
 
   clink:
     forPersonal: false
     windows:
       id: "chrisant996.Clink"
-      folder: "Clink"
       method: "winget"
 
   git:
     forPersonal: false
     windows:
       id: "Git.Git"
-      folder: "Git"
       method: "winget"
-
-  kubectl:
-    forPersonal: false
-    windows:
-      id: "Kubernetes.kubectl"
-      folder: "Kubectl"
-      method: "winget"
-    darwin:
-      id: "kubectl"
-      method: "brew"
-
-  nvm:
-    forPersonal: false
-    windows:
-      id: "CoreyButler.NVMforWindows"
-      folder: "NVM"
-      method: "winget"
-    darwin:
-      id: "nvm"
-      method: "brew"
-
-  starship:
-    forPersonal: false
-    windows:
-      id: "Starship.Starship"
-      folder: "Starship"
-      method: "winget"
-    darwin:
-      id: "starship"
-      method: "brew"
-
-  wsl-ssh-pageant:
-    forPersonal: false
-    windows:
-      id: "wsl-ssh-pageant"
-      method: "choco"
-
-  jq:
-    forPersonal: false
-    windows:
-      id: "jqlang.jq"
-      folder: "JQ"
-      method: "winget"
-    darwin:
-      id: "jq"
-      method: "brew"
-
-  setuserfta:
-    forPersonal: false
-    windows:
-      id: "setuserfta"
-      method: "choco"
 
   # Browser
   firefox-dev:
     forPersonal: false
     windows:
       id: "Mozilla.Firefox.DeveloperEdition"
-      folder: "Firefox-Dev"
       method: "winget"
     darwin:
       id: "firefox@developer-edition"
@@ -185,7 +58,6 @@ apps:
     forPersonal: false
     windows:
       id: "Google.Chrome"
-      folder: "Chrome"
       method: "winget"
     darwin:
       id: "google-chrome"
@@ -202,7 +74,6 @@ apps:
     forPersonal: true
     windows:
       id: "VideoLAN.VLC"
-      folder: "VLC"
       method: "winget"
     darwin:
       id: "vlc"
@@ -212,7 +83,6 @@ apps:
     forPersonal: false
     windows:
       id: "Apache.OpenOffice"
-      folder: "OpenOffice"
       method: "winget"
 
   # Developer Tools
@@ -220,7 +90,6 @@ apps:
     forPersonal: false
     windows:
       id: "Microsoft.VisualStudioCode"
-      folder: "VSCode"
       method: "winget"
     darwin:
       id: "visual-studio-code"
@@ -230,7 +99,6 @@ apps:
     forPersonal: false
     windows:
       id: "Postman.Postman"
-      folder: "Postman"
       method: "winget"
     darwin:
       id: "postman"
@@ -240,25 +108,13 @@ apps:
     forPersonal: false
     windows:
       id: "Yubico-YubikeyManager"
-      folder: "Yubikey"
       method: "winget"
 
   putty:
     forPersonal: false
     windows:
       id: "PuTTY.PuTTY"
-      folder: "Putty"
       method: "winget"
-
-  gnupg:
-    forPersonal: false
-    windows:
-      id: "GnuPG.Gpg4win"
-      folder: "GnuPG"
-      method: "winget"
-    darwin:
-      id: "gnupg"
-      method: "brew"
 
   iterm2:
     forPersonal: false
@@ -267,21 +123,11 @@ apps:
       method: "brew-cask"
 
   # Second Brain
-  notion:
-    forPersonal: false
-    windows:
-      id: "Notion.Notion"
-      folder: "Notion"
-      method: "winget"
-    darwin:
-      id: "notion"
-      method: "brew-cask"
 
   obsidian:
     forPersonal: false
     windows:
       id: "Obsidian.Obsidian"
-      folder: "Obsidian"
       method: "winget"
     darwin:
       id: "obsidian"

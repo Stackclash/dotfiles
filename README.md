@@ -9,16 +9,12 @@ This project provisions my development environment on either Windows or Mac mach
 
 # :star: Features
 ## Command Line Tools
-- bitwarden-cli
 - flux
 - gh
 - kubectl
 - go-task
-- nvm
-- pyenv
 - starship
 - terraform
-- velero
 
 ## Browsers
 - Firefox Developer Edition
@@ -31,10 +27,8 @@ This project provisions my development environment on either Windows or Mac mach
 
 ## Utilities
 - 7Zip
-- GPG
 
 ## Applications
-- Notion
 - Obsidian
 
 ## Shell Dotfiles
@@ -44,13 +38,12 @@ This project provisions my development environment on either Windows or Mac mach
 
 ## Configuration
 - Git
-- GPG
 - SSH
 
 
 
 # To-Do
-- Write documentation on GPG, Git, and SSH configuration
+- Write documentation on Git, and SSH configuration
 - Write documentation for Yubikey, Git templates and git-conventional-commits
 - Write documentation on scripts
 - Save VSCode configuration

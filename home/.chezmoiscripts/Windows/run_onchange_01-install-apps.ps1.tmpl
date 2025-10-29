@@ -1,4 +1,6 @@
 {{- if eq .chezmoi.os "windows" -}}
+# .chezmoidata.yaml hash: {{ include ".chezmoidata.yaml" | sha256sum }}
+
 {{- template "elevate-powershell" }}
 
 {{- $programPath := .programPath -}}
@@ -11,9 +13,9 @@
 
 winget list -e {{ $element.windows.id }}
 if ($?) {
-  winget upgrade -e --id {{ $element.windows.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.windows.folder }}"{{ end }}
+  winget upgrade -e --id {{ $element.windows.id }}{{ end }}
 } else {
-  winget install -e --id {{ $element.windows.id }}{{ if $programPath }} -l "{{ joinPath $programPath $element.windows.folder }}"{{ end }}
+  winget install -e --id {{ $element.windows.id }}{{ end }}
 }
 
 {{- else if eq $element.windows.method "choco" }}
@@ -23,7 +25,7 @@ choco upgrade {{ $element.windows.id }} --install-if-not-installed -y
 {{- end -}}
 {{- end -}}
 {{- end -}}
-{{- end -}}
+{{- end }}
 
 refreshenv
 {{- end -}}

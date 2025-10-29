@@ -1,5 +1,4 @@
 {{- if eq .chezmoi.os "windows" -}}
-.config/fish/
 .bashrc
 .gnupg
 .zshrc
@@ -15,5 +14,4 @@ docs
 
 # These are handled by a script
 Microsoft.PowerShell_profile.ps1
-default-packages
 vscode-extensions.txt

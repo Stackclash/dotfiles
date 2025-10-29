@@ -4,7 +4,7 @@
 {{- $programPath := .programPath -}}
 {{- $rootDir := .chezmoi.sourceDir }}
 
-# default-packages hash: {{ include "vscode-extensions.txt" | sha256sum }}
+# vscode-extensions hash: {{ include "vscode-extensions.txt" | sha256sum }}
 
 $extensions = Get-Content -path "{{ $rootDir }}\vscode-extensions.txt"
 foreach ($extension in $extensions) {
