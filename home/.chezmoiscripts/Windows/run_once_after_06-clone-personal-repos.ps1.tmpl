@@ -1,0 +1,22 @@
+{{- template "elevate-powershell" }}
+
+{{- $projectPath := .projectPath }}
+
+try {
+    gh auth status
+} catch {
+    gh auth login -p ssh --web
+}
+
+$projectPath = "{{ $projectPath }}\Personal"
+$repos = gh repo list --source --json name,nameWithOwner -L 5 | ConvertFrom-Json
+
+foreach ($repo in $repos) {
+    $repoPath = Join-Path -Path $projectPath -ChildPath $repo.name
+
+    if (-Not (Test-Path $repoPath)) {
+        gh repo clone $repo.nameWithOwner $repoPath
+    } else {
+        echo "$repoPath already exists"
+    }
+}
