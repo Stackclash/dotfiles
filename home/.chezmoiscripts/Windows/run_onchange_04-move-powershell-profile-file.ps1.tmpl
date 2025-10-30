@@ -1,5 +1,0 @@
-{{- template "elevate-powershell" }}
-
-#### MOVE Microsoft.Powershell_profile.ps1 SCRIPT TO CORRECT LOCATION
-# Microsoft.Powershell_profile.ps1 hash: {{ include "Microsoft.Powershell_profile.ps1" | sha256sum }}
-Copy-Item -Force -Path {{ .chezmoi.sourceDir }}\Microsoft.Powershell_profile.ps1 -Destination "$PROFILE"
