@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "darwin" -}}
 #!/bin/bash
 
 {{- $rootDir := .chezmoi.sourceDir }}
@@ -9,4 +8,3 @@ while IFS= read -r extension; do
     code --install-extension "$extension" --force
   fi
 done < {{ $rootDir }}/vscode-extensions.txt
-{{- end -}}

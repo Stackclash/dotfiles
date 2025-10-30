@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "windows" -}}
 {{- template "elevate-powershell" }}
 
 #### SET .cmdrc.cmd AS AUTORUN
@@ -8,4 +7,3 @@ Set-Itemproperty -path $CommandProcessor -Name "AutoRun" -value $cmdRcPath
 
 #### ENABLE CLINK AUTORUN AND DISABLE WELCOME MESSAGE
 cmd.exe /c '"%CLINK_DIR%\clink.bat" autorun install -a -- --quiet'
-{{- end -}}

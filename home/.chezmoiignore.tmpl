@@ -1,12 +1,13 @@
 {{- if eq .chezmoi.os "windows" -}}
 .bashrc
-.gnupg
 .zshrc
-Library
+Library/**
+.chezmoiscripts/Darwin/**
 {{- end -}}
 {{- if ne .chezmoi.os "windows" -}}
 .cmdrc.cmd
-AppData
+AppData/**
+.chezmoiscripts/Windows/**
 {{- end }}
 setup
 README.md

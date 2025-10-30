@@ -51,9 +51,6 @@ This project provisions my development environment on either Windows or Mac mach
 - research how to create aliases
 - test setup with WSL
 - need to add step to change user data location and app install location
-- on a new machine bitwarden isn't signed in. It needs to be signed in in order to get kubectl config
 - control startup apps and pinned apps and pinned folders
 - upgrade powershell
-- log in using bitwarden
 - icloud isn't installed using choco (can we install using microsoft store)
-- choco install uses C drive

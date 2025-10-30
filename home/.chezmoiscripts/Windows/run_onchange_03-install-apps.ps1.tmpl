@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "windows" -}}
 # .chezmoidata.yaml hash: {{ include ".chezmoidata.yaml" | sha256sum }}
 
 {{- template "elevate-powershell" }}
@@ -28,4 +27,3 @@ choco upgrade {{ $element.windows.id }} --install-if-not-installed -y
 {{- end }}
 
 refreshenv
-{{- end -}}

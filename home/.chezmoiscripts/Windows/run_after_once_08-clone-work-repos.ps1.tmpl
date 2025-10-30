@@ -1,4 +1,3 @@
-{{- if eq .chezmoi.os "windows" -}}
 {{- template "elevate-powershell" }}
 
 {{- $projectPath := .projectPath -}}
@@ -33,5 +32,3 @@ try {
 } catch {
     echo "An Error has occurred. Possibly due to the Github API rate limits. Wait a couple of minutes and try again."
 }
-
-{{- end -}}

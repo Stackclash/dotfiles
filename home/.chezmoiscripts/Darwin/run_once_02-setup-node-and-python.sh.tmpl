@@ -1,8 +1,0 @@
-{{- if eq .chezmoi.os "darwin" -}}
-#!/bin/bash
-nvm install lts
-nvm use lts
-
-pyenv install 3.10
-pyenv global 3.10
-{{- end -}}

@@ -1,9 +1,0 @@
-{{- if eq .chezmoi.os "darwin" -}}
-#!/bin/bash
-
-{{- $rootDir := .chezmoi.sourceDir }}
-
-# default-packages hash: {{ include "default-packages" | sha256sum }}
-
-cp {{ $rootDir }}/default-packages $NVM_DIR
-{{- end -}}

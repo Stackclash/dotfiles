@@ -1,7 +1,5 @@
-{{- if eq .chezmoi.os "windows" -}}
 {{- template "elevate-powershell" }}
 
 #### ENABLE DARK MODE
 Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name AppsUseLightTheme -Value 0
 Set-ItemProperty -Path HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize -Name SystemUsesLightTheme -Value 0
-{{- end -}}
