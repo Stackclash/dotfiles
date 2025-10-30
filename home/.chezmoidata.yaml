@@ -110,7 +110,7 @@ apps:
   yubikey-manager:
     forPersonal: false
     windows:
-      id: "Yubico-YubikeyManager"
+      id: "Yubico.YubikeyManager"
       method: "winget"
 
   putty:

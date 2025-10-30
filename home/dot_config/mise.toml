@@ -6,6 +6,7 @@ terraform = "latest"
 "aqua:kubernetes/kubernetes/kubectl" = "latest"
 "ubi:jqlang/jq" = "latest"
 "ubi:starship/starship" = "latest"
+"github:DopplerHQ/cli" = "latest"
 
 [env]
 _.file = ".env"

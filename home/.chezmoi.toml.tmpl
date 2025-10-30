@@ -16,5 +16,16 @@
 [edit]
     command = "code"
     args = ["--wait"]
+[merge]
+    {{- if eq .chezmoi.os "windows" }}
+    command = "powershell"
+    args = ["-Command", "cp {{ `{{ .Target }}` }} {{ `{{ .Target }}` }}.base && code --wait --new-window --merge {{ `{{ .Destination }}` }} {{ `{{ .Target  }}` }} {{ `{{ .Target }}` }}.base {{ `{{ .Source }}` }}"]
+    {{- else -}}
+    command = "bash"
+    args = ["-c", "cp {{ `{{ .Target }}` }} {{ `{{ .Target }}` }}.base && code --wait --new-window --merge {{ `{{ .Destination }}` }} {{ `{{ .Target  }}` }} {{ `{{ .Target }}` }}.base {{ `{{ .Source }}` }}"]
+    {{- end }}
+[diff]
+    command = "code"
+    args = ["--wait", "--diff", "{{ `{{ .Destination }}` }}", "{{ `{{ .Target }}` }}"]
 [template]
     options = ["missingkey=zero"]

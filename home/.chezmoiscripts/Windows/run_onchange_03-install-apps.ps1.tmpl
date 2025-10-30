@@ -1,6 +1,6 @@
 # .chezmoidata.yaml hash: {{ include ".chezmoidata.yaml" | sha256sum }}
 
-{{- template "elevate-powershell" }}
+{{ template "elevate-powershell" }}
 
 {{- $programPath := .programPath -}}
 {{- $workComputer := .workComputer -}}
@@ -12,9 +12,9 @@
 
 winget list -e {{ $element.windows.id }}
 if ($?) {
-  winget upgrade -e --id {{ $element.windows.id }}{{ end }}
+  winget upgrade -e --id {{ $element.windows.id }}
 } else {
-  winget install -e --id {{ $element.windows.id }}{{ end }}
+  winget install -e --id {{ $element.windows.id }}
 }
 
 {{- else if eq $element.windows.method "choco" }}
