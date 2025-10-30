@@ -4,7 +4,6 @@
 eval "$(starship init zsh)"
 
 #### ADD TAB COMPLETIONS
-source <(flux completion zsh)
 source <(chezmoi completion zsh)
 source <(gh completion -s zsh)
 source <(kubectl completion zsh)

@@ -31,6 +31,9 @@ apps:
     windows:
       id: "jdx.mise"
       method: "winget"
+    darwin:
+      id: "mise"
+      method: "brew"
 
   clink:
     forPersonal: false

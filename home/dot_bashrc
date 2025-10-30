@@ -4,7 +4,6 @@
 eval "$(starship init bash)"
 
 #### ADD TAB COMPLETIONS
-source <(flux completion bash)
 source <(chezmoi completion bash)
 source <(gh completion -s bash)
 source <(kubectl completion bash)
