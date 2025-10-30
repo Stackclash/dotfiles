@@ -1,6 +1,11 @@
 alefragnani.project-manager
-chukwuamaka.csvtojson-converter
+dbaeumer.vscode-eslint
+doppler.doppler-vscode
 eamodio.gitlens
+editorconfig.editorconfig
 github.vscode-pull-request-github
-majhirockzz.the-dark-knight
+gruntfuggly.todo-tree
+jannchie.codetime
+orta.vscode-jest
 redhat.vscode-yaml
+majhirockzz.the-dark-knight

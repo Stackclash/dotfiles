@@ -2,28 +2,56 @@
 
 {{ template "elevate-powershell" }}
 
+if (-not (Get-Module -Name "Microsoft.WinGet.Client" -ListAvailable)) {
+    Install-Module -Name "Microsoft.WinGet.Client" -Scope CurrentUser -Force
+}
+
 {{- $programPath := .programPath -}}
 {{- $workComputer := .workComputer -}}
 {{- range $index, $element := .apps -}}
 
 {{- if $element.windows -}}
 {{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
+Write-Output "Processing {{ $element.windows.id }}"
 {{- if eq $element.windows.method "winget" }}
 
-winget list -e {{ $element.windows.id }}
-if ($?) {
-  winget upgrade -e --id {{ $element.windows.id }}
+$PackageVersion = $(Find-WinGetPackage -MatchOption Equals -Id {{ $element.windows.id }}).Version
+$InstalledVersion = $(Get-WinGetPackage -MatchOption Equals -Id {{ $element.windows.id }}).InstalledVersion
+if ($InstalledVersion) {
+  if ($PackageVersion -ne $InstalledVersion) {
+    Write-Output "Updating from $($InstalledVersion) to $($PackageVersion) via WinGet..."
+    Update-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $element.windows.id }}
+  } else {
+    Write-Output "No update required"
+  }
 } else {
-  winget install -e --id {{ $element.windows.id }}
+  if (-not $PackageVersion) {
+    Write-Output "Does not exist in WinGet"
+  }
+  Write-Output "Installing {{ $element.windows.id }} via WinGet..."
+  Install-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $element.windows.id }}
 }
 
 {{- else if eq $element.windows.method "choco" }}
 
-choco upgrade {{ $element.windows.id }} --install-if-not-installed -y
-
-{{- end -}}
-{{- end -}}
-{{- end -}}
+$PackageVersion = $(choco search -r -e {{ $element.windows.id }} | ConvertFrom-Csv -delimiter "|" -Header Id,Version).Version
+$InstalledVersion = $(choco list --lo -r -e {{ $element.windows.id }} | ConvertFrom-Csv -delimiter "|" -Header Id,Version).Version
+if ($InstalledVersion) {
+  if ($PackageVersion -ne $InstalledVersion) {
+    Write-Output "Updating from $($InstalledVersion) to $($PackageVersion) via Chocolately..."
+    choco upgrade -e {{ $element.windows.id }} -y | Out-Null
+  } else {
+    Write-Output "No update required"
+  }
+} else {
+  if (-not $PackageVersion) {
+    Write-Output "Does not exist in Chocolately"
+  }
+  Write-Output "Installing {{ $element.windows.id }} via Chocolately..."
+  choco install -e {{ $element.windows.id }} -y | Out-Null
+}
+{{ end }}
+Write-Output ""
+{{ end }}
 {{- end }}
-
-refreshenv
+{{- end }}
