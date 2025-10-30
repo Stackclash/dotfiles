@@ -5,6 +5,8 @@
 
 # vscode-extensions hash: {{ include "vscode-extensions.txt" | sha256sum }}
 
+Write-Output "Installing VSCode Extensions"
+
 $extensions = Get-Content -path "{{ $rootDir }}\vscode-extensions.txt"
 foreach ($extension in $extensions) {
     code --install-extension $extension --force

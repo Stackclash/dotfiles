@@ -9,3 +9,5 @@ starship completions power-shell | Out-String | Invoke-Expression
 
 #### ACTIVATE MISE ENVIRONMENT
 mise activate pwsh | Out-String | Invoke-Expression
+
+Clear-Host
