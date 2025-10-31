@@ -5,8 +5,8 @@ terraform = "latest"
 "ubi:cli/cli" = "latest"
 "aqua:kubernetes/kubernetes/kubectl" = "latest"
 "ubi:jqlang/jq" = "latest"
-"ubi:starship/starship" = "latest"
 "github:DopplerHQ/cli" = "latest"
+"ubi:JanDeDobbeleer/oh-my-posh" = "latest"
 
 [env]
 _.file = ".env"

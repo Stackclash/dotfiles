@@ -1,8 +1,5 @@
 #!/bin/bash
 
-#### INITIALIZE STARSHIP
-eval "$(starship init bash)"
-
 #### ADD TAB COMPLETIONS
 source <(chezmoi completion bash)
 source <(gh completion -s bash)

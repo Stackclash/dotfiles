@@ -179,38 +179,11 @@ apps:
       id: "font-fira-mono"
       method: "brew-cask"
   
-  cascadia-code:
+  nerd-fonts-firacode:
     forPersonal: false
     windows:
-      id: "cascadiacode"
+      id: "nerd-fonts-firacode"
       method: "choco"
     darwin:
-      id: "font-cascadia-code"
-      method: "brew-cask"
-  
-  cascadia-code-pl:
-    forPersonal: false
-    windows:
-      id: "cascadiacodepl"
-      method: "choco"
-    darwin:
-      id: "font-cascadia-code-pl"
-      method: "brew-cask"
-  
-  cascadia-mono:
-    forPersonal: false
-    windows:
-      id: "firacode"
-      method: "choco"
-    darwin:
-      id: "font-cascadia-mono"
-      method: "brew-cask"
-  
-  cascadia-mono-pl:
-    forPersonal: false
-    windows:
-      id: "firacode"
-      method: "choco"
-    darwin:
-      id: "font-cascadia-mono-pl"
+      id: "font-fira-code-nerd-font"
       method: "brew-cask"
