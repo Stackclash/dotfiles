@@ -14,7 +14,7 @@ Write-Host "Processing {{ $element.windows.id }}"
 $PackageVersion = $(Find-WinGetPackage -MatchOption Equals -Id {{ $element.windows.id }}).Version
 $InstalledVersion = $(Get-WinGetPackage -MatchOption Equals -Id {{ $element.windows.id }}).InstalledVersion
 if ($InstalledVersion) {
-  if ($PackageVersion -ne $InstalledVersion) {
+  if (($PackageVersion -ne $InstalledVersion) -and ($PackageVersion -ne "Unknown")) {
     Write-Host "Updating from $($InstalledVersion) to $($PackageVersion) via WinGet..." -ForegroundColor Green
     Update-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $element.windows.id }}
   } else {

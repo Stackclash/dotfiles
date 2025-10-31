@@ -2,7 +2,7 @@
 node = "latest"
 python = "latest"
 terraform = "latest"
-"ubi:cli/cli" = "latest"
+"ubi:cli/cli" = { version = "latest", exe = "gh" }
 "aqua:kubernetes/kubernetes/kubectl" = "latest"
 "ubi:jqlang/jq" = "latest"
 "github:DopplerHQ/cli" = "latest"
@@ -11,3 +11,4 @@ terraform = "latest"
 [env]
 _.file = ".env"
 _.path = ['{{config_root}}/node_modules/.bin']
+MISE_PWSH_CHPWD_WARNING = 0

@@ -50,7 +50,7 @@ apps:
   powershell:
     forPersonal: false
     windows:
-      id: "Microsoft.Powershell"
+      id: "Microsoft.PowerShell"
       method: "winget"
 
   # Browser
@@ -76,7 +76,7 @@ apps:
   icloud:
     forPersonal: true
     windows:
-      id: "Apple.iCloud"
+      id: "9PKTQ5699M62"
       method: "winget"
 
   vlc:

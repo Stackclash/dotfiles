@@ -2,19 +2,21 @@
 
 {{- $projectPath := .projectPath }}
 
-mise x ubi:cli/cli[exe=gh] -- gh auth status >$null 2>&1
+mise use ubi:cli/cli[exe=gh]
+
+gh auth status >$null 2>&1
 if ($LASTEXITCODE -ne 0) {
-    mise x ubi:cli/cli[exe=gh] -- gh auth login -p https --web
+    gh auth login -p https --web
 }
 
 $projectPath = "{{ $projectPath }}\Personal"
-$repos = mise x ubi:cli/cli[exe=gh] -- gh repo list --source --json name,nameWithOwner -L 5 | ConvertFrom-Json
+$repos = gh repo list --source --json name,nameWithOwner -L 5 | ConvertFrom-Json
 
 foreach ($repo in $repos) {
     $repoPath = Join-Path -Path $projectPath -ChildPath $repo.name
 
     if (-Not (Test-Path $repoPath)) {
-        mise x ubi:cli/cli[exe=gh] -- gh repo clone $repo.nameWithOwner $repoPath
+        gh repo clone $repo.nameWithOwner $repoPath
     } else {
         echo "$repoPath already exists"
     }

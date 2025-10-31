@@ -10,14 +10,8 @@ if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
 }
 
 # Check if an update for winget is available
-$wingetUpdate = winget upgrade --id Microsoft.DesktopAppInstaller | Select-String "Microsoft.DesktopAppInstaller"
-
-if ($wingetUpdate) {
-    Write-Host "An update for winget is available. Updating now..." -ForegroundColor Green
-    winget upgrade --id Microsoft.DesktopAppInstaller --accept-source-agreements --accept-package-agreements
-} else {
-    Write-Host "Winget is already up-to-date." -ForegroundColor Yellow
-}
+# TODO: Can this be conditional?
+winget install -s msstore --id 9NBLGGH4NNS1 --force --accept-package-agreements --accept-source-agreements
 
 # INSTALL Microsoft.WinGet.Client
 if (-not (Get-Module -Name "Microsoft.WinGet.Client" -ListAvailable)) {
