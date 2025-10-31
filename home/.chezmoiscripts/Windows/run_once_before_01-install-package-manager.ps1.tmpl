@@ -1,0 +1,26 @@
+{{ template "elevate-powershell" }}
+
+# INSTALL CHOCOLATEY PACKAGE MANAGER
+# Check if chocolatey is installed
+if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
+    Write-Host "Installing Chocolatey package manager" -ForegroundColor Green
+    Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+} else {
+    Write-Host "Chocolatey is already installed" -ForegroundColor Yellow
+}
+
+# Check if an update for winget is available
+$wingetUpdate = winget upgrade --id Microsoft.DesktopAppInstaller | Select-String "Microsoft.DesktopAppInstaller"
+
+if ($wingetUpdate) {
+    Write-Host "An update for winget is available. Updating now..." -ForegroundColor Green
+    winget upgrade --id Microsoft.DesktopAppInstaller --accept-source-agreements --accept-package-agreements
+} else {
+    Write-Host "Winget is already up-to-date." -ForegroundColor Yellow
+}
+
+# INSTALL Microsoft.WinGet.Client
+if (-not (Get-Module -Name "Microsoft.WinGet.Client" -ListAvailable)) {
+    Write-Host "Installing Microsoft.WinGet.Client" -ForegroundColor Green
+    Install-Module -Name "Microsoft.WinGet.Client" -Scope CurrentUser -Force
+}

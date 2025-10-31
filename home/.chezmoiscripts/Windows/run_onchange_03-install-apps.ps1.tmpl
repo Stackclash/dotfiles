@@ -2,34 +2,31 @@
 
 {{ template "elevate-powershell" }}
 
-if (-not (Get-Module -Name "Microsoft.WinGet.Client" -ListAvailable)) {
-    Install-Module -Name "Microsoft.WinGet.Client" -Scope CurrentUser -Force
-}
-
 {{- $programPath := .programPath -}}
 {{- $workComputer := .workComputer -}}
 {{- range $index, $element := .apps -}}
 
 {{- if $element.windows -}}
 {{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
-Write-Output "Processing {{ $element.windows.id }}"
+Write-Host "Processing {{ $element.windows.id }}"
 {{- if eq $element.windows.method "winget" }}
 
 $PackageVersion = $(Find-WinGetPackage -MatchOption Equals -Id {{ $element.windows.id }}).Version
 $InstalledVersion = $(Get-WinGetPackage -MatchOption Equals -Id {{ $element.windows.id }}).InstalledVersion
 if ($InstalledVersion) {
   if ($PackageVersion -ne $InstalledVersion) {
-    Write-Output "Updating from $($InstalledVersion) to $($PackageVersion) via WinGet..."
+    Write-Host "Updating from $($InstalledVersion) to $($PackageVersion) via WinGet..." -ForegroundColor Green
     Update-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $element.windows.id }}
   } else {
-    Write-Output "No update required"
+    Write-Host "No update required" -ForegroundColor Yellow
   }
 } else {
   if (-not $PackageVersion) {
-    Write-Output "Does not exist in WinGet"
+    Write-Host "Does not exist in WinGet" -ForegroundColor Red
+  } else {
+    Write-Host "Installing {{ $element.windows.id }} via WinGet..." -ForegroundColor Green
+    Install-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $element.windows.id }}
   }
-  Write-Output "Installing {{ $element.windows.id }} via WinGet..."
-  Install-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $element.windows.id }}
 }
 
 {{- else if eq $element.windows.method "choco" }}
@@ -38,20 +35,21 @@ $PackageVersion = $(choco search -r -e {{ $element.windows.id }} | ConvertFrom-C
 $InstalledVersion = $(choco list --lo -r -e {{ $element.windows.id }} | ConvertFrom-Csv -delimiter "|" -Header Id,Version).Version
 if ($InstalledVersion) {
   if ($PackageVersion -ne $InstalledVersion) {
-    Write-Output "Updating from $($InstalledVersion) to $($PackageVersion) via Chocolately..."
+    Write-Host "Updating from $($InstalledVersion) to $($PackageVersion) via Chocolately..." -ForegroundColor Green
     choco upgrade -e {{ $element.windows.id }} -y | Out-Null
   } else {
-    Write-Output "No update required"
+    Write-Host "No update required" -ForegroundColor Yellow
   }
 } else {
   if (-not $PackageVersion) {
-    Write-Output "Does not exist in Chocolately"
+    Write-Host "Does not exist in Chocolately" -ForegroundColor Red
   }
-  Write-Output "Installing {{ $element.windows.id }} via Chocolately..."
+  Write-Host "Installing {{ $element.windows.id }} via Chocolately..." -ForegroundColor Green
   choco install -e {{ $element.windows.id }} -y | Out-Null
 }
 {{ end }}
-Write-Output ""
+Write-Host ""
 {{ end }}
 {{- end }}
 {{- end }}
+refreshenv
