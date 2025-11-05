@@ -1,12 +1,12 @@
 #!/bin/bash
 
-{{- $projectPath := .projectPath -}}
+{{- $projectPath := .projectPath }}
 
 if ! gh auth status >/dev/null 2>&1; then
     gh auth login -p ssh --web
 fi
 
-PROJECT_PATH = "{{ $projectPath }}/Personal"
+PROJECT_PATH="{{ $projectPath }}/Personal"
 REPOS=$(gh repo list --source --json name,nameWithOwner -L 5)
 
 for REPO in $(jq --compact-output '.[]' <<< $REPOS); do

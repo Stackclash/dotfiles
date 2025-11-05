@@ -2,7 +2,7 @@
 
 {{- $projectPath := .projectPath -}}
 {{- $workGithubOrg := .workGithubOrg -}}
-{{- $githubUsername := .githubUsername -}}
+{{- $githubUsername := .githubUsername }}
 
 if ! gh auth status >/dev/null 2>&1; then
     gh auth login -p ssh --web

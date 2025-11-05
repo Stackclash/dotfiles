@@ -10,7 +10,7 @@ terraform = "latest"
 
 [env]
 _.file = ".env"
-_.path = ['{{config_root}}/node_modules/.bin']
+_.path = ['{{cwd}}/node_modules/.bin']
 MISE_PWSH_CHPWD_WARNING = 0
 
 [tasks.doppler-sync]

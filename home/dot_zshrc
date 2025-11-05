@@ -1,6 +1,0 @@
-#!/bin/zsh
-
-#### ADD TAB COMPLETIONS
-source <(chezmoi completion zsh)
-source <(gh completion -s zsh)
-source <(kubectl completion zsh)

@@ -25,6 +25,13 @@ apps:
       id: "calibre.calibre"
       method: "winget"
 
+  # Shells
+  fish:
+    forPersonal: false
+    darwin:
+      id: "fish"
+      method: "brew"
+
   # CLI Tools
   mise:
     forPersonal: false
@@ -102,7 +109,7 @@ apps:
       method: "winget"
     darwin:
       id: "visual-studio-code"
-      method: "brew"
+      method: "brew-cask"
 
   postman:
     forPersonal: false
@@ -140,19 +147,6 @@ apps:
     darwin:
       id: "obsidian"
       method: "brew-cast"
-
-  # Extra
-  cask-versions:
-    forPersonal: false
-    darwin:
-      id: "homebrew/cask-versions"
-      method: "brew-tap"
-
-  cask-fonts:
-    forPersonal: false
-    darwin:
-      id: "homebrew/cask-fonts"
-      method: "brew-tap"
 
   zsh-autosuggestions:
     forPersonal: false

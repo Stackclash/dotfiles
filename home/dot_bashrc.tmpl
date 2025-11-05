@@ -1,0 +1,11 @@
+#!/bin/bash
+#### INITIALIZE MISE
+eval "$(mise activate bash)"
+
+#### INITIALIZE OH-MY-POSH
+eval "$(oh-my-posh init bash)"
+
+#### ADD TAB COMPLETIONS
+source <(gh completion -s bash)
+source <(kubectl completion bash)
+{{ completion "bash" }}

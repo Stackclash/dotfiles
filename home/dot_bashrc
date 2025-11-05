@@ -1,7 +1,0 @@
-#!/bin/bash
-
-#### ADD TAB COMPLETIONS
-source <(chezmoi completion bash)
-source <(gh completion -s bash)
-source <(kubectl completion bash)
-source <(starship completions bash)

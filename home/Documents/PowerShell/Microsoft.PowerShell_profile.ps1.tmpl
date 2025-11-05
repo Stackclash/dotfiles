@@ -6,8 +6,8 @@ mise install
 oh-my-posh init pwsh --config "tokyo" | Invoke-Expression
 
 #### ADD TAB COMPLETIONS
-chezmoi completion powershell | Out-String | Invoke-Expression
 gh completion -s powershell | Out-String | Invoke-Expression
 kubectl completion powershell | Out-String | Invoke-Expression
+{{ completion "powershell" }}
 
 Clear-Host

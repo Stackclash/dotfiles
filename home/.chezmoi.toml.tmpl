@@ -5,27 +5,32 @@
 {{- $workGithubOrg := promptStringOnce . "workGithubOrg" "Work Github Org" -}}
 {{- $githubUsername := promptStringOnce . "githubUsername" "Github username" -}}
 {{- $projectPath := promptStringOnce . "projectPath" "What path to use for Projects" -}}
+
 [data]
-    name = {{ $name | quote }}
-    email = {{ $email | quote }}
-    workComputer = {{ $workComputer }}
-    workEmail = {{ $workEmail | quote }}
-    workGithubOrg = {{ $workGithubOrg | quote }}
-    githubUsername = {{ $githubUsername | quote }}
-    projectPath = {{ $projectPath | quote }}
+name = {{ $name | quote }}
+email = {{ $email | quote }}
+workComputer = {{ $workComputer }}
+workEmail = {{ $workEmail | quote }}
+workGithubOrg = {{ $workGithubOrg | quote }}
+githubUsername = {{ $githubUsername | quote }}
+projectPath = {{ $projectPath | quote }}
+
 [edit]
-    command = "code"
-    args = ["--wait"]
+command = "code"
+args = ["--wait"]
+
 [merge]
-    {{- if eq .chezmoi.os "windows" }}
-    command = "powershell"
-    args = ["-Command", "cp {{ `{{ .Target }}` }} {{ `{{ .Target }}` }}.base && code --wait --new-window --merge {{ `{{ .Destination }}` }} {{ `{{ .Target  }}` }} {{ `{{ .Target }}` }}.base {{ `{{ .Source }}` }}"]
-    {{- else -}}
-    command = "bash"
-    args = ["-c", "cp {{ `{{ .Target }}` }} {{ `{{ .Target }}` }}.base && code --wait --new-window --merge {{ `{{ .Destination }}` }} {{ `{{ .Target  }}` }} {{ `{{ .Target }}` }}.base {{ `{{ .Source }}` }}"]
-    {{- end }}
+{{- if eq .chezmoi.os "windows" }}
+command = "powershell"
+args = ["-Command", "cp {{ `{{ .Target }}` }} {{ `{{ .Target }}` }}.base && code --wait --new-window --merge {{ `{{ .Destination }}` }} {{ `{{ .Target }}` }} {{ `{{ .Target }}` }}.base {{ `{{ .Source }}` }}"]
+{{- else }}
+command = "bash"
+args = ["-c", "cp {{ `{{ .Target }}` }} {{ `{{ .Target }}` }}.base && code --wait --new-window --merge {{ `{{ .Destination }}` }} {{ `{{ .Target }}` }} {{ `{{ .Target }}` }}.base {{ `{{ .Source }}` }}"]
+{{- end }}
+
 [diff]
-    command = "code"
-    args = ["--wait", "--diff", "{{ `{{ .Destination }}` }}", "{{ `{{ .Target }}` }}"]
+command = "code"
+args = ["--wait", "--diff", "{{ `{{ .Destination }}` }}", "{{ `{{ .Target }}` }}"]
+
 [template]
-    options = ["missingkey=zero"]
+options = ["missingkey=zero"]

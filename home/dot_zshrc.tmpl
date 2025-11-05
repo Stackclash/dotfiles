@@ -1,0 +1,16 @@
+#!/bin/zsh
+#### INITIALIZE MISE
+eval "$(mise activate zsh)"
+
+#### INITIALIZE OH-MY-POSH
+if [ "$TERM_PROGRAM" != "Apple_Terminal" ]; then
+  eval "$(oh-my-posh init zsh)"
+fi
+
+#### ADD TAB COMPLETIONS
+autoload -U compinit
+compinit -i
+
+source <(gh completion -s zsh)
+source <(kubectl completion zsh)
+{{ completion "zsh" }}
