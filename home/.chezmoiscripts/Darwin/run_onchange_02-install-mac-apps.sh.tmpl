@@ -2,7 +2,7 @@
 brew update
 brew upgrade
 
-brew bundle --no-lock --file=/dev/stdin <<EOF
+brew bundle --file=/dev/stdin <<EOF
 
 {{- $workComputer := .workComputer -}}
 {{- range $index, $element := .apps -}}
