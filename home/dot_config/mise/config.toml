@@ -1,0 +1,27 @@
+[tools]
+node = "latest"
+python = "latest"
+terraform = "latest"
+"ubi:cli/cli" = { version = "latest", exe = "gh" }
+"aqua:kubernetes/kubernetes/kubectl" = "latest"
+"ubi:jqlang/jq" = "latest"
+"github:DopplerHQ/cli" = "latest"
+"ubi:JanDeDobbeleer/oh-my-posh" = "latest"
+
+[env]
+_.file = ".env"
+_.path = ['{{config_root}}/node_modules/.bin']
+MISE_PWSH_CHPWD_WARNING = 0
+
+[tasks.doppler-sync]
+dir = "{{cwd}}"
+description = "Sync secrets from Doppler for the current project and environment"
+usage = '''
+flag "-e --env <env>" help="Doppler Environment Config" {
+    choices "dev" "prd"
+    default "dev"
+}
+arg "<project>" help="Doppler project"
+'''
+run='node ~/.config/mise/tasks/doppler-sync.js'
+run_windows='node %USERPROFILE%\.config\mise\tasks\doppler-sync.js'
