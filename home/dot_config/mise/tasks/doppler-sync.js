@@ -47,9 +47,9 @@ if (existsSync(localSettingsPath) || existsSync(hostFilePath)) {
   console.log("📝 Merging into local.settings.json...")
   let json = {}
   if (existsSync(localSettingsPath)) {
-    json = JSON.parse(readFileSync(localSettingsPath, "utf-8")).Values
+    json = JSON.parse(readFileSync(localSettingsPath, "utf-8"))
   }
-  json.Values = { ...json, ...dopplerSecrets }
+  json.Values = { ...json.Values, ...dopplerSecrets }
   writeFileSync(localSettingsPath, JSON.stringify(json, null, 2))
   console.log("✅ local.settings.json updated successfully")
 } else if (existsSync(envPath)) {
@@ -65,7 +65,7 @@ if (existsSync(localSettingsPath) || existsSync(hostFilePath)) {
 
   const merged = { ...existingEnv, ...dopplerSecrets }
   const output = Object.entries(merged)
-    .map(([k, v]) => `${k}=${v}`)
+    .map(([k, v]) => `${k}="${v}"`)
     .join("\n")
 
   writeFileSync(envPath, output)

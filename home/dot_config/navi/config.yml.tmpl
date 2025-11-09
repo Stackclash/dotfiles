@@ -1,0 +1,7 @@
+cheats:
+  paths:
+    {{- if eq .chezmoi.os "windows"}}
+    - "%USERPROFILE%/.config/navi/cheats"
+    {{- else}}
+    - "$HOME/.config/navi/cheats"
+    {{- end}}
