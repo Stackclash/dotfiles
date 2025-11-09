@@ -7,6 +7,10 @@ terraform = "latest"
 "ubi:jqlang/jq" = "latest"
 "github:DopplerHQ/cli" = "latest"
 "ubi:JanDeDobbeleer/oh-my-posh" = "latest"
+"pipx:ansible" = "latest"
+"aqua:hashicorp/terraform" = "latest"
+"aqua:terraform-docs/terraform-docs" = "latest"
+"aqua:cheat/cheat" = "latest"
 
 [env]
 _.file = ".env"
