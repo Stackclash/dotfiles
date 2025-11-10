@@ -9,7 +9,7 @@
 "aqua:cheat/cheat" = "latest"
 "aqua:hashicorp/terraform" = "latest"
 "aqua:terraform-docs/terraform-docs" = "latest"
-"ubi:junegunn/fzf" = "latest"
+"ubi:junegunn/fzf" = "latest" # Required for navi
 "ubi:denisidoro/navi" = "2.22.1"
 "aqua:sxyazi/yazi" = "latest"
 "aqua:neovim/neovim" = "latest"
@@ -18,7 +18,7 @@
 _.file = ".env"
 _.path = ['{{cwd}}/node_modules/.bin']
 MISE_PWSH_CHPWD_WARNING = 0
-NAVI_CONFIG = "{{home}}/.config/navi/config.yml"
+NAVI_CONFIG = "~/.config/navi/config.yml"
 
 [tasks.doppler-sync]
 dir = "{{cwd}}"
