@@ -5,6 +5,8 @@
 {{- $workGithubOrg := promptStringOnce . "workGithubOrg" "Work Github Org" -}}
 {{- $githubUsername := promptStringOnce . "githubUsername" "Github username" -}}
 {{- $projectPath := promptStringOnce . "projectPath" "What path to use for Projects" -}}
+{{- $themes := list "dracular" "molokai" -}}
+{{- $colorscheme := "What color scheme would you like to use" $themes -}}
 
 [data]
 name = {{ $name | quote }}
@@ -14,6 +16,9 @@ workEmail = {{ $workEmail | quote }}
 workGithubOrg = {{ $workGithubOrg | quote }}
 githubUsername = {{ $githubUsername | quote }}
 projectPath = {{ $projectPath | quote }}
+
+[data.drapeau]
+colorscheme = {{ $colorscheme | quote }}
 
 [edit]
 command = "code"
