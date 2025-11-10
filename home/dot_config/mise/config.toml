@@ -11,6 +11,8 @@
 "aqua:terraform-docs/terraform-docs" = "latest"
 "ubi:junegunn/fzf" = "latest"
 "ubi:denisidoro/navi" = "2.22.1"
+"aqua:sxyazi/yazi" = "latest"
+"aqua:neovim/neovim" = "latest"
 
 [env]
 _.file = ".env"

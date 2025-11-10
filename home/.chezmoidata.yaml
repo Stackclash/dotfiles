@@ -48,12 +48,6 @@ apps:
       id: "chrisant996.Clink"
       method: "winget"
 
-  git:
-    forPersonal: false
-    windows:
-      id: "Git.Git"
-      method: "winget"
-
   powershell:
     forPersonal: false
     windows:
@@ -147,21 +141,6 @@ apps:
     darwin:
       id: "obsidian"
       method: "brew-cast"
-
-  zsh-autosuggestions:
-    forPersonal: false
-    darwin:
-      id: "zsh-autosuggestions"
-      method: "brew"
-
-  7zip:
-    forPersonal: false
-    windows:
-      id: "7zip"
-      method: "choco"
-    darwin:
-      id: "p7zip"
-      method: "brew"
   
   # Fonts
   fira-code-mono:
@@ -181,3 +160,38 @@ apps:
     darwin:
       id: "font-fira-code-nerd-font"
       method: "brew-cask"
+      
+  # Others
+  glazewm:
+    forPersonal: true
+    windows:
+      id: "GlazeWM"
+      method: "winget"
+      
+  yasb:
+    forPersonal: true
+    windows:
+      id: "AmN.yasb"
+      method: "winget"
+      
+  flow-launcher:
+    forPersonal: true
+    windows:
+      id: "Flow-Launcher.Flow-Launcher"
+      method: "winget"
+      
+  zsh-autosuggestions:
+    forPersonal: false
+    darwin:
+      id: "zsh-autosuggestions"
+      method: "brew"
+
+  7zip:
+    forPersonal: false
+    windows:
+      id: "7zip"
+      method: "choco"
+    darwin:
+      id: "p7zip"
+      method: "brew"
+     
