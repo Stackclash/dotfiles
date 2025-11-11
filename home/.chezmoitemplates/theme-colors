@@ -1,0 +1,5 @@
+{{- $themeName := .theme -}}
+{{- $themes := .themes -}}
+{{- $themeColors := index $themes $themeName -}}
+
+{{- $themeColors | toYaml -}}
