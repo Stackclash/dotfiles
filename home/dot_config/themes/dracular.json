@@ -1,0 +1,20 @@
+{
+  "background": "282A36",
+  "d_black": "000000",
+  "d_blue": "BD93F9",
+  "d_cyan": "8BE9FD",
+  "d_green": "50FA7B",
+  "d_magenta": "FF79C6",
+  "d_red": "FF5555",
+  "d_white": "BFBFBF",
+  "d_yellow": "F1FA8C",
+  "foreground": "F8F8F2",
+  "l_black": "4D4D4D",
+  "l_blue": "CAA9FA",
+  "l_cyan": "9AEDFE",
+  "l_green": "5AF78E",
+  "l_magenta": "FF92D0",
+  "l_red": "FF6E67",
+  "l_white": "E6E6E6",
+  "l_yellow": "F4F99D"
+}

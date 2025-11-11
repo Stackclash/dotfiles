@@ -1,0 +1,20 @@
+{
+  "background": "272822",
+  "d_black": "272822",
+  "d_blue": "30309b",
+  "d_cyan": "3579a8",
+  "d_green": "66aa11",
+  "d_magenta": "7e40a5",
+  "d_red": "bf0829",
+  "d_white": "9999aa",
+  "d_yellow": "c47f2c",
+  "foreground": "d0d0d0",
+  "l_black": "303030",
+  "l_blue": "5f5fee",
+  "l_cyan": "4eb4fa",
+  "l_green": "80ff00",
+  "l_magenta": "bb88dd",
+  "l_red": "ff0090",
+  "l_white": "d0d0d0",
+  "l_yellow": "ffba68"
+}
