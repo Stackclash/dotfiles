@@ -2,8 +2,7 @@
 2. mise trust config
 3. disable OneDrive syncing
 4. terminal font and config
-5. get theme script working
-6. vscode:
+5. vscode:
     - os terminal settings
 6. setup:
     - glazewm
