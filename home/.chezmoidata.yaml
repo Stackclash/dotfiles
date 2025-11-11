@@ -165,7 +165,7 @@ apps:
   glazewm:
     forPersonal: true
     windows:
-      id: "GlazeWM"
+      id: "glzr-io.glazewm"
       method: "winget"
       
   yasb:

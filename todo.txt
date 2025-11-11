@@ -1,5 +1,13 @@
-
-Set timezone
-mise trust config
-disable OneDrive syncing
-terminal font and config
+1. Set timezone
+2. mise trust config
+3. disable OneDrive syncing
+4. terminal font and config
+5. get theme script working
+6. vscode:
+    - os terminal settings
+6. setup:
+    - glazewm
+    - yasb
+    - navi (config env and cheats)
+    - neovim
+    - flow-launcher
