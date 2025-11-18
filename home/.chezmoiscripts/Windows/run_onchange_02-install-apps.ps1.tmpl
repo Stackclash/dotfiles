@@ -4,19 +4,19 @@
 
 {{- $programPath := .programPath -}}
 {{- $workComputer := .workComputer -}}
-{{- range $index, $element := .apps -}}
+{{- range $key, $app := .apps -}}
 
-{{- if $element.windows -}}
-{{- if not (and (eq $workComputer true) (eq $element.forPersonal true)) -}}
-Write-Host "Processing {{ $element.windows.id }}"
-{{- if eq $element.windows.method "winget" }}
+{{- if $app.windows -}}
+{{- if not (and (eq $workComputer true) (eq $app.forPersonal true)) -}}
+Write-Host "Processing {{ $key }}"
+{{- if eq $app.windows.method "winget" }}
 
-$PackageVersion = $(Find-WinGetPackage -MatchOption Equals -Id {{ $element.windows.id }}).Version
-$InstalledVersion = $(Get-WinGetPackage -MatchOption Equals -Id {{ $element.windows.id }}).InstalledVersion
+$PackageVersion = $(Find-WinGetPackage -MatchOption Equals -Id {{ $app.windows.id }}).Version
+$InstalledVersion = $(Get-WinGetPackage -MatchOption Equals -Id {{ $app.windows.id }}).InstalledVersion
 if ($InstalledVersion) {
   if (($PackageVersion -ne $InstalledVersion) -and ($PackageVersion -ne "Unknown")) {
     Write-Host "Updating from $($InstalledVersion) to $($PackageVersion) via WinGet..." -ForegroundColor Green
-    Update-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $element.windows.id }}
+    Update-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $app.windows.id }}
   } else {
     Write-Host "No update required" -ForegroundColor Yellow
   }
@@ -24,19 +24,19 @@ if ($InstalledVersion) {
   if (-not $PackageVersion) {
     Write-Host "Does not exist in WinGet" -ForegroundColor Red
   } else {
-    Write-Host "Installing {{ $element.windows.id }} via WinGet..." -ForegroundColor Green
-    Install-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $element.windows.id }}
+    Write-Host "Installing {{ $app.windows.id }} via WinGet..." -ForegroundColor Green
+    Install-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $app.windows.id }}
   }
 }
 
-{{- else if eq $element.windows.method "choco" }}
+{{- else if eq $app.windows.method "choco" }}
 
-$PackageVersion = $(choco search -r -e {{ $element.windows.id }} | ConvertFrom-Csv -delimiter "|" -Header Id,Version).Version
-$InstalledVersion = $(choco list --lo -r -e {{ $element.windows.id }} | ConvertFrom-Csv -delimiter "|" -Header Id,Version).Version
+$PackageVersion = $(choco search -r -e {{ $app.windows.id }} | ConvertFrom-Csv -delimiter "|" -Header Id,Version).Version
+$InstalledVersion = $(choco list --lo -r -e {{ $app.windows.id }} | ConvertFrom-Csv -delimiter "|" -Header Id,Version).Version
 if ($InstalledVersion) {
   if ($PackageVersion -ne $InstalledVersion) {
     Write-Host "Updating from $($InstalledVersion) to $($PackageVersion) via Chocolately..." -ForegroundColor Green
-    choco upgrade -e {{ $element.windows.id }} -y | Out-Null
+    choco upgrade -e {{ $app.windows.id }} -y | Out-Null
   } else {
     Write-Host "No update required" -ForegroundColor Yellow
   }
@@ -44,8 +44,8 @@ if ($InstalledVersion) {
   if (-not $PackageVersion) {
     Write-Host "Does not exist in Chocolately" -ForegroundColor Red
   }
-  Write-Host "Installing {{ $element.windows.id }} via Chocolately..." -ForegroundColor Green
-  choco install -e {{ $element.windows.id }} -y | Out-Null
+  Write-Host "Installing {{ $app.windows.id }} via Chocolately..." -ForegroundColor Green
+  choco install -e {{ $app.windows.id }} -y | Out-Null
 }
 {{ end }}
 Write-Host ""
