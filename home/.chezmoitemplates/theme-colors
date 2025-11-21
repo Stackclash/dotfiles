@@ -1,5 +1,21 @@
+{{- /* Convert [R,G,B] array to #RRGGBB hex string */ -}}
+{{- define "rgbToHex" -}}
+{{- $arr := . -}}
+{{- printf "#%02X%02X%02X" (index $arr 0) (index $arr 1) (index $arr 2) -}}
+{{- end }}
+
+{{- /* Convert [R,G,B] array → float array 0-1 (iTerm2 format) */ -}}
+{{- define "rgbToFloat" -}}
+{{- $arr := . -}}
+[
+  {{ div (float (index $arr 0)) 255 }},
+  {{ div (float (index $arr 1)) 255 }},
+  {{ div (float (index $arr 2)) 255 }}
+]
+{{- end }}
+
 {{- $themeName := .theme -}}
 {{- $themes := .themes -}}
-{{- $themeColors := index $themes $themeName -}}
+{{- $theme := index $themes $themeName -}}
 
-{{- $themeColors | toYaml -}}
+{{- $theme | toYaml -}}

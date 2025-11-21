@@ -5,42 +5,59 @@
 
 [![Static Badge](https://img.shields.io/badge/Documentation-blue?style=for-the-badge&logo=gitbook)](https://stackclash.github.io/dotfiles)
 
-This project provisions my development environment on either Windows or Mac machines. It uses [chezmoi](https://chezmoi.io) to install applications and copy dotfiles to their respective locations. This setup also allows me to use my Yubikey.
+A cross-platform, automated dotfiles setup powered by [chezmoi](https://chezmoi.io). This repo contains my macOS, Linux, and Windows configuration, along with scripts, templates, and documentation describing how everything works.
 
-# :star: Features
-## Command Line Tools
-- flux
-- gh
-- kubectl
-- go-task
-- starship
-- terraform
+This project is designed to be reproducible, maintainable, and well-documented — ideal for quickly bringing up a new machine or keeping multiple systems in sync.
 
-## Browsers
-- Firefox Developer Edition
-- Chrome
+# Features
+## 🔧 Cross-Platform Automation with chezmoi
+- Declarative dotfiles using chezmoi templates (.tmpl)
+- OS-specific bootstrap scripts:
+- run_once_before_* automatic package manager setup
+- run_onchange_* for idempotent application installs
+- Separate workflows for macOS (Darwin) and Windows
 
-## Developer Tools
-- Visual Studio Code Insiders
-- Postman
-- Yubikey Manager
+## 🖌️ Theming & Configuration Data
+- Centralized theme variables for use across templates
+- App installation configuration
+- Reusable template helpers (e.g., theme colors, PowerShell elevation)
 
-## Utilities
-- 7Zip
+## 🖥️ Shell & Terminal Environment
+- PowerShell profiles for Windows
+- Bash, Zsh, and Fish configs (.bashrc, .zshrc, fish/config.fish)
+- Oh My Posh setup
+- Git templates
 
-## Applications
-- Obsidian
+## 💻 Application & Environment Setup
 
-## Shell Dotfiles
-- Powershell
-- Bash
-- Zsh
+Automated install of:
 
-## Configuration
-- Git
-- SSH
+Homebrew packages (macOS)
 
+Windows package manager + apps (Windows)
 
+VS Code extensions (cross-platform)
+
+Support for mise, npm defaults, navi, and more
+
+## 🔐 SSH & Private Configs
+
+Private SSH keys & configs under private_dot_ssh/
+
+Platform-specific private VS Code User settings
+
+# Quick Start
+
+Run this command on a fresh system to install chezmoi and initialize these dotfiles.
+
+Windows (PowerShell)
+```
+powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr https://raw.githubusercontent.com/Stackclash/dotfiles/main/bootstrap.ps1 | iex"
+```
+macOS / Linux (Shell)
+```
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/Stackclash/dotfiles/main/bootstrap.sh)"
+```
 
 # To-Do
 - Write documentation on Git, and SSH configuration

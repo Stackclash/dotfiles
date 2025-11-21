@@ -126,6 +126,15 @@ apps:
       id: "PuTTY.PuTTY"
       method: "winget"
 
+  docker:
+    forPersonal: false
+    windows:
+      id: "Docker.DockerDesktop"
+      method: "winget"
+    darwin:
+      id: "docker"
+      method: "brew-cask"
+
   iterm2:
     forPersonal: false
     darwin:

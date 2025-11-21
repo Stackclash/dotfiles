@@ -1,15 +1,24 @@
 themes:
   dracular:
-    background: 282A36
+    background:
+      - 40
+      - 42
+      - 54
+    foreground: 
+      - 248
+      - 248
+      - 242
+    d_red:
+      - 255
+      - 85
+      - 85
     d_black: '000000'
     d_blue: BD93F9
     d_cyan: 8BE9FD
     d_green: 50FA7B
     d_magenta: FF79C6
-    d_red: FF5555
     d_white: BFBFBF
     d_yellow: F1FA8C
-    foreground: F8F8F2
     l_black: 4D4D4D
     l_blue: CAA9FA
     l_cyan: 9AEDFE
@@ -37,3 +46,23 @@ themes:
     l_red: ff0090
     l_white: d0d0d0
     l_yellow: ffba68
+  mojave_dark:
+    background:
+    foreground:
+    black: '222323'
+    blue: 007AFF
+    cyan: 00C7A3
+    green: 62BA46
+    magenta: F74F9E
+    red: FF5257
+    white: c2c2c2
+    gray: '727373'
+    yellow: FBB927
+    l_black:
+    l_blue:
+    l_cyan:
+    l_green:
+    l_magenta:
+    l_red:
+    l_white:
+    l_yellow:

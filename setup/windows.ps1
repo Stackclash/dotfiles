@@ -1,1 +1,0 @@
-(Invoke-RestMethod -useb https://get.chezmoi.io/ps1) | powershell -c -

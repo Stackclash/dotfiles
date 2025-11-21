@@ -1,6 +1,5 @@
 {{ template "elevate-powershell" }}
 
-{{- $programPath := .programPath -}}
 {{- $rootDir := .chezmoi.sourceDir }}
 
 # vscode-extensions hash: {{ include "vscode-extensions.txt" | sha256sum }}
