@@ -1,0 +1,23 @@
+vscodeProfiles:
+  common_extensions:
+    - alefragnani.project-manager
+    - doppler.doppler-vscode
+    - eamodio.gitlens
+    - editorconfig.editorconfig
+    - github.vscode-pull-request-github
+    - gruntfuggly.todo-tree
+    - jannchie.codetime
+
+  profiles:
+    web:
+      extensions:
+        - dbaeumer.vscode-eslint
+        - ritwickdey.LiveServer
+    data:
+      extensions:
+        - ms-toolsai.jupyter
+        - ms-toolsai.jupyter-keymap
+    devops:
+      extensions:
+        - hashicorp.terraform
+        - redhat.vscode-yaml

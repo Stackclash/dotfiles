@@ -1,0 +1,4 @@
+{{- $themeColors := (index .themes .theme) -}}
+{{$themeColors.background}}
+[{{ .projectPath | quote }}]
+"#{{ $themeColors.white }}"

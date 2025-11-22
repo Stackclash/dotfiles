@@ -8,14 +8,8 @@
 {{- define "rgbToFloat" -}}
 {{- $arr := . -}}
 [
-  {{ div (float (index $arr 0)) 255 }},
-  {{ div (float (index $arr 1)) 255 }},
-  {{ div (float (index $arr 2)) 255 }}
+  {{ printf "%.6f" (mul (index . 0) 1.0 | div 255.0) }},
+  {{ printf "%.6f" (mul (index . 1) 1.0 | div 255.0) }},
+  {{ printf "%.6f" (mul (index . 2) 1.0 | div 255.0) }}
 ]
 {{- end }}
-
-{{- $themeName := .theme -}}
-{{- $themes := .themes -}}
-{{- $theme := index $themes $themeName -}}
-
-{{- $theme | toYaml -}}

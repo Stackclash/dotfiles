@@ -1,7 +1,7 @@
-{{- $themeColors := include "theme-colors" . | fromYaml -}}
+{{- $themeColors := (index .themes .theme) -}}
 {
   "projectManager.git.baseFolders": [{{ .projectPath | quote }}],
-  "editor.fontFamily": "FiraMono Nerd Font",
+  "editor.fontFamily": "FiraCode Nerd Font",
   "terminal.integrated.fontFamily": "FiraMono Nerd Font",
   "workbench.colorTheme": "The Dark Knight",
   "security.workspace.trust.untrustedFiles": "open",

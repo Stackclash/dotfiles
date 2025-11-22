@@ -13,12 +13,3 @@ Set-Itemproperty -path $CommandProcessor -Name "AutoRun" -value $cmdRcPath
 #### ENABLE CLINK AUTORUN AND DISABLE WELCOME MESSAGE
 Write-Host "Enable Clink AutoRun and disable welcome message" -ForeGroundColor Yellow
 cmd.exe /c '"%CLINK_DIR%\clink.bat" autorun install -a -- --quiet' | Out-Null
-
-#### LOAD MISE SHIMS
-$shimPath = "$env:USERPROFILE\AppData\Local\mise\shims"
-$currentPath = [Environment]::GetEnvironmentVariable('Path', 'User')
-if (-not $currentPath.Contains($shimPath)) {
-    Write-Host "Load Mise Shims in Path" -ForeGroundColor Yellow
-    $newPath = $currentPath + ";" + $shimPath
-    [Environment]::SetEnvironmentVariable('Path', $newPath, 'User')
-}

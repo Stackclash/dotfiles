@@ -5,8 +5,23 @@ edit_uri: blob/main/docs/
 remote_branch: gh-pages
 docs_dir: ./pages
 nav:
-  - Introduction: index.md
-  - Setup: setup.md
+  - Home: pages/index.md
+
+  - Guides:
+      - Introduction: pages/index.md
+      - Scripts: pages/scripts.md
+      - Templates: pages/templates.md
+      - Configuration: pages/configuration.md
+      - Themes: pages/themes.md
+
+  - Applications:
+      - Visual Studio Code: pages/applications/vscode.md
+      # Add additional applications here, e.g.:
+      # - Terminal: pages/applications/terminal.md
+      # - Git: pages/applications/git.md
+
+  - About:
+      - Repository: https://github.com/Stackclash/dotfiles
 theme:
   name: material
 markdown_extensions:

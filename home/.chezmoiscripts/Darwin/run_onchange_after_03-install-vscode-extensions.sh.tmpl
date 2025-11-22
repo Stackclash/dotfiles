@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# VS Code CLI
+CODE_BIN="code"
+if ! command -v "$CODE_BIN" >/dev/null 2>&1; then
+    echo "ERROR: 'code' command not found. Install VS Code and ensure 'code' is in PATH."
+    exit 1
+fi
+
+# ---- Load data from chezmoi template context ----
+
+# Convert commonExtensions → bash array
+common_extensions=(
+{{- range $ext := .vscodeProfiles.commonExtensions }}
+    "{{ $ext }}"
+{{- end }}
+)
+
+# Convert profile names → bash array
+profile_names=(
+{{- range $name, $_ := .vscodeProfiles.profiles }}
+    "{{ $name }}"
+{{- end }}
+)
+
+# Create associative array of extensions per profile
+declare -A profile_extensions
+
+{{- range $name, $data := .vscodeProfiles.profiles }}
+profile_extensions["{{ $name }}"]=$(
+{{- range $ext := $data.extensions }}
+    echo -n "{{ $ext }} "
+{{- end }}
+)
+{{- end }}
+
+echo "Detected profiles:"
+printf " - %s\n" "${profile_names[@]}"
+echo
+
+# List installed extensions
+installed_extensions=$(code --list-extensions)
+
+install_extension() {
+    local ext="$1"
+    if echo "$installed_extensions" | grep -qi "^${ext}$"; then
+        echo "  ✓ $ext already installed"
+    else
+        echo "  → Installing $ext"
+        code --install-extension "$ext" >/dev/null
+    fi
+}
+
+echo "=== Installing common extensions ==="
+for ext in "${common_extensions[@]}"; do
+    install_extension "$ext"
+done
+echo
+
+echo "=== Processing profile-specific extensions ==="
+
+for profile in "${profile_names[@]}"; do
+    echo "Profile: $profile"
+
+    exts="${profile_extensions[$profile]}"
+    if [[ -z "$exts" ]]; then
+        echo "  (No profile-specific extensions)"
+        continue
+    fi
+
+    for ext in $exts; do
+        install_extension "$ext"
+    done
+
+    echo
+done
+
+echo "✔ VS Code extensions synchronized."
