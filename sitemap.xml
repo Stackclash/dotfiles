@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://stackclash.github.io/dotfiles/</loc>
+         <lastmod>2025-11-22</lastmod>
+    </url>
+    <url>
+         <loc>https://stackclash.github.io/dotfiles/configuration/</loc>
+         <lastmod>2025-11-22</lastmod>
+    </url>
+    <url>
+         <loc>https://stackclash.github.io/dotfiles/scripts/</loc>
+         <lastmod>2025-11-22</lastmod>
+    </url>
+    <url>
+         <loc>https://stackclash.github.io/dotfiles/templates/</loc>
+         <lastmod>2025-11-22</lastmod>
+    </url>
+    <url>
+         <loc>https://stackclash.github.io/dotfiles/themes/</loc>
+         <lastmod>2025-11-22</lastmod>
+    </url>
+    <url>
+         <loc>https://stackclash.github.io/dotfiles/applications/vscode/</loc>
+         <lastmod>2025-11-22</lastmod>
+    </url>
+</urlset>
