@@ -54,6 +54,12 @@ apps:
       id: "Microsoft.PowerShell"
       method: "winget"
 
+  zsh:
+    forPersonal: false
+    darwin:
+      id: "zsh"
+      method: "brew"
+
   # Browser
   firefox-dev:
     forPersonal: false
