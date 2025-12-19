@@ -1,7 +1,7 @@
 {{- template "elevate-powershell" }}
 
 #### Debloat Windows https://github.com/Raphire/Win11Debloat
-Write-Output "Debloating Windows"
+Write-Host "Debloating Windows"
 & ([scriptblock]::Create((irm "https://debloat.raphi.re/"))) -RunDefaults -Silent -DisableStartRecommended -DisableSuggestions -DisableDesktopSpotlight -EnableDarkMode -EnableEndTask -EnableLastActiveClick -ShowHiddenFolders
 
 #### SET .cmdrc.cmd AS AUTORUN

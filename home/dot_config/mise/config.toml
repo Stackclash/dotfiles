@@ -14,6 +14,7 @@
 "aqua:sxyazi/yazi" = "latest"
 "aqua:neovim/neovim" = "latest"
 "ubi:twpayne/chezmoi" = "latest"
+"aqua:nektos/act" = "latest"
 
 [env]
 _.file = ".env"

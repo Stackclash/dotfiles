@@ -1,9 +1,5 @@
-#### INITIALIZE MISE
-mise activate pwsh | Out-String | Invoke-Expression
-mise install | Out-Null
-
 #### INITIALIZE OH-MY-POSH
-oh-my-posh init pwsh | Invoke-Expression
+oh-my-posh init pwsh --config "tokyo" | Invoke-Expression
 
 #### ADD TAB COMPLETIONS
 gh completion -s powershell | Out-String | Invoke-Expression

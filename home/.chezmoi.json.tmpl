@@ -1,4 +1,3 @@
-{
   {{- /* Prompts */ -}}
   {{- $name := promptStringOnce . "name" "Name" -}}
   {{- $email := promptStringOnce . "email" "Personal email address" -}}
@@ -9,7 +8,7 @@
   {{- $projectPath := promptStringOnce . "projectPath" "What path to use for Projects" -}}
   {{- $themes := list "dracular" "molokai" -}}
   {{- $colorscheme := promptChoice "What color scheme would you like to use" $themes -}}
-
+{
   "data": {
     "name": {{ $name | quote }},
     "email": {{ $email | quote }},
