@@ -6,6 +6,8 @@
 # Syncs extensions per VS Code profile.
 # -------------------------------------------------------
 
+# vscode profiles hash: {{ .vscodeProfiles | toYaml | sha256sum }}
+
 # Toggle removal of extensions not declared in YAML
 $RemoveExtra = $true
 

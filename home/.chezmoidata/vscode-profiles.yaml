@@ -9,15 +9,27 @@ vscodeProfiles:
     - jannchie.codetime
 
   profiles:
-    web:
+    Typescript Azure Functions:
       extensions:
         - dbaeumer.vscode-eslint
-        - ritwickdey.LiveServer
-    data:
-      extensions:
-        - ms-toolsai.jupyter
-        - ms-toolsai.jupyter-keymap
-    devops:
-      extensions:
-        - hashicorp.terraform
+        - ms-azuretools.vscode-azurefunctions
+        - ms-azuretools.vscode-azureresourcegroups
+        - humao.rest-client
         - redhat.vscode-yaml
+
+    Typescript NestJS API:
+      extensions:
+        - dbaeumer.vscode-eslint
+        - humao.rest-client
+        - Orta.vscode-jest
+        - AbhijoyBasak.nestjs-files
+        - ms-azuretools.vscode-containers
+        - redhat.vscode-yaml
+
+    Typescript NextJS React UI:
+      extensions:
+        - dbaeumer.vscode-eslint
+        - bradlc.vscode-tailwindcss
+        - dsznajder.es7-react-js-snippets
+        - formulahendry.auto-rename-tag
+        - vincaslt.highlight-matching-tag

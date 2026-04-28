@@ -1,6 +1,7 @@
 [tools]
-"node" = "latest"
+"node" = "24.15.0"
 "python" = "latest"
+"uv" = "latest"
 "ubi:cli/cli" = { version = "latest", exe = "gh" }
 "aqua:kubernetes/kubernetes/kubectl" = "latest"
 "ubi:jqlang/jq" = "latest"
@@ -14,7 +15,9 @@
 "aqua:sxyazi/yazi" = "latest"
 "aqua:neovim/neovim" = "latest"
 "ubi:twpayne/chezmoi" = "latest"
+"aqua:yarnpkg/berry" = "latest"
 "aqua:nektos/act" = "latest"
+"github:ebullient/ttrpg-convert-cli" = "latest"
 
 [env]
 _.file = ".env"

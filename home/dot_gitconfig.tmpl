@@ -111,7 +111,8 @@
 	templatedir = ~/.git-templates
 
 [core]
-	editor = code-insiders
+	editor = code
+	protectNTFS = false
 	{{- if eq .chezmoi.os "windows" }}
 	autocrlf = true
 	sshCommand = 'C:\\Windows\\System32\\OpenSSH\\ssh.exe'
@@ -121,10 +122,13 @@
 
 [credential "https://github.com"]
 	{{- if eq .chezmoi.os "windows" }}
-	helper = 'D:\\Program Files\\Github-CLI\\gh.exe auth git-credential'
+	helper = !'C:\\Users\\coxri\\AppData\\Local\\mise\\installs\\ubi-cli-cli\\2.86.0\\gh.exe' auth git-credential
 	{{ else }}
 	helper = /opt/homebrew/bin/gh auth git-credential
 	{{ end }}
+
+[credential "https://gist.github.com"]
+	helper = !'C:\\Users\\coxri\\AppData\\Local\\mise\\installs\\ubi-cli-cli\\2.86.0\\gh.exe' auth git-credential
 
 [push]
 	autoSetupRemote = true
