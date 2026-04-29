@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Toggle removal of extensions not declared in template data
+REMOVE_EXTRA=true
+
+# Ensure VS Code CLI exists
+if ! command -v code >/dev/null 2>&1; then
+    echo "ERROR: VS Code command 'code' not found in PATH."
+    exit 1
+fi
+
+# Common extensions (from template data)
+common_extensions=(
+{{- range $ext := .vscodeProfiles.common_extensions }}
+    "{{ $ext }}"
+{{- end }}
+)
+
+# Profile names (from template data)
+profile_names=(
+{{- range $name, $_ := .vscodeProfiles.profiles }}
+    "{{ $name }}"
+{{- end }}
+)
+
+# Associative map of profile -> extension list
+declare -A profile_extensions
+
+{{- range $name, $data := .vscodeProfiles.profiles }}
+profile_extensions["{{ $name }}"]="{{- range $ext := $data.extensions }}{{ $ext }} {{- end }}"
+{{- end }}
+
+echo "VS Code Extension Sync"
+echo "------------------------"
+
+for profile in "${profile_names[@]}"; do
+    echo
+    echo "=== Profile: $profile ==="
+
+    # Combine common + profile-specific extension lists
+    desired_extensions=("${common_extensions[@]}")
+    profile_exts="${profile_extensions[$profile]:-}"
+    if [[ -n "$profile_exts" ]]; then
+        # shellcheck disable=SC2206
+        desired_extensions+=( $profile_exts )
+    fi
+
+    # Ensure the profile exists
+    code --profile "$profile" >/dev/null 2>&1 || true
+
+    # Read installed extensions for this profile
+    if ! installed_extensions=$(code --profile "$profile" --list-extensions 2>/dev/null); then
+        echo "Could not list installed extensions for profile '$profile'."
+        echo "Assuming no extensions installed."
+        installed_extensions=""
+    fi
+
+    # Install missing extensions
+    for ext in "${desired_extensions[@]}"; do
+        [[ -z "$ext" ]] && continue
+        if grep -Fxiq -- "$ext" <<< "$installed_extensions"; then
+            echo "  Already installed: $ext"
+        else
+            echo "  + Installing: $ext"
+            if ! code --install-extension "$ext" --profile "$profile" >/dev/null; then
+                echo "  Failed to install $ext"
+            fi
+        fi
+    done
+
+    # Optionally remove extensions that are not declared for this profile
+    if [[ "$REMOVE_EXTRA" == true ]]; then
+        echo "Checking for extensions to remove..."
+        while IFS= read -r ext; do
+            [[ -z "$ext" ]] && continue
+
+            keep=false
+            for desired in "${desired_extensions[@]}"; do
+                if [[ "$desired" == "$ext" ]]; then
+                    keep=true
+                    break
+                fi
+            done
+
+            if [[ "$keep" == false ]]; then
+                echo "  - Removing: $ext"
+                if ! code --uninstall-extension "$ext" --profile "$profile" >/dev/null; then
+                    echo "  Failed to remove $ext"
+                fi
+            fi
+        done <<< "$installed_extensions"
+    else
+        echo "  Skipping removal of undeclared extensions: set REMOVE_EXTRA=true to enable"
+    fi
+
+    echo "Profile synced: $profile"
+done
+
+echo
+echo "All profiles processed."
