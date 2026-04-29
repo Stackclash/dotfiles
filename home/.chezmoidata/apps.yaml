@@ -155,7 +155,7 @@ apps:
       method: "winget"
     darwin:
       id: "obsidian"
-      method: "brew-cast"
+      method: "brew-cask"
   
   # Fonts
   fira-code-mono:

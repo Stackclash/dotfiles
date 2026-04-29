@@ -14,7 +14,7 @@ if ($LASTEXITCODE -ne 0) {
 $projectPath = {{ $projectPath | quote }} + "\Work"
 $workGithubOrg = {{ $workGithubOrg | quote }}
 $githubUsername = {{ $githubUsername | quote }}
-$dateQuery = ">=" + (Get-Date).AddDays(-365).ToString('yyyy-MM-dd') # 6 months ago
+$dateQuery = ">=" + (Get-Date).AddDays(-365).ToString('yyyy-MM-dd') # 1 year ago
 $repos = gh repo list $workGithubOrg --source --json name,nameWithOwner | ConvertFrom-Json
 try {
     foreach ($repo in $repos) {

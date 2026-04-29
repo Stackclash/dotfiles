@@ -11,7 +11,7 @@ fi
 PROJECT_PATH="{{ $projectPath }}/Work"
 WORK_GITHUB_ORG={{ $workGithubOrg | quote }}
 GITHUB_USERNAME={{ $githubUsername | quote }}
-DATE_QUERY=">=$(date -v-6m +%F)" # 6 months ago
+DATE_QUERY=">=$(date -v-1y +%F)" # 1 year ago
 REPOS=$(gh repo list $WORK_GITHUB_ORG --source --json name,nameWithOwner)
 
 for REPO in $(jq --compact-output '.[]' <<< $REPOS); do

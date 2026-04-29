@@ -79,14 +79,13 @@
 # 	insteadOf = "gist:"
 
 [user]
-  name = {{ .name }}
-  email = {{ .email }}
+	signingkey = 9164F0D7F44CD049
 
 [includeIf "gitdir:**/Personal/"]
-  path = ~/.gitconfig-personal
+  	path = ~/.gitconfig-personal
 
 [includeIf "gitdir:**/Work/"]
-  path = ~/.gitconfig-work
+  	path = ~/.gitconfig-work
 
 [commit]
 	# gpgsign = true
@@ -102,9 +101,6 @@
 	{{ else }}
 	program = /opt/homebrew/bin/gpg
 	{{- end }}
-	
-[user]
-	signingkey = 9164F0D7F44CD049
 
 [init]
 	defaultBranch = main
