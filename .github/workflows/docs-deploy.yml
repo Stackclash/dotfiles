@@ -5,7 +5,7 @@ on:
       - docs/**
       - README.md
     branches: 
-      - master
+      - main
 permissions:
   contents: write
 jobs:
