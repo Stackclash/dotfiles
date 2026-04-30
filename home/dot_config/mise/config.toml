@@ -24,16 +24,3 @@ _.file = ".env"
 _.path = ['{{cwd}}/node_modules/.bin']
 MISE_PWSH_CHPWD_WARNING = 0
 NAVI_CONFIG = "~/.config/navi/config.yml"
-
-[tasks.doppler-sync]
-dir = "{{cwd}}"
-description = "Sync secrets from Doppler for the current project and environment"
-usage = '''
-flag "-e --env <env>" help="Doppler Environment Config" {
-    choices "dev" "prd"
-    default "dev"
-}
-arg "<project>" help="Doppler project"
-'''
-run='node ~/.config/mise/tasks/doppler-sync.js'
-run_windows='node %USERPROFILE%\.config\mise\tasks\doppler-sync.js'
