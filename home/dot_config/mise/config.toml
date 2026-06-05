@@ -1,23 +1,25 @@
 [tools]
-"node" = "24.15.0"
+node = "22"
 "python" = "latest"
 "uv" = "latest"
-"ubi:cli/cli" = { version = "latest", exe = "gh" }
+"github:cli/cli" = { version = "latest", exe = "gh" }
 "aqua:kubernetes/kubernetes/kubectl" = "latest"
-"ubi:jqlang/jq" = "latest"
+"github:jqlang/jq" = "latest"
 "github:DopplerHQ/cli" = "latest"
-"ubi:JanDeDobbeleer/oh-my-posh" = "latest"
+"aqua:JanDeDobbeleer/oh-my-posh" = "latest"
 "aqua:cheat/cheat" = "latest"
 "aqua:hashicorp/terraform" = "latest"
 "aqua:terraform-docs/terraform-docs" = "latest"
-"ubi:junegunn/fzf" = "latest" # Required for navi
-"ubi:denisidoro/navi" = "2.22.1"
+"github:junegunn/fzf" = "latest" # Required for navi
+"github:denisidoro/navi" = "2.22.1"
 "aqua:sxyazi/yazi" = "latest"
 "aqua:neovim/neovim" = "latest"
-"ubi:twpayne/chezmoi" = "latest"
+"github:twpayne/chezmoi" = "latest"
 "aqua:yarnpkg/berry" = "latest"
 "aqua:nektos/act" = "latest"
 "github:ebullient/ttrpg-convert-cli" = "latest"
+"aqua:astral-sh/uv" = "latest"
+"pipx:graphifyy" = "latest"
 
 [env]
 _.file = ".env"

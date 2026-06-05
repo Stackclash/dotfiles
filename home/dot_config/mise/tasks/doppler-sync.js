@@ -59,7 +59,7 @@ if (existsSync(localSettingsPath) || existsSync(hostFilePath)) {
     .filter(Boolean)
     .reduce((acc, line) => {
       const [key, ...rest] = line.split("=")
-      acc[key.trim()] = rest.join("=").trim()
+      acc[key.trim()] = rest.join("").replaceAll('"', '').trim()
       return acc
     }, {})
 
@@ -71,7 +71,7 @@ if (existsSync(localSettingsPath) || existsSync(hostFilePath)) {
   writeFileSync(envPath, output)
   console.log("✅ .env updated successfully")
 } else {
-  console.log("⚙️ No .env or local.settings.json found — creating .env")
+  console.log("⚙️ No .env, host.json, or local.settings.json found — creating .env")
   const output = Object.entries(dopplerSecrets)
     .map(([k, v]) => `${k}=${v}`)
     .join("\n")
