@@ -1,0 +1,165 @@
+[
+	{
+		"name": "Dotfiles",
+		"rootPath": "c:\\Users\\coxri\\.local\\share\\chezmoi",
+		"paths": [],
+		"tags": [
+			"Personal"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "Data Factory - MDM",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Work\\adf-ssm-mdm",
+		"paths": [],
+		"tags": [
+			"Work",
+			"MDM"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "Dexcare Client",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Work\\cns-dexcare-client",
+		"paths": [],
+		"tags": [
+			"Work",
+			"Dexcare"
+		],
+		"enabled": true,
+		"profile": "Typescript Azure Function"
+	},
+	{
+		"name": "Provider UI",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Work\\cns-provider-ui",
+		"paths": [],
+		"tags": [
+			"Work",
+			"Dexcare"
+		],
+		"enabled": true,
+		"profile": "Typescript Azure Function"
+	},
+	{
+		"name": "Provider API",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Work\\provider-api",
+		"paths": [],
+		"tags": [
+			"Work",
+			"Dexcare"
+		],
+		"enabled": true,
+		"profile": "Typescript NestJS API"
+	},
+	{
+		"name": "Informatica MDM",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Work\\sda-informatica-mdm",
+		"paths": [],
+		"tags": [
+			"Work",
+			"MDM"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "Informatica MDM Egress",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Work\\sda-informatica-mdm-egress",
+		"paths": [],
+		"tags": [
+			"Work",
+			"MDM"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "Location Ingestion Function",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Work\\sda-location",
+		"paths": [],
+		"tags": [
+			"Work",
+			"Dexcare"
+		],
+		"enabled": true,
+		"profile": "Typescript Azure Function"
+	},
+	{
+		"name": "Provider Ingestion Function",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Work\\sda-provider",
+		"paths": [],
+		"tags": [
+			"Work",
+			"Dexcare"
+		],
+		"enabled": true,
+		"profile": "Typescript Azure Function"
+	},
+	{
+		"name": "5e Tools Images",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Personal\\5etools-img",
+		"paths": [],
+		"tags": [
+			"Personal",
+			"D&D"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "5e Tools Source",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Personal\\5etools-src",
+		"paths": [],
+		"tags": [
+			"Personal",
+			"D&D"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "D&D Obsidian Vault",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Personal\\5e-vault",
+		"paths": [],
+		"tags": [
+			"Personal",
+			"D&D"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "D&D Gatsby Site",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Personal\\5e-vault-site",
+		"paths": [],
+		"tags": [
+			"Personal",
+			"D&D"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "Dungeon Party API",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Personal\\dungeon-party-api",
+		"paths": [],
+		"tags": [
+			"Personal",
+			"D&D"
+		],
+		"enabled": true,
+		"profile": "Default"
+	},
+	{
+		"name": "Exobrain",
+		"rootPath": "c:\\Users\\coxri\\Projects\\Personal\\exobrain",
+		"paths": [],
+		"tags": [
+			"Personal"
+		],
+		"enabled": true,
+		"profile": "Default"
+	}
+]

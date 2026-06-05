@@ -1,0 +1,537 @@
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: "homeassistant/home-assistant:stable"
+    profiles:
+      - external
+    depends_on:
+      - traefik
+    ports:
+      - 8123:8123
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.homeassistant.rule=Host(`hass.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.homeassistant.entrypoints=websecure"
+      - "traefik.http.routers.homeassistant.tls=true"
+      - "traefik.http.services.homeassistant.loadbalancer.server.port=8123"
+      - "homepage.group=Home"
+      - "homepage.name=Home Assistant"
+      - "homepage.icon=homeassistant.png"
+      - "homepage.href=https://hass.${ROOT_DOMAIN}"
+    volumes:
+      - ${PWD}/config/homeassistant:/config
+    restart: unless-stopped
+    privileged: true
+    environment:
+      TZ: America/Chicago
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    restart: unless-stopped
+    networks:
+      - traefik
+    profiles:
+      - external
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.constraint=proxy-public"
+
+      - "traefik.http.routers.homepage.rule=Host(`${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.homepage.entrypoints=websecure"
+      - "traefik.http.routers.homepage.tls=true"
+
+      - "traefik.http.services.homepage.loadbalancer.server.port=3000"
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL}
+      - TZ=${TIMEZONE}
+      - HOMEPAGE_ALLOWED_HOSTS=${ROOT_DOMAIN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${PWD}/config/homepage:/app/config
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    networks:
+      - traefik
+    profiles:
+      - external
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.jellyfin.rule=Host(`jellyfin.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.jellyfin.entrypoints=websecure"
+      - "traefik.http.routers.jellyfin.tls=true"
+      - "traefik.http.services.jellyfin.loadbalancer.server.port=8096"
+      - "homepage.group=Media"
+      - "homepage.name=Jellyfin"
+      - "homepage.icon=jellyfin.png"
+      - "homepage.href=https://jellyfin.${ROOT_DOMAIN}"
+      - "homepage.widget.type=jellyfin"
+      - "homepage.widget.url=https://jellyfin.${ROOT_DOMAIN}"
+      - "homepage.widget.key=f903702655ac4ec285a431a763a9dcd1"
+      - "homepage.widget.version=2"
+      - "homepage.widget.enableBlocks=true"
+      - "homepage.widget.enableNowPlaying=true"
+      - "homepage.widget.enableUser=true"
+      - "homepage.widget.enableMediaControl=false"
+      - "homepage.widget.showEpisodeNumber=true"
+      - "homepage.widget.expandOneStreamToTwoRows=false"
+    volumes:
+      - ${PWD}/config/jellyfin:/config
+      - ${PWD}/cache/jellyfin:/cache
+      - movies:/movies
+      - tv-shows:/tv-shows
+      - anime:/anime
+      - intros:/intros
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
+    restart: unless-stopped
+    networks:
+      - traefik
+    profiles:
+      - external
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.seerr.rule=Host(`seerr.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.seerr.entrypoints=websecure"
+      - "traefik.http.routers.seerr.tls=true"
+      - "traefik.http.services.seerr.loadbalancer.server.port=5055"
+      - "homepage.group=Media"
+      - "homepage.name=Seerr"
+      - "homepage.icon=seerr.png"
+      - "homepage.href=https://seerr.${ROOT_DOMAIN}"
+      - "homepage.widget.type=seerr"
+      - "homepage.widget.url=https://seerr.${ROOT_DOMAIN}"
+      - "homepage.widget.key=MTc3ODAwODEyNzA3MmMxMzRiZTk0LTAwNmEtNDgxZi1hZDEzLTUzYjg5YjUxODg3MA=="
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${PWD}/config/seerr:/app/config
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:5055/api/v1/settings/public || exit 1
+      start_period: 20s
+      timeout: 3s
+      interval: 15s
+      retries: 3
+  radarr:
+    image: linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    networks:
+      - traefik
+    profiles:
+      - external
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.radarr.rule=Host(`radarr.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.radarr.entrypoints=websecure"
+      - "traefik.http.routers.radarr.tls=true"
+      - "traefik.http.services.radarr.loadbalancer.server.port=7878"
+      - "homepage.group=Media"
+      - "homepage.name=Radarr"
+      - "homepage.icon=radarr.png"
+      - "homepage.href=https://radarr.${ROOT_DOMAIN}"
+      - "homepage.widget.type=radarr"
+      - "homepage.widget.url=https://radarr.${ROOT_DOMAIN}"
+      - "homepage.widget.key=d1e4d848cd76448f94941181c7177982"
+      - "homepage.widget.enableQueue=true"
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${PWD}/config/radarr:/config
+      - downloads:/downloads
+      - movies:/movies
+  sonarr:
+    image: linuxserver/sonarr:latest
+    container_name: sonarr
+    restart: unless-stopped
+    networks:
+      - traefik
+    profiles:
+      - external
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.sonarr.rule=Host(`sonarr.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.sonarr.entrypoints=websecure"
+      - "traefik.http.routers.sonarr.tls=true"
+      - "traefik.http.services.sonarr.loadbalancer.server.port=8989"
+      - "homepage.group=Media"
+      - "homepage.name=Sonarr"
+      - "homepage.icon=sonarr.png"
+      - "homepage.href=https://sonarr.${ROOT_DOMAIN}"
+      - "homepage.widget.type=sonarr"
+      - "homepage.widget.url=https://sonarr.${ROOT_DOMAIN}"
+      - "homepage.widget.key=cf304b7e24f24ef7843eaa99c8b631b5"
+      - "homepage.widget.enableQueue=true"
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${PWD}/config/sonarr:/config
+      - downloads:/downloads
+      - tv-shows:/tv-shows
+      - anime:/anime
+  jackett:
+    image: linuxserver/jackett:latest
+    container_name: jackett
+    restart: unless-stopped
+    networks:
+      - traefik
+    profiles:
+      - external
+    depends_on:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.constraint=proxy-public"
+      - "traefik.http.routers.jackett.rule=Host(`jackett.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.jackett.entrypoints=websecure"
+      - "traefik.http.routers.jackett.tls=true"
+      - "traefik.http.services.jackett.loadbalancer.server.port=9117"
+      - "homepage.group=Media"
+      - "homepage.name=Jackett"
+      - "homepage.icon=jackett.png"
+      - "homepage.href=https://jackett.${ROOT_DOMAIN}"
+      - "homepage.widget.type=jackett"
+      - "homepage.widget.url=https://jackett.${ROOT_DOMAIN}"
+      - "homepage.widget.password=//TODO: fill in password"
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${PWD}/config/jackett:/config
+  qbittorrent:
+    image: linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    networks:
+      - traefik
+    profiles:
+      - external
+    depends_on:
+      - traefik
+    ports:
+      - 6881:6881
+      - 6881:6881/udp
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+      - "traefik.constraint=proxy-public"
+
+      - "traefik.http.routers.qbittorrent.rule=Host(`qb.${ROOT_DOMAIN}`)"
+      - "traefik.http.routers.qbittorrent.entrypoints=websecure"
+      - "traefik.http.routers.qbittorrent.tls=true"
+      - "traefik.http.services.qbittorrent.loadbalancer.server.port=8080"
+
+      - "homepage.group=Media"
+      - "homepage.name=qBittorrent"
+      - "homepage.icon=qbittorrent.png"
+      - "homepage.href=https://qb.${ROOT_DOMAIN}"
+      - "homepage.widget.type=qbittorrent"
+      - "homepage.widget.url=https://qb.${ROOT_DOMAIN}"
+      - "homepage.widget.username=rcox"
+      - "homepage.widget.password=//TODO: fill in password"
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${PWD}/config/qbittorrent:/config
+      - downloads:/downloads
+  authelia:
+    image: 'docker.io/authelia/authelia:latest'
+    container_name: 'authelia'
+    restart: 'unless-stopped'
+    profiles:
+      - network
+      - external
+    depends_on:
+      - database
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: 'traefik'
+      traefik.constraint: 'proxy-public'
+      traefik.http.routers.authelia.rule: 'Host(`auth.${ROOT_DOMAIN}`)'
+      traefik.http.routers.authelia.entrypoints: 'websecure'
+      traefik.http.routers.authelia.tls: 'true'
+      traefik.http.middlewares.authelia.forwardAuth.address: 'http://authelia:9091/api/authz/forward-auth'
+      # traefik.http.middlewares.authelia.forwardAuth.address: 'http://authelia:9091/api/authz/forward-auth?authelia_url=https%3A%2F%2Fauth.${ROOT_DOMAIN}%2F'
+      traefik.http.middlewares.authelia.forwardAuth.trustForwardHeader: 'true'
+      traefik.http.middlewares.authelia.forwardAuth.maxResponseBodySize: '8192'
+      traefik.http.middlewares.authelia.forwardAuth.authResponseHeaders: 'Remote-User,Remote-Groups,Remote-Email,Remote-Name'
+    environment:
+      AUTHELIA_IDENTITY_VALIDATION_RESET_PASSWORD_JWT_SECRET_FILE: '/run/secrets/JWT_SECRET'
+      AUTHELIA_SESSION_SECRET_FILE: '/run/secrets/SESSION_SECRET'
+      AUTHELIA_STORAGE_POSTGRES_PASSWORD_FILE: '/run/secrets/STORAGE_PASSWORD'
+      AUTHELIA_STORAGE_ENCRYPTION_KEY_FILE: '/run/secrets/STORAGE_ENCRYPTION_KEY'
+    volumes:
+      - '${PWD}/config/authelia/config:/config'
+    networks:
+      traefik:
+        aliases: []
+      internal:
+         aliases: ['authelia']
+    secrets: 
+      - JWT_SECRET
+      - SESSION_SECRET
+      - STORAGE_PASSWORD
+      - STORAGE_ENCRYPTION_KEY
+  traefik:
+    image: traefik:v2
+    container_name: traefik
+    restart: unless-stopped
+    profiles:
+      - network
+      - external
+    depends_on:
+      - cloudflare-tunnel
+    command:
+      - --log
+      - --log.level=${LOG_LEVEL:-INFO}
+      - --log.format=json
+      - --api.insecure=true
+      - --providers.docker
+      - --providers.docker.exposedbydefault=false
+      - --serversTransport.insecureSkipVerify=true # Allow self-signed certificates for target hosts - https://doc.traefik.io/traefik/routing/overview/#insecureskipverify
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+      - --entrypoints.web.http.redirections.entrypoint.scheme=https
+      - --entrypoints.websecure.address=:443
+      - --entrypoints.websecure.http.tls=true
+      - --entrypoints.websecure.http.tls.certresolver=letsencrypt
+      - --entryPoints.websecure.http.tls.certResolver=letsencrypt
+      - --entryPoints.websecure.http.tls.domains[0].main=${ROOT_DOMAIN}
+      - --entryPoints.websecure.http.tls.domains[0].sans=*.${ROOT_DOMAIN}
+      - --certificatesresolvers.letsencrypt.acme.email=${EMAIL}
+      - --certificatesresolvers.letsencrypt.acme.storage=/etc/traefik/acme/letsencrypt.json
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge=true
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.provider=cloudflare
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.delaybeforecheck=300
+      - --certificatesresolvers.letsencrypt.acme.dnschallenge.resolvers=8.8.8.8:53
+    environment:
+      - CLOUDFLARE_EMAIL=${EMAIL}
+      - CLOUDFLARE_DNS_API_TOKEN_FILE=/run/secrets/CLOUDFLARE_API_TOKEN
+      # - CLOUDFLARE_API_KEY=${CF_API_TOKEN}
+      - CLOUDFLARE_HTTP_TIMEOUT=${HTTP_TIMEOUT}
+      - CLOUDFLARE_POLLING_INTERVAL=${POLLING_INTERVAL}
+      - CLOUDFLARE_PROPAGATION_TIMEOUT=${PROPAGATION_TIMEOUT}
+      - CLOUDFLARE_TTL=${TTL}
+    labels:
+      - traefik.enable=true
+      - traefik.constraint=proxy-public
+      - traefik.http.routers.api.rule=Host(`traefik.${ROOT_DOMAIN}`)
+      - traefik.http.routers.api.service=api@internal
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls=true
+      - traefik.http.services.api.loadbalancer.server.port=8080
+      - "traefik.http.routers.api.middlewares=authelia@docker"
+      - "homepage.group=Network"
+      - "homepage.name=Traefik"
+      - "homepage.icon=traefik.png"
+      - "homepage.href=https://traefik.${ROOT_DOMAIN}"
+      - "homepage.widget.type=traefik"
+      - "homepage.widget.url=https://traefik.${ROOT_DOMAIN}"
+    ports:
+      # HTTP
+      - target: 80
+        published: 80
+
+      # HTTPS
+      - target: 443
+        published: 443
+        
+      # Web UI (enabled by --api.insecure=true)
+      - target: 8080
+        published: 8080
+    networks:
+      - traefik
+      - internal
+    volumes:
+      # So that Traefik can listen to the Docker events
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${PWD}/config/traefik:/config
+    secrets:
+      - CLOUDFLARE_API_TOKEN
+  cloudflare-tunnel:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel
+    hostname: cloudflare-tunnel
+    restart: unless-stopped
+    profiles:
+      - network
+      - external
+    networks:
+      - traefik
+    command: tunnel --no-autoupdate run
+    labels:
+      - homepage.group=Network
+      - homepage.name=Cloudflare Tunnel
+      - homepage.icon=cloudflare.png
+      - homepage.widget.type=cloudflared
+      - homepage.widget.accountid=c8845f4cc56bf03cd648d3cfece06cb2
+      - homepage.widget.tunnelid=b1d52659-e316-4112-85f7-4ae0ae314645
+      - homepage.widget.key=cfut_gLl3xHo3iQnrDNbfCI7e9BE3n2gxQsDrdcf8KIsu56ba2b31
+    environment:
+      - TUNNEL_TOKEN_FILE=/run/secrets/CLOUDFLARE_TUNNEL_TOKEN
+    secrets:
+      - CLOUDFLARE_TUNNEL_TOKEN
+  cloudflare-companion:
+    image: ghcr.io/tiredofit/docker-traefik-cloudflare-companion:latest
+    container_name: cloudflare-companion
+    depends_on:
+      - cloudflare-tunnel
+    profiles:
+      - network
+      - external
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TIMEZONE=${TIMEZONE}
+      - LOG_TYPE=CONSOLE
+      - LOG_LEVEL=${LOG_LEVEL}
+      - TRAEFIK_VERSION=2
+      - RC_TYPE=CNAME
+      - TARGET_DOMAIN=${CF_TUNNEL_HOSTNAME}
+      - REFRESH_ENTRIES=TRUE
+      - DOCKER_SWARM_MODE=FALSE
+      - ENABLE_TRAEFIK_POLL=TRUE
+      - TRAEFIK_POLL_URL=http://traefik:8080
+      - TRAEFIK_FILTER_LABEL=traefik.constraint
+      - TRAEFIK_FILTER=proxy-public
+      - DOMAIN1=${CF_TUNNEL_HOSTNAME}
+      - DOMAIN1_ZONE_ID=${CF_ZONE_ID}
+      - DOMAIN1_PROXIED=TRUE
+      - CF_EMAIL=${EMAIL}
+      - CF_TOKEN_FILE=/run/secrets/CLOUDFLARE_API_TOKEN
+    restart: always
+    networks:
+      - internal
+    secrets:
+      - CLOUDFLARE_API_TOKEN
+  error-pages:
+    image: tarampampam/error-pages:2.26.0
+    container_name: error-pages
+    environment:
+      TEMPLATE_NAME: l7-dark
+    networks:
+      - traefik
+    profiles:
+      - network
+      - external
+    depends_on:
+      - traefik
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=traefik
+
+      # use as "fallback" for any non-registered services (with priority below normal)
+      - traefik.http.routers.error-pages.rule=HostRegexp(`{host:.+}`)
+      - traefik.http.routers.error-pages.priority=10
+
+      # should say that all of your services work on https
+      - traefik.http.routers.error-pages.tls=true
+      - traefik.http.routers.error-pages.entrypoints=websecure
+      - traefik.http.routers.error-pages.middlewares=error-pages
+      - traefik.http.services.error-pages.loadbalancer.server.port=8080
+
+      # "errors" middleware settings
+      - traefik.http.middlewares.error-pages.errors.status=400-599
+      - traefik.http.middlewares.error-pages.errors.service=error-pages
+      - traefik.http.middlewares.error-pages.errors.query=/{status}.html
+  database:
+    image: postgres:latest
+    container_name: postgres
+    restart: unless-stopped
+    profiles:
+      - external
+      - network
+    networks:
+      - internal
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD_FILE=/run/secrets/POSTGRES_PASSWORD
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - ${PWD}/data/postgres:/var/lib/postgresql
+    secrets:
+      - POSTGRES_PASSWORD
+networks:
+  traefik:
+    external: true
+  internal:
+volumes:
+  downloads:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "D:/Containers/Data/downloads"
+  movies:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "D:/Containers/Data/movies"
+  tv-shows:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "D:/Containers/Data/tv-shows"
+  anime:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "D:/Containers/Data/anime"
+  blackhole:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "D:/Containers/Data/blackhole"
+  intros:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "D:/Containers/Data/intros"
+secrets:
+  JWT_SECRET:
+    file: '${PWD}/secrets/authelia/JWT_SECRET'
+  SESSION_SECRET:
+    file: '${PWD}/secrets/authelia/SESSION_SECRET'
+  STORAGE_PASSWORD:
+    file: '${PWD}/secrets/authelia/STORAGE_PASSWORD'
+  STORAGE_ENCRYPTION_KEY:
+    file: '${PWD}/secrets/authelia/STORAGE_ENCRYPTION_KEY'
+  CLOUDFLARE_API_TOKEN:
+    file: '${PWD}/secrets/cloudflare/API_TOKEN'
+  CLOUDFLARE_TUNNEL_TOKEN:
+    file: '${PWD}/secrets/cloudflare/TUNNEL_TOKEN'
+  POSTGRES_PASSWORD:
+    file: '${PWD}/secrets/postgres/PASSWORD'
