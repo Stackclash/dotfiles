@@ -24,12 +24,15 @@ profile_names=(
 {{- end }}
 )
 
-# Associative map of profile -> extension list
-declare -A profile_extensions
-
+# Returns space-separated extensions for a given profile name
+get_profile_extensions() {
+    local profile="$1"
+    case "$profile" in
 {{- range $name, $data := .vscodeProfiles.profiles }}
-profile_extensions["{{ $name }}"]="{{- range $ext := $data.extensions }}{{ $ext }} {{- end }}"
+        "{{ $name }}") echo "{{- range $ext := $data.extensions }}{{ $ext }} {{- end }}" ;;
 {{- end }}
+    esac
+}
 
 echo "VS Code Extension Sync"
 echo "------------------------"
@@ -40,7 +43,7 @@ for profile in "${profile_names[@]}"; do
 
     # Combine common + profile-specific extension lists
     desired_extensions=("${common_extensions[@]}")
-    profile_exts="${profile_extensions[$profile]:-}"
+    profile_exts="$(get_profile_extensions "$profile")"
     if [[ -n "$profile_exts" ]]; then
         # shellcheck disable=SC2206
         desired_extensions+=( $profile_exts )
