@@ -10,3 +10,6 @@
     - navi (config env and cheats)
     - neovim
     - flow-launcher
+
+- Set ExecutionPolicy before running
+- gh isn't found

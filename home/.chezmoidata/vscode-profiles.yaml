@@ -5,7 +5,7 @@ vscodeProfiles:
     - eamodio.gitlens
     - editorconfig.editorconfig
     - github.vscode-pull-request-github
-    - gruntfuggly.todo-tree
+    - FanaticPythoner.better-todo-tree
     - jannchie.codetime
     - github.copilot-chat
 

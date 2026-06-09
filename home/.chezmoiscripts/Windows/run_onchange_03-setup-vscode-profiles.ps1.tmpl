@@ -40,6 +40,53 @@ $Profiles = @{
 Write-Host "VS Code Extension Sync"
 Write-Host "------------------------"
 
+# --- Base VS Code (no profile) ---
+Write-Host ""
+Write-Host "=== Base VS Code ==="
+
+try {
+    $installedExtensions = code --list-extensions 2>$null
+    if ($null -eq $installedExtensions) {
+        $installedExtensions = @()
+    }
+}
+catch {
+    Write-Host "Could not list installed extensions for base VS Code."
+    Write-Host "Assuming no extensions installed."
+    $installedExtensions = @()
+}
+
+foreach ($ext in $CommonExtensions) {
+    if ($installedExtensions -notcontains $ext) {
+        Write-Host "  + Installing: $ext"
+        try {
+            code --install-extension $ext | Out-Null
+        } catch {
+            Write-Host "  Failed to install $ext"
+        }
+    } else {
+        Write-Host "  Already installed: $ext"
+    }
+}
+
+if ($RemoveExtra) {
+    Write-Host "Checking for extensions to remove..."
+    foreach ($ext in $installedExtensions) {
+        if ($CommonExtensions -notcontains $ext) {
+            Write-Host "  - Removing: $ext"
+            try {
+                code --uninstall-extension $ext | Out-Null
+            } catch {
+                Write-Host "  Failed to remove $ext"
+            }
+        }
+    }
+} else {
+    Write-Host "  Skipping removal of undeclared extensions: set \$RemoveExtra = \$true to enable"
+}
+
+Write-Host "Base VS Code synced."
+
 foreach ($profileName in $Profiles.Keys) {
     Write-Host ""
     Write-Host "=== Profile: $profileName ==="

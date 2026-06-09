@@ -41,6 +41,24 @@ apps:
     darwin:
       id: "mise"
       method: "brew"
+  
+  gh:
+    forPersonal: false
+    windows:
+      id: "Github.cli"
+      method: "winget"
+    darwin:
+      id: "gh"
+      method: "brew"
+
+  git:
+    forPersonal: false
+    windows:
+      id: "Git.Git"
+      method: "winget"
+    darwin:
+      id: "get"
+      method: "brew"
 
   clink:
     forPersonal: false
