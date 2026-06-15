@@ -1,11 +1,20 @@
 apps:
 
-  # Personal Apps
-  cura:
+  # Apps
+  orcaslicer:
     forPersonal: true
     windows:
-      id: "Ultimaker.Cura"
+      id: "SoftFever.OrcaSlicer"
       method: "winget"
+
+  claude:
+    forPersonal: false
+    windows:
+      id: "Anthropic.Claude"
+      method: "winget"
+    darwin:
+      id: "claude"
+      method: "brew-cask"
 
   steam:
     forPersonal: true
@@ -76,6 +85,15 @@ apps:
     forPersonal: false
     darwin:
       id: "zsh"
+      method: "brew"
+
+  DotNetSDK:
+    forPersonal: false
+    windows:
+      id: "Microsoft.DotNet.SDK"
+      method: "winget"
+    darwin:
+      id: "dotnet-sdk"
       method: "brew"
 
   # Browser

@@ -12,4 +12,9 @@
     - flow-launcher
 
 - Set ExecutionPolicy before running
-- gh isn't found
+- gh isn't found during repo cloning
+- setup wsl
+- enable virtualization
+- install az cli
+- 'wmic' is not recognized as an internal or external command,
+operable program or batch file.
