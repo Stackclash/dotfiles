@@ -19,6 +19,7 @@ home/.chezmoitemplates/
 ├── elevate-powershell
 ├── theme-colors
 ├── vscode-keybindings
+├── vscode-mcp
 └── vscode-settings
 ```
 yaml
@@ -62,6 +63,13 @@ yaml
 Copy code
 
 And their macOS equivalents.
+
+---
+
+### `vscode-mcp`
+Generates the VS Code user **`mcp.json`** (next to `settings.json`) from
+`.chezmoidata/ai-tools.yaml` — the MCP servers whose `assistant` is `copilot` or
+`both`. VS Code requires MCP config in this dedicated file, not inside `settings.json`.
 
 ---
 

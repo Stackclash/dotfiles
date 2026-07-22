@@ -112,7 +112,7 @@ register_claude_mcp '{{ $name }}' 'stdio' '' '' '' '{{ range $k, $v := $m.env }}
 {{- end }}
 {{- end }}
 {{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
-echo "  Copilot MCP for {{ $name }} is provided via managed VS Code settings.json"
+echo "  Copilot MCP for {{ $name }} is provided via managed VS Code mcp.json"
 {{- end }}
 {{- else if eq $tool.type "plugin" }}
 echo ""; echo "* {{ $name }} (plugin, {{ $tool.assistant }})"

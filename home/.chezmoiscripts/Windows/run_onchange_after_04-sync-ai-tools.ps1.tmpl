@@ -109,7 +109,7 @@ Register-ClaudeMcp -Name '{{ $name }}' -Transport 'stdio' -Command '{{ $m.comman
 {{- end }}
 {{- end }}
 {{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
-Write-Host "  Copilot MCP for {{ $name }} is provided via managed VS Code settings.json"
+Write-Host "  Copilot MCP for {{ $name }} is provided via managed VS Code mcp.json"
 {{- end }}
 {{- else if eq $tool.type "plugin" }}
 Write-Host "`n* {{ $name }} (plugin, {{ $tool.assistant }})"

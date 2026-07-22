@@ -17,7 +17,7 @@ run `chezmoi apply` — nothing else needs touching.
 
 | Mechanism | Handles |
 |-----------|---------|
-| **chezmoi templates** | package tools → mise config (`~/.config/mise/config.toml`); Copilot MCP servers → VS Code `settings.json` |
+| **chezmoi templates** | package tools → mise config (`~/.config/mise/config.toml`); Copilot MCP servers → VS Code `mcp.json` (next to `settings.json`) |
 | **`run_onchange_after_04-sync-ai-tools` script** (per-OS: PowerShell + bash) | imperative installs: Claude MCP registration, plugin installs, custom skill/agent copy, package post-install steps |
 
 The sync script inlines the tool list from `ai-tools.yaml` at render time (like
@@ -44,7 +44,9 @@ aiTools:
 ### `type: mcp` — MCP servers
 
 Registered with **Claude** (user scope, via `claude mcp add`) and, for `copilot`/`both`,
-written into the managed VS Code **`settings.json`** `mcp.servers` block.
+written into the managed VS Code **`mcp.json`** (a dedicated file next to
+`settings.json`, with a top-level `servers` object — VS Code no longer accepts MCP
+config inside `settings.json`).
 
 ```yaml
   playwright-mcp:
@@ -146,9 +148,9 @@ the VS Code MCP entry.
 
 > [!WARNING]
 > The key is stored in plaintext in `~/.config/chezmoi/chezmoi.json` and VS Code
-> `settings.json`, and is embedded in the rendered sync script at apply time. If
-> you'd rather keep it out of dotfiles, source it from Doppler/an env var instead and
-> leave the prompt blank.
+> `mcp.json`, and is embedded in the rendered sync script at apply time. If you'd
+> rather keep it out of dotfiles, source it from Doppler/an env var instead and leave
+> the prompt blank.
 
 ## Running it
 
