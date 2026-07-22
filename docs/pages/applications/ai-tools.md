@@ -18,7 +18,8 @@ home/.chezmoidata/
 
 home/.chezmoiscripts/{Darwin,Windows}/
 ├── run_onchange_04-install-plugin-marketplaces.{sh,ps1}.tmpl
-└── run_onchange_05-install-mcp-servers.{sh,ps1}.tmpl
+├── run_onchange_05-install-mcp-servers.{sh,ps1}.tmpl
+└── run_onchange_06-install-cli-skills.{sh,ps1}.tmpl
 
 home/.chezmoitemplates/
 └── vscode-mcp-servers
@@ -37,13 +38,13 @@ home/dot_config/mise/config.toml   # AI-adjacent CLI tools (e.g. OpenSpec) via m
 
 ## `ai-tools.yaml`
 
-Two top-level sections, both driven by whichever of the `claude`/`copilot`
-CLIs are present on PATH:
+Three top-level sections:
 
 | Key | Purpose | Installed via |
 |-----|---------|----------------|
-| `pluginMarketplaces` | Plugin marketplaces + plugins | `<cli> plugin marketplace add` / `<cli> plugin install` |
+| `pluginMarketplaces` | Plugin marketplaces + plugins | `<cli> plugin marketplace add` / `<cli> plugin install`, for whichever of `claude`/`copilot` are on PATH |
 | `mcpServers` | MCP servers | `claude mcp add --scope user`, `copilot mcp add`, **and** VS Code/Copilot Chat's `~/.../Code/User/mcp.json` |
+| `cliSkills` | Post-install registration for a CLI tool already installed via mise | `mise exec -- <command>` (e.g. `graphify install`) |
 
 Both `pluginMarketplaces` and `mcpServers` entries accept an optional `clis`
 list to restrict which CLI(s) they're registered against, e.g. `clis:
@@ -57,6 +58,12 @@ An `mcpServers` entry can also declare `apiKeyFlag` + `apiKeyVar` to append a
 CLI flag from a chezmoi data value (typically a `promptStringOnce` secret)
 only when that value is non-empty — see the `context7` entry, which reads
 `.context7ApiKey`.
+
+A `cliSkills` entry just needs `command` (the full command to run, e.g.
+`"graphify install"`). Its binary is expected to already be declared as a
+mise tool in `home/dot_config/mise/config.toml`; the script runs the command
+through `mise exec --` so it resolves even if mise's shims aren't on PATH in
+that shell.
 
 Editing `ai-tools.yaml` and running `chezmoi apply` re-runs the relevant
 `run_onchange` scripts, same as `apps.yaml`.
@@ -75,6 +82,8 @@ Editing `ai-tools.yaml` and running `chezmoi apply` re-runs the relevant
 - **[Playwright MCP](https://github.com/microsoft/playwright-mcp)** — browser automation MCP server.
 - **[Context7](https://github.com/upstash/context7)** — up-to-date library docs MCP server (optional API key via `.context7ApiKey`).
 - **[OpenSpec](https://github.com/Fission-AI/OpenSpec)** — spec-driven development CLI (`@fission-ai/openspec`), installed via mise's npm backend (`home/dot_config/mise/config.toml`). It has no machine-wide config: run `openspec init` inside each project you want to use it in and pick your AI tool (Claude Code, Copilot, etc.) when prompted.
+- **[Graphify](https://github.com/Graphify-Labs/graphify)** — turns a codebase into a queryable knowledge graph via a `/graphify` skill. Installed via mise's pipx backend (`pipx:graphifyy`) plus a one-time `graphify install`, which auto-detects and registers the skill for whichever of Claude Code/Cursor/Copilot/Codex are present.
+- **[nestjs-doctor](https://github.com/RoloBits/nestjs-doctor)** — diagnoses NestJS code, 0-100 health score. Installed globally via mise's npm backend (`npm:nestjs-doctor`) for convenience, but it's designed as a per-project devDependency: run `nestjs-doctor --init` inside each NestJS project to write that project's `.agents/nestjs-doctor/` skill files and pin a project-local version for CI score gates.
 
 ---
 
@@ -102,3 +111,8 @@ Prefer mise over a dedicated npm-install script: add the package under
 `[tools]` in `home/dot_config/mise/config.toml` using mise's npm backend,
 e.g. `"npm:some-package" = "latest"`, then run `chezmoi apply` (or `mise
 install`).
+
+If the tool also needs a one-time command to register itself as a skill
+with AI assistants (like Graphify's `graphify install`), add it under
+`aiTools.cliSkills` in `ai-tools.yaml` too and `chezmoi apply` will run it
+via `run_onchange_06-install-cli-skills`.

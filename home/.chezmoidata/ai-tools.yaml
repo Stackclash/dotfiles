@@ -36,3 +36,11 @@ aiTools:
         - "@upstash/context7-mcp"
       apiKeyFlag: "--api-key"
       apiKeyVar: "context7ApiKey"
+
+  # CLI tools installed via mise (home/dot_config/mise/config.toml) that need
+  # a one-time command run afterwards to register their skill with whichever
+  # AI assistants they detect on the machine. Run through `mise exec --` so
+  # it works whether or not mise's shims are already on PATH.
+  cliSkills:
+    graphify:
+      command: "graphify install"

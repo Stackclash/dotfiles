@@ -1,0 +1,16 @@
+if (-not (Get-Command "mise" -ErrorAction SilentlyContinue)) {
+    Write-Host "'mise' not found in PATH. Skipping CLI skill registration."
+    exit 0
+}
+
+mise install | Out-Null
+
+{{- range $key, $tool := .aiTools.cliSkills }}
+
+Write-Host ""
+Write-Host "=== CLI skill: {{ $key }} ==="
+mise exec -- {{ $tool.command }}
+{{- end }}
+
+Write-Host ""
+Write-Host "CLI skills processed."

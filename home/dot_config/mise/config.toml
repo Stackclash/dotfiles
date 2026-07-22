@@ -22,6 +22,7 @@ node = "22"
 "pipx:graphifyy" = "latest"
 "pipx:azure-cli" = "latest"
 "npm:@fission-ai/openspec" = "latest"
+"npm:nestjs-doctor" = "latest" # global CLI; still run `nestjs-doctor --init` per NestJS project
 
 [env]
 _.file = ".env"

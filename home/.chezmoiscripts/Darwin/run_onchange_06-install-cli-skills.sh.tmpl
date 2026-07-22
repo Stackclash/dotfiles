@@ -1,0 +1,18 @@
+#!/bin/bash
+
+if ! command -v mise >/dev/null 2>&1; then
+  echo "'mise' not found in PATH. Skipping CLI skill registration."
+  exit 0
+fi
+
+mise install >/dev/null 2>&1 || true
+
+{{- range $key, $tool := .aiTools.cliSkills }}
+
+echo ""
+echo "=== CLI skill: {{ $key }} ==="
+mise exec -- {{ $tool.command }} || echo "  Failed to run '{{ $tool.command }}' (is it installed via mise?)"
+{{- end }}
+
+echo ""
+echo "CLI skills processed."
