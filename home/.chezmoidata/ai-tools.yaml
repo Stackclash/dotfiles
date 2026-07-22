@@ -1,8 +1,9 @@
 aiTools:
 
-  # Claude Code plugin marketplaces + plugins to install.
-  # Installed via `claude plugin marketplace add` / `claude plugin install`.
-  claudePlugins:
+  # Plugin marketplaces + plugins to install, for whichever of the Claude
+  # Code / GitHub Copilot CLIs are present (both use the same
+  # `<cli> plugin marketplace add` / `<cli> plugin install` subcommands).
+  pluginMarketplaces:
     superpowers:
       marketplace: "obra/superpowers-marketplace"
       plugin: "superpowers@superpowers-marketplace"

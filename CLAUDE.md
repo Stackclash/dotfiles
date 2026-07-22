@@ -53,7 +53,7 @@ All dynamic configuration lives in `home/.chezmoidata/`:
 | `apps.yaml` | App definitions with per-OS install methods (winget/choco/brew) |
 | `themes.yaml` | Color themes with RGB/hex values (dracular, molokai, mojave_dark) |
 | `vscode-profiles.yaml` | VS Code profiles with per-profile extension lists |
-| `ai-tools.yaml` | Claude Code plugins, MCP servers (Claude + VS Code/Copilot), global npm CLI tools |
+| `ai-tools.yaml` | Plugin marketplaces (Claude Code + Copilot CLI), MCP servers (Claude + VS Code/Copilot), global npm CLI tools |
 
 Scripts and templates reference these as `.apps`, `.themes`, and `.vscodeProfiles`. Editing a data file and running `chezmoi apply` is enough to trigger relevant `run_onchange_*` scripts.
 
@@ -114,6 +114,6 @@ Templates in `home/.chezmoitemplates/` are included with `{{ template "name" . }
 ### Adding AI Tooling (Skills, Agents, MCPs)
 
 - **MCP servers** (used by both Claude Code and VS Code/Copilot): add an entry under `mcpServers` in `home/.chezmoidata/ai-tools.yaml`, then `chezmoi apply`. Registers via `claude mcp add --scope user` and regenerates VS Code's `mcp.json` (from the `vscode-mcp-servers` template).
-- **Claude Code plugins**: add an entry under `claudePlugins` in `ai-tools.yaml` (marketplace + plugin), then `chezmoi apply`.
+- **Plugin marketplaces** (Claude Code and/or Copilot CLI — both share the same `<cli> plugin marketplace add` / `<cli> plugin install` subcommands): add an entry under `pluginMarketplaces` in `ai-tools.yaml` (marketplace + plugin), then `chezmoi apply`. The `run_onchange_04-install-plugin-marketplaces` script runs it against whichever of `claude`/`copilot` are on PATH.
 - **Global npm CLI tools**: add the package spec under `npmGlobal` in `ai-tools.yaml`.
 - **Custom (personal) skills/agents**: drop files directly into `home/dot_claude/skills/<name>/SKILL.md` or `home/dot_claude/agents/<name>.md` — these are Claude Code-only and not templated. See `docs/pages/applications/ai-tools.md` for details.

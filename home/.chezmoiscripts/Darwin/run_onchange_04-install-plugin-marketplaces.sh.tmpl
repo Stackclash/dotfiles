@@ -1,0 +1,26 @@
+#!/bin/bash
+
+clis=()
+command -v claude >/dev/null 2>&1 && clis+=("claude")
+command -v copilot >/dev/null 2>&1 && clis+=("copilot")
+
+if [ ${#clis[@]} -eq 0 ]; then
+  echo "Neither 'claude' nor 'copilot' CLI found in PATH. Skipping plugin marketplace setup."
+  exit 0
+fi
+
+{{- range $key, $plugin := .aiTools.pluginMarketplaces }}
+
+echo ""
+echo "=== Plugin: {{ $key }} ==="
+for cli in "${clis[@]}"; do
+  echo "[$cli] Adding marketplace {{ $plugin.marketplace }}..."
+  "$cli" plugin marketplace add {{ $plugin.marketplace }} || true
+
+  echo "[$cli] Installing plugin {{ $plugin.plugin }}..."
+  "$cli" plugin install {{ $plugin.plugin }} || true
+done
+{{- end }}
+
+echo ""
+echo "Plugin marketplaces processed."

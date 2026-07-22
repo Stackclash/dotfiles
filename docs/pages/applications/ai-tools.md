@@ -17,7 +17,7 @@ home/.chezmoidata/
 └── ai-tools.yaml
 
 home/.chezmoiscripts/{Darwin,Windows}/
-├── run_onchange_04-install-claude-plugins.{sh,ps1}.tmpl
+├── run_onchange_04-install-plugin-marketplaces.{sh,ps1}.tmpl
 ├── run_onchange_05-install-mcp-servers.{sh,ps1}.tmpl
 └── run_onchange_06-install-npm-globals.{sh,ps1}.tmpl
 
@@ -40,7 +40,7 @@ Three top-level sections:
 
 | Key | Purpose | Installed via |
 |-----|---------|----------------|
-| `claudePlugins` | Claude Code plugin marketplaces + plugins | `claude plugin marketplace add` / `claude plugin install` |
+| `pluginMarketplaces` | Plugin marketplaces + plugins, for Claude Code and/or the Copilot CLI | `<cli> plugin marketplace add` / `<cli> plugin install`, run against whichever of `claude`/`copilot` are on PATH |
 | `mcpServers` | MCP servers, shared by Claude Code and VS Code/Copilot | `claude mcp add --scope user` **and** `~/.../Code/User/mcp.json` |
 | `npmGlobal` | Global npm CLI tools | `npm install -g` |
 
@@ -56,7 +56,7 @@ Editing `ai-tools.yaml` and running `chezmoi apply` re-runs the relevant
 
 ## Currently Installed
 
-- **[Superpowers](https://github.com/obra/superpowers)** — Claude Code plugin: TDD/planning/review skills library.
+- **[Superpowers](https://github.com/obra/superpowers)** — TDD/planning/review skills library, installed as a plugin for both Claude Code and the Copilot CLI.
 - **[Playwright MCP](https://github.com/microsoft/playwright-mcp)** — browser automation MCP server.
 - **[Context7](https://github.com/upstash/context7)** — up-to-date library docs MCP server (optional API key via `.context7ApiKey`).
 - **[OpenSpec](https://github.com/Fission-AI/OpenSpec)** — spec-driven development CLI (`@fission-ai/openspec`), installed globally via npm. It has no machine-wide config: run `openspec init` inside each project you want to use it in and pick your AI tool (Claude Code, Copilot, etc.) when prompted.
@@ -68,14 +68,15 @@ Editing `ai-tools.yaml` and running `chezmoi apply` re-runs the relevant
 1. Add an entry under `aiTools.mcpServers` in `ai-tools.yaml` with `command` and `args`.
 2. Run `chezmoi apply` — it registers the server for Claude Code (`claude mcp add --scope user`) and regenerates VS Code's `mcp.json`.
 
-## Adding a Claude Code Plugin
+## Adding a Plugin Marketplace
 
-1. Add an entry under `aiTools.claudePlugins` with the plugin's `marketplace` (owner/repo) and `plugin` (`name@marketplace`).
-2. Run `chezmoi apply`.
+1. Add an entry under `aiTools.pluginMarketplaces` with the plugin's `marketplace` (owner/repo) and `plugin` (`name@marketplace`).
+2. Run `chezmoi apply` — it installs the plugin for whichever of the `claude`/`copilot` CLIs are present.
 
 ## Adding a Custom Skill or Agent
 
 Personal (non-third-party) skills and agents live directly under
 `home/dot_claude/skills/` and `home/dot_claude/agents/` — see the `README.md`
 in each for the expected format. These are Claude Code-only; GitHub Copilot
-has no equivalent user-level mechanism.
+has no equivalent user-level mechanism (its plugins, above, are the
+exception).

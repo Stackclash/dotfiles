@@ -1,0 +1,24 @@
+$clis = @()
+if (Get-Command "claude" -ErrorAction SilentlyContinue) { $clis += "claude" }
+if (Get-Command "copilot" -ErrorAction SilentlyContinue) { $clis += "copilot" }
+
+if ($clis.Count -eq 0) {
+    Write-Host "Neither 'claude' nor 'copilot' CLI found in PATH. Skipping plugin marketplace setup."
+    exit 0
+}
+
+{{- range $key, $plugin := .aiTools.pluginMarketplaces }}
+
+Write-Host ""
+Write-Host "=== Plugin: {{ $key }} ==="
+foreach ($cli in $clis) {
+    Write-Host "[$cli] Adding marketplace {{ $plugin.marketplace }}..."
+    & $cli plugin marketplace add {{ $plugin.marketplace }}
+
+    Write-Host "[$cli] Installing plugin {{ $plugin.plugin }}..."
+    & $cli plugin install {{ $plugin.plugin }}
+}
+{{- end }}
+
+Write-Host ""
+Write-Host "Plugin marketplaces processed."
