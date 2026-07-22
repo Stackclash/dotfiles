@@ -49,6 +49,10 @@ flag from a chezmoi data value (typically a `promptStringOnce` secret) only
 when that value is non-empty — see the `context7` entry, which reads
 `.context7ApiKey`.
 
+A `pluginMarketplaces` entry can declare `clis` to restrict which CLI(s) it
+installs on, e.g. `clis: ["claude"]` for a Claude Code-only plugin. Omitting
+`clis` installs on both `claude` and `copilot` (whichever are present).
+
 Editing `ai-tools.yaml` and running `chezmoi apply` re-runs the relevant
 `run_onchange` scripts, same as `apps.yaml`.
 
@@ -70,8 +74,8 @@ Editing `ai-tools.yaml` and running `chezmoi apply` re-runs the relevant
 
 ## Adding a Plugin Marketplace
 
-1. Add an entry under `aiTools.pluginMarketplaces` with the plugin's `marketplace` (owner/repo) and `plugin` (`name@marketplace`).
-2. Run `chezmoi apply` — it installs the plugin for whichever of the `claude`/`copilot` CLIs are present.
+1. Add an entry under `aiTools.pluginMarketplaces` with the plugin's `marketplace` (owner/repo) and `plugin` (`name@marketplace`). Add `clis: ["claude"]` or `clis: ["copilot"]` if the plugin only supports one of the two; omit it if it supports both.
+2. Run `chezmoi apply` — it installs the plugin for whichever of the `claude`/`copilot` CLIs are present (intersected with `clis`, if set).
 
 ## Adding a Custom Skill or Agent
 

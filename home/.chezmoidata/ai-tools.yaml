@@ -3,10 +3,14 @@ aiTools:
   # Plugin marketplaces + plugins to install, for whichever of the Claude
   # Code / GitHub Copilot CLIs are present (both use the same
   # `<cli> plugin marketplace add` / `<cli> plugin install` subcommands).
+  #
+  # Optional `clis` restricts a plugin to specific CLIs (`claude`, `copilot`).
+  # Omit it to install on both (the default).
   pluginMarketplaces:
     superpowers:
       marketplace: "obra/superpowers-marketplace"
       plugin: "superpowers@superpowers-marketplace"
+      # clis: ["claude"]  # example: install on Claude Code only
 
   # MCP servers, registered for both Claude Code (`claude mcp add --scope user`)
   # and VS Code / GitHub Copilot (user mcp.json).

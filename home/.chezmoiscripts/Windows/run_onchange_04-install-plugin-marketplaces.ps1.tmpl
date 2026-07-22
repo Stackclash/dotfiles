@@ -8,10 +8,20 @@ if ($clis.Count -eq 0) {
 }
 
 {{- range $key, $plugin := .aiTools.pluginMarketplaces }}
+{{- $targets := $plugin.clis }}
+{{- if not $targets }}{{ $targets = list "claude" "copilot" }}{{ end }}
 
 Write-Host ""
 Write-Host "=== Plugin: {{ $key }} ==="
+$pluginClis = @(
+{{- $lastT := sub (len $targets) 1 }}
+{{- range $ti, $t := $targets }}
+    "{{ $t }}"{{ if ne $ti $lastT }},{{ end }}
+{{- end }}
+)
 foreach ($cli in $clis) {
+    if ($pluginClis -notcontains $cli) { continue }
+
     Write-Host "[$cli] Adding marketplace {{ $plugin.marketplace }}..."
     & $cli plugin marketplace add {{ $plugin.marketplace }}
 

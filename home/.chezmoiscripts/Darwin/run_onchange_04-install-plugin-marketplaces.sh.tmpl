@@ -10,10 +10,19 @@ if [ ${#clis[@]} -eq 0 ]; then
 fi
 
 {{- range $key, $plugin := .aiTools.pluginMarketplaces }}
+{{- $targets := $plugin.clis }}
+{{- if not $targets }}{{ $targets = list "claude" "copilot" }}{{ end }}
 
 echo ""
 echo "=== Plugin: {{ $key }} ==="
+plugin_clis=({{ range $t := $targets }}"{{ $t }}" {{ end }})
 for cli in "${clis[@]}"; do
+  match=false
+  for t in "${plugin_clis[@]}"; do
+    [ "$cli" = "$t" ] && match=true && break
+  done
+  [ "$match" = false ] && continue
+
   echo "[$cli] Adding marketplace {{ $plugin.marketplace }}..."
   "$cli" plugin marketplace add {{ $plugin.marketplace }} || true
 
