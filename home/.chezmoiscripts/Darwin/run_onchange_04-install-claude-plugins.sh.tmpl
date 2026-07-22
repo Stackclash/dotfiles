@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if ! command -v claude >/dev/null 2>&1; then
+  echo "'claude' CLI not found in PATH. Skipping Claude Code plugin setup."
+  exit 0
+fi
+
+{{- range $key, $plugin := .aiTools.claudePlugins }}
+
+echo ""
+echo "=== Claude Code plugin: {{ $key }} ==="
+echo "Adding marketplace {{ $plugin.marketplace }}..."
+claude plugin marketplace add {{ $plugin.marketplace }} || true
+
+echo "Installing plugin {{ $plugin.plugin }}..."
+claude plugin install {{ $plugin.plugin }} || true
+{{- end }}
+
+echo ""
+echo "Claude Code plugins processed."

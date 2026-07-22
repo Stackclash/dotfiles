@@ -1,0 +1,32 @@
+aiTools:
+
+  # Claude Code plugin marketplaces + plugins to install.
+  # Installed via `claude plugin marketplace add` / `claude plugin install`.
+  claudePlugins:
+    superpowers:
+      marketplace: "obra/superpowers-marketplace"
+      plugin: "superpowers@superpowers-marketplace"
+
+  # MCP servers, registered for both Claude Code (`claude mcp add --scope user`)
+  # and VS Code / GitHub Copilot (user mcp.json).
+  #
+  # Optional `apiKeyFlag` + `apiKeyVar` append a CLI flag sourced from a
+  # chezmoi data value (e.g. a promptStringOnce'd secret) when it is non-empty.
+  mcpServers:
+    playwright:
+      command: "npx"
+      args:
+        - "-y"
+        - "@playwright/mcp@latest"
+
+    context7:
+      command: "npx"
+      args:
+        - "-y"
+        - "@upstash/context7-mcp"
+      apiKeyFlag: "--api-key"
+      apiKeyVar: "context7ApiKey"
+
+  # Global npm packages for AI/CLI tooling.
+  npmGlobal:
+    - "@fission-ai/openspec@latest"

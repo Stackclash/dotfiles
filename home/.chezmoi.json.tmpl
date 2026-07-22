@@ -12,6 +12,7 @@
   {{- $projectPath := promptStringOnce . "projectPath" "What path to use for Projects" -}}
   {{- $themes := list "dracular" "molokai" -}}
   {{- $colorscheme := promptChoice "What color scheme would you like to use" $themes -}}
+  {{- $context7ApiKey := promptStringOnce . "context7ApiKey" "Context7 MCP API key (optional, press enter to skip)" "" -}}
 {
   "data": {
     "name": {{ $name | quote }},
@@ -21,7 +22,8 @@
     "workGithubOrg": {{ $workGithubOrg | quote }},
     "githubUsername": {{ $githubUsername | quote }},
     "projectPath": {{ $projectPath | quote }},
-    "theme": {{ $colorscheme | quote }}
+    "theme": {{ $colorscheme | quote }},
+    "context7ApiKey": {{ $context7ApiKey | quote }}
   },
 
   "edit": {

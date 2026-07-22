@@ -1,0 +1,19 @@
+#!/bin/bash
+
+{{- $root := . }}
+
+if ! command -v claude >/dev/null 2>&1; then
+  echo "'claude' CLI not found in PATH. Skipping Claude Code MCP server setup."
+  exit 0
+fi
+
+{{- range $name, $server := .aiTools.mcpServers }}
+
+echo ""
+echo "=== MCP server: {{ $name }} ==="
+claude mcp remove {{ $name }} --scope user >/dev/null 2>&1 || true
+claude mcp add --scope user {{ $name }} -- {{ $server.command }}{{ range $arg := $server.args }} {{ $arg }}{{ end }}{{ if $server.apiKeyFlag }}{{ $apiKey := index $root $server.apiKeyVar }}{{ if $apiKey }} {{ $server.apiKeyFlag }} {{ $apiKey }}{{ end }}{{ end }}
+{{- end }}
+
+echo ""
+echo "MCP servers configured for Claude Code."

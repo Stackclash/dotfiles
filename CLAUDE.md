@@ -53,6 +53,7 @@ All dynamic configuration lives in `home/.chezmoidata/`:
 | `apps.yaml` | App definitions with per-OS install methods (winget/choco/brew) |
 | `themes.yaml` | Color themes with RGB/hex values (dracular, molokai, mojave_dark) |
 | `vscode-profiles.yaml` | VS Code profiles with per-profile extension lists |
+| `ai-tools.yaml` | Claude Code plugins, MCP servers (Claude + VS Code/Copilot), global npm CLI tools |
 
 Scripts and templates reference these as `.apps`, `.themes`, and `.vscodeProfiles`. Editing a data file and running `chezmoi apply` is enough to trigger relevant `run_onchange_*` scripts.
 
@@ -79,6 +80,7 @@ Key variables available in all `.tmpl` files (defined via prompts in `home/.chez
 | `.githubUsername` | GitHub username |
 | `.projectPath` | Local projects directory |
 | `.theme` | Selected theme name (`dracular` or `molokai`) |
+| `.context7ApiKey` | Optional Context7 MCP API key (empty string if skipped) |
 | `.chezmoi.os` | `windows`, `darwin`, or `linux` |
 
 Use `{{- if eq .chezmoi.os "windows" }}` for OS-conditional blocks.
@@ -91,6 +93,7 @@ Templates in `home/.chezmoitemplates/` are included with `{{ template "name" . }
 - **`theme-helpers`** — Defines `rgbToHex` and `rgbToFloat` functions for color conversion
 - **`vscode-settings`** — Generates the VS Code `settings.json` content
 - **`vscode-keybindings`** — Generates VS Code `keybindings.json` content
+- **`vscode-mcp-servers`** — Generates VS Code's `mcp.json` from `ai-tools.yaml`'s `mcpServers`
 
 ### Cross-Platform Handling
 
@@ -107,3 +110,10 @@ Templates in `home/.chezmoitemplates/` are included with `{{ template "name" . }
 
 1. Add the profile and its extensions to `home/.chezmoidata/vscode-profiles.yaml`
 2. Run `chezmoi apply` — the `run_onchange_03-setup-vscode-profiles` script syncs extensions
+
+### Adding AI Tooling (Skills, Agents, MCPs)
+
+- **MCP servers** (used by both Claude Code and VS Code/Copilot): add an entry under `mcpServers` in `home/.chezmoidata/ai-tools.yaml`, then `chezmoi apply`. Registers via `claude mcp add --scope user` and regenerates VS Code's `mcp.json` (from the `vscode-mcp-servers` template).
+- **Claude Code plugins**: add an entry under `claudePlugins` in `ai-tools.yaml` (marketplace + plugin), then `chezmoi apply`.
+- **Global npm CLI tools**: add the package spec under `npmGlobal` in `ai-tools.yaml`.
+- **Custom (personal) skills/agents**: drop files directly into `home/dot_claude/skills/<name>/SKILL.md` or `home/dot_claude/agents/<name>.md` — these are Claude Code-only and not templated. See `docs/pages/applications/ai-tools.md` for details.

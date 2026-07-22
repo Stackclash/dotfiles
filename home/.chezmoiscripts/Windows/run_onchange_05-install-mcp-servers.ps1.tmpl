@@ -1,0 +1,17 @@
+{{- $root := . }}
+
+if (-not (Get-Command "claude" -ErrorAction SilentlyContinue)) {
+    Write-Host "'claude' CLI not found in PATH. Skipping Claude Code MCP server setup."
+    exit 0
+}
+
+{{- range $name, $server := .aiTools.mcpServers }}
+
+Write-Host ""
+Write-Host "=== MCP server: {{ $name }} ==="
+claude mcp remove {{ $name }} --scope user 2>$null
+claude mcp add --scope user {{ $name }} -- {{ $server.command }}{{ range $arg := $server.args }} {{ $arg }}{{ end }}{{ if $server.apiKeyFlag }}{{ $apiKey := index $root $server.apiKeyVar }}{{ if $apiKey }} {{ $server.apiKeyFlag }} {{ $apiKey }}{{ end }}{{ end }}
+{{- end }}
+
+Write-Host ""
+Write-Host "MCP servers configured for Claude Code."

@@ -16,6 +16,7 @@ nav:
 
   - Applications:
       - Visual Studio Code: pages/applications/vscode.md
+      - AI Tools: pages/applications/ai-tools.md
       # Add additional applications here, e.g.:
       # - Terminal: pages/applications/terminal.md
       # - Git: pages/applications/git.md

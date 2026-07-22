@@ -1,0 +1,26 @@
+{{- $root := . -}}
+{
+  "servers": {
+{{- $first := true -}}
+{{- range $name, $server := .aiTools.mcpServers }}
+{{- if $first }}{{- $first = false -}}{{- else }},{{ end }}
+    "{{ $name }}": {
+      "type": "stdio",
+      "command": "{{ $server.command }}",
+      "args": [
+{{- $lastArg := sub (len $server.args) 1 }}
+{{- range $j, $arg := $server.args }}
+        "{{ $arg }}"{{ if ne $j $lastArg }},{{ end }}
+{{- end }}
+{{- if $server.apiKeyFlag }}
+{{- $apiKey := index $root $server.apiKeyVar }}
+{{- if $apiKey }},
+        "{{ $server.apiKeyFlag }}",
+        "{{ $apiKey }}"
+{{- end }}
+{{- end }}
+      ]
+    }
+{{- end }}
+  }
+}
