@@ -2,18 +2,41 @@
 
 {{- $root := . }}
 
-if ! command -v claude >/dev/null 2>&1; then
-  echo "'claude' CLI not found in PATH. Skipping Claude Code MCP server setup."
+clis=()
+command -v claude >/dev/null 2>&1 && clis+=("claude")
+command -v copilot >/dev/null 2>&1 && clis+=("copilot")
+
+if [ ${#clis[@]} -eq 0 ]; then
+  echo "Neither 'claude' nor 'copilot' CLI found in PATH. Skipping MCP server setup."
   exit 0
 fi
 
 {{- range $name, $server := .aiTools.mcpServers }}
+{{- $targets := $server.clis }}
+{{- if not $targets }}{{ $targets = list "claude" "copilot" }}{{ end }}
 
 echo ""
 echo "=== MCP server: {{ $name }} ==="
-claude mcp remove {{ $name }} --scope user >/dev/null 2>&1 || true
-claude mcp add --scope user {{ $name }} -- {{ $server.command }}{{ range $arg := $server.args }} {{ $arg }}{{ end }}{{ if $server.apiKeyFlag }}{{ $apiKey := index $root $server.apiKeyVar }}{{ if $apiKey }} {{ $server.apiKeyFlag }} {{ $apiKey }}{{ end }}{{ end }}
+server_clis=({{ range $t := $targets }}"{{ $t }}" {{ end }})
+for cli in "${clis[@]}"; do
+  match=false
+  for t in "${server_clis[@]}"; do
+    [ "$cli" = "$t" ] && match=true && break
+  done
+  [ "$match" = false ] && continue
+
+  case "$cli" in
+    claude)
+      claude mcp remove {{ $name }} --scope user >/dev/null 2>&1 || true
+      claude mcp add --scope user {{ $name }} -- {{ $server.command }}{{ range $arg := $server.args }} {{ $arg }}{{ end }}{{ if $server.apiKeyFlag }}{{ $apiKey := index $root $server.apiKeyVar }}{{ if $apiKey }} {{ $server.apiKeyFlag }} {{ $apiKey }}{{ end }}{{ end }}
+      ;;
+    copilot)
+      copilot mcp delete {{ $name }} >/dev/null 2>&1 || true
+      copilot mcp add {{ $name }} -- {{ $server.command }}{{ range $arg := $server.args }} {{ $arg }}{{ end }}{{ if $server.apiKeyFlag }}{{ $apiKey := index $root $server.apiKeyVar }}{{ if $apiKey }} {{ $server.apiKeyFlag }} {{ $apiKey }}{{ end }}{{ end }}
+      ;;
+  esac
+done
 {{- end }}
 
 echo ""
-echo "MCP servers configured for Claude Code."
+echo "MCP servers configured."

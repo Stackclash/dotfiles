@@ -21,6 +21,7 @@ node = "22"
 "aqua:astral-sh/uv" = "latest"
 "pipx:graphifyy" = "latest"
 "pipx:azure-cli" = "latest"
+"npm:@fission-ai/openspec" = "latest"
 
 [env]
 _.file = ".env"

@@ -12,8 +12,13 @@ aiTools:
       plugin: "superpowers@superpowers-marketplace"
       # clis: ["claude"]  # example: install on Claude Code only
 
-  # MCP servers, registered for both Claude Code (`claude mcp add --scope user`)
-  # and VS Code / GitHub Copilot (user mcp.json).
+  # MCP servers, registered via the Claude Code CLI (`claude mcp add --scope
+  # user`), the Copilot CLI (`copilot mcp add`), and VS Code/Copilot Chat's
+  # user mcp.json — all generated from this one list.
+  #
+  # Optional `clis` restricts CLI registration to specific CLIs (`claude`,
+  # `copilot`); omit it to register on both (the default). This only affects
+  # the two CLIs — the server is always written to VS Code's mcp.json.
   #
   # Optional `apiKeyFlag` + `apiKeyVar` append a CLI flag sourced from a
   # chezmoi data value (e.g. a promptStringOnce'd secret) when it is non-empty.
@@ -31,7 +36,3 @@ aiTools:
         - "@upstash/context7-mcp"
       apiKeyFlag: "--api-key"
       apiKeyVar: "context7ApiKey"
-
-  # Global npm packages for AI/CLI tooling.
-  npmGlobal:
-    - "@fission-ai/openspec@latest"

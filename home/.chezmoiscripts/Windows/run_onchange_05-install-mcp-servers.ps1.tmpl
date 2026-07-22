@@ -1,17 +1,41 @@
 {{- $root := . }}
 
-if (-not (Get-Command "claude" -ErrorAction SilentlyContinue)) {
-    Write-Host "'claude' CLI not found in PATH. Skipping Claude Code MCP server setup."
+$clis = @()
+if (Get-Command "claude" -ErrorAction SilentlyContinue) { $clis += "claude" }
+if (Get-Command "copilot" -ErrorAction SilentlyContinue) { $clis += "copilot" }
+
+if ($clis.Count -eq 0) {
+    Write-Host "Neither 'claude' nor 'copilot' CLI found in PATH. Skipping MCP server setup."
     exit 0
 }
 
 {{- range $name, $server := .aiTools.mcpServers }}
+{{- $targets := $server.clis }}
+{{- if not $targets }}{{ $targets = list "claude" "copilot" }}{{ end }}
 
 Write-Host ""
 Write-Host "=== MCP server: {{ $name }} ==="
-claude mcp remove {{ $name }} --scope user 2>$null
-claude mcp add --scope user {{ $name }} -- {{ $server.command }}{{ range $arg := $server.args }} {{ $arg }}{{ end }}{{ if $server.apiKeyFlag }}{{ $apiKey := index $root $server.apiKeyVar }}{{ if $apiKey }} {{ $server.apiKeyFlag }} {{ $apiKey }}{{ end }}{{ end }}
+$serverClis = @(
+{{- $lastT := sub (len $targets) 1 }}
+{{- range $ti, $t := $targets }}
+    "{{ $t }}"{{ if ne $ti $lastT }},{{ end }}
+{{- end }}
+)
+foreach ($cli in $clis) {
+    if ($serverClis -notcontains $cli) { continue }
+
+    switch ($cli) {
+        "claude" {
+            claude mcp remove {{ $name }} --scope user 2>$null
+            claude mcp add --scope user {{ $name }} -- {{ $server.command }}{{ range $arg := $server.args }} {{ $arg }}{{ end }}{{ if $server.apiKeyFlag }}{{ $apiKey := index $root $server.apiKeyVar }}{{ if $apiKey }} {{ $server.apiKeyFlag }} {{ $apiKey }}{{ end }}{{ end }}
+        }
+        "copilot" {
+            copilot mcp delete {{ $name }} 2>$null
+            copilot mcp add {{ $name }} -- {{ $server.command }}{{ range $arg := $server.args }} {{ $arg }}{{ end }}{{ if $server.apiKeyFlag }}{{ $apiKey := index $root $server.apiKeyVar }}{{ if $apiKey }} {{ $server.apiKeyFlag }} {{ $apiKey }}{{ end }}{{ end }}
+        }
+    }
+}
 {{- end }}
 
 Write-Host ""
-Write-Host "MCP servers configured for Claude Code."
+Write-Host "MCP servers configured."

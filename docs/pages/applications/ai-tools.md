@@ -18,8 +18,7 @@ home/.chezmoidata/
 
 home/.chezmoiscripts/{Darwin,Windows}/
 ├── run_onchange_04-install-plugin-marketplaces.{sh,ps1}.tmpl
-├── run_onchange_05-install-mcp-servers.{sh,ps1}.tmpl
-└── run_onchange_06-install-npm-globals.{sh,ps1}.tmpl
+└── run_onchange_05-install-mcp-servers.{sh,ps1}.tmpl
 
 home/.chezmoitemplates/
 └── vscode-mcp-servers
@@ -30,31 +29,43 @@ home/private_Library/private_Application Support/private_Code/User/mcp.json.tmpl
 home/dot_claude/
 ├── skills/   # -> ~/.claude/skills/<name>/SKILL.md
 └── agents/   # -> ~/.claude/agents/<name>.md
+
+home/dot_config/mise/config.toml   # AI-adjacent CLI tools (e.g. OpenSpec) via mise's npm backend
 ```
 
 ---
 
 ## `ai-tools.yaml`
 
-Three top-level sections:
+Two top-level sections, both driven by whichever of the `claude`/`copilot`
+CLIs are present on PATH:
 
 | Key | Purpose | Installed via |
 |-----|---------|----------------|
-| `pluginMarketplaces` | Plugin marketplaces + plugins, for Claude Code and/or the Copilot CLI | `<cli> plugin marketplace add` / `<cli> plugin install`, run against whichever of `claude`/`copilot` are on PATH |
-| `mcpServers` | MCP servers, shared by Claude Code and VS Code/Copilot | `claude mcp add --scope user` **and** `~/.../Code/User/mcp.json` |
-| `npmGlobal` | Global npm CLI tools | `npm install -g` |
+| `pluginMarketplaces` | Plugin marketplaces + plugins | `<cli> plugin marketplace add` / `<cli> plugin install` |
+| `mcpServers` | MCP servers | `claude mcp add --scope user`, `copilot mcp add`, **and** VS Code/Copilot Chat's `~/.../Code/User/mcp.json` |
 
-An MCP server entry can declare `apiKeyFlag` + `apiKeyVar` to append a CLI
-flag from a chezmoi data value (typically a `promptStringOnce` secret) only
-when that value is non-empty — see the `context7` entry, which reads
+Both `pluginMarketplaces` and `mcpServers` entries accept an optional `clis`
+list to restrict which CLI(s) they're registered against, e.g. `clis:
+["claude"]` for something Claude Code-only. Omitting `clis` registers on
+both `claude` and `copilot` (whichever are actually present) — this is the
+default. `clis` only affects the two CLIs; an `mcpServers` entry is always
+written to VS Code's `mcp.json` regardless, since that's a separate surface
+(the VS Code Copilot Chat extension, not the standalone Copilot CLI).
+
+An `mcpServers` entry can also declare `apiKeyFlag` + `apiKeyVar` to append a
+CLI flag from a chezmoi data value (typically a `promptStringOnce` secret)
+only when that value is non-empty — see the `context7` entry, which reads
 `.context7ApiKey`.
-
-A `pluginMarketplaces` entry can declare `clis` to restrict which CLI(s) it
-installs on, e.g. `clis: ["claude"]` for a Claude Code-only plugin. Omitting
-`clis` installs on both `claude` and `copilot` (whichever are present).
 
 Editing `ai-tools.yaml` and running `chezmoi apply` re-runs the relevant
 `run_onchange` scripts, same as `apps.yaml`.
+
+> [!NOTE]
+> The `copilot mcp add` / `copilot mcp delete` syntax is based on current
+> GitHub Copilot CLI docs, not hands-on verification against the binary —
+> if GitHub changes the flags, `run_onchange_05-install-mcp-servers` will
+> need a matching update.
 
 ---
 
@@ -63,14 +74,14 @@ Editing `ai-tools.yaml` and running `chezmoi apply` re-runs the relevant
 - **[Superpowers](https://github.com/obra/superpowers)** — TDD/planning/review skills library, installed as a plugin for both Claude Code and the Copilot CLI.
 - **[Playwright MCP](https://github.com/microsoft/playwright-mcp)** — browser automation MCP server.
 - **[Context7](https://github.com/upstash/context7)** — up-to-date library docs MCP server (optional API key via `.context7ApiKey`).
-- **[OpenSpec](https://github.com/Fission-AI/OpenSpec)** — spec-driven development CLI (`@fission-ai/openspec`), installed globally via npm. It has no machine-wide config: run `openspec init` inside each project you want to use it in and pick your AI tool (Claude Code, Copilot, etc.) when prompted.
+- **[OpenSpec](https://github.com/Fission-AI/OpenSpec)** — spec-driven development CLI (`@fission-ai/openspec`), installed via mise's npm backend (`home/dot_config/mise/config.toml`). It has no machine-wide config: run `openspec init` inside each project you want to use it in and pick your AI tool (Claude Code, Copilot, etc.) when prompted.
 
 ---
 
 ## Adding an MCP Server
 
-1. Add an entry under `aiTools.mcpServers` in `ai-tools.yaml` with `command` and `args`.
-2. Run `chezmoi apply` — it registers the server for Claude Code (`claude mcp add --scope user`) and regenerates VS Code's `mcp.json`.
+1. Add an entry under `aiTools.mcpServers` in `ai-tools.yaml` with `command` and `args` (and optionally `clis`).
+2. Run `chezmoi apply` — it registers the server for Claude Code and/or the Copilot CLI (per `clis`) and regenerates VS Code's `mcp.json`.
 
 ## Adding a Plugin Marketplace
 
@@ -84,3 +95,10 @@ Personal (non-third-party) skills and agents live directly under
 in each for the expected format. These are Claude Code-only; GitHub Copilot
 has no equivalent user-level mechanism (its plugins, above, are the
 exception).
+
+## Adding a Global AI-Adjacent CLI Tool
+
+Prefer mise over a dedicated npm-install script: add the package under
+`[tools]` in `home/dot_config/mise/config.toml` using mise's npm backend,
+e.g. `"npm:some-package" = "latest"`, then run `chezmoi apply` (or `mise
+install`).
