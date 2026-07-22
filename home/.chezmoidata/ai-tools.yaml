@@ -1,0 +1,92 @@
+# AI developer tools, managed by the AI-tools sync workflow.
+# Mirrors apps.yaml: edit this file and run `chezmoi apply` to add/update tools.
+# The run_onchange_after_04-sync-ai-tools script does the work. See
+# docs/pages/ai-tools.md for details.
+#
+# Common fields
+#   assistant:   claude | copilot | both   -- which assistant(s) the tool targets
+#   type:        mcp | package | plugin | custom
+#   forPersonal: true|false                 -- optional; skipped on work machines
+#   projectOnly: true                       -- documented only, never auto-installed
+#   projectNote: "..."                      -- shown in docs and task output
+#
+# Per-type payloads
+#   mcp:     { transport, command, args, env, url, apiKeyHeader, apiKeyFrom }
+#   package: { mise: { backend: npm|pipx, package }, postInstall }
+#   plugin:  { claude|copilot: { marketplaceAdd, install } }
+#   custom:  { kind: skill|agent }  -- content authored under ~/.ai/<kind>/<name>
+
+aiTools:
+  # --- MCP servers -----------------------------------------------------------
+  playwright-mcp:
+    assistant: both
+    type: mcp
+    mcp:
+      transport: stdio
+      command: npx
+      args:
+        - "@playwright/mcp@latest"
+
+  context7:
+    assistant: both
+    type: mcp
+    mcp:
+      transport: http
+      url: "https://mcp.context7.com/mcp"
+      # API key is prompted at `chezmoi init` and injected as this header.
+      # Leave the prompt blank to run keyless (rate-limited).
+      apiKeyHeader: CONTEXT7_API_KEY
+      apiKeyFrom: context7ApiKey
+
+  # --- Plugins (marketplace) -------------------------------------------------
+  superpowers:
+    assistant: both
+    type: plugin
+    plugin:
+      claude:
+        marketplaceAdd: "anthropics/claude-plugins-official"
+        install: "superpowers@claude-plugins-official"
+      copilot:
+        marketplaceAdd: "obra/superpowers-marketplace"
+        install: "superpowers@superpowers-marketplace"
+
+  # --- Package-manager tools (routed into mise [tools]) ----------------------
+  graphify:
+    assistant: claude
+    type: package
+    mise:
+      backend: pipx
+      package: graphifyy
+    postInstall: "graphify install"
+
+  openspec:
+    assistant: both
+    type: package
+    mise:
+      backend: npm
+      package: "@fission-ai/openspec"
+    projectNote: "Run `openspec init` inside each repo to scaffold its openspec/ folder."
+
+  # --- Project-only tools (documented, never auto-installed) -----------------
+  nestjs-doctor:
+    assistant: both
+    projectOnly: true
+    projectNote: "Per-project dev dependency: `npm i -D nestjs-doctor && npx nestjs-doctor --init`"
+
+  superspec:
+    assistant: both
+    projectOnly: true
+    task: superspec-init
+    projectNote: "Run `mise run superspec-init` inside a repo (needs OpenSpec + Superpowers)."
+
+  # --- Example: your own custom skill or agent -------------------------------
+  # Author the content under home/dot_ai/skills/<name>/ (a skill) or
+  # home/dot_ai/agents/<name>/ (an agent). The sync script copies it into the
+  # per-assistant locations: ~/.claude/skills|agents and, for Copilot,
+  # ~/.agents/skills. Uncomment and rename to enable.
+  #
+  # my-skill:
+  #   assistant: both
+  #   type: custom
+  #   custom:
+  #     kind: skill        # skill | agent

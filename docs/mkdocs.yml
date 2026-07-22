@@ -12,6 +12,7 @@ nav:
       - Scripts: pages/scripts.md
       - Templates: pages/templates.md
       - Configuration: pages/configuration.md
+      - AI Tools: pages/ai-tools.md
       - Themes: pages/themes.md
 
   - Applications:

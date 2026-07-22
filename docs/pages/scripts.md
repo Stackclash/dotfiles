@@ -50,6 +50,9 @@ Examples:
 - **`run_onchange_02-install-mac-apps.sh.tmpl`**  
   Installs apps defined in `.chezmoidata/apps.yaml`.
 
+- **`run_onchange_after_04-sync-ai-tools.sh.tmpl`**  
+  Syncs AI tools defined in `.chezmoidata/ai-tools.yaml` (see [AI Tools](ai-tools.md)).
+
 - **Repo cloning scripts**  
   `run_once_after_04_clone-personal-repos.sh.tmpl`
 
@@ -64,6 +67,9 @@ Examples:
 
 - **`run_onchange_02-install-apps.ps1.tmpl`**  
   Installs apps declared in `.chezmoidata/apps.yaml`.
+
+- **`run_onchange_after_04-sync-ai-tools.ps1.tmpl`**  
+  Syncs AI tools declared in `.chezmoidata/ai-tools.yaml` (see [AI Tools](ai-tools.md)).
 
 - **Terminal and shell setup**  
   `run_once_after_04-setup-terminal.ps1.tmpl`

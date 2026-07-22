@@ -1,0 +1,4 @@
+# Author custom Claude/Copilot skills here, one folder per skill:
+#   ~/.ai/skills/<name>/SKILL.md
+# Then add a matching `type: custom` entry (kind: skill) to
+# .chezmoidata/ai-tools.yaml and run `chezmoi apply`.

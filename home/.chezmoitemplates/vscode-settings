@@ -1,4 +1,23 @@
 {{- $themeColors := (index .themes .theme) -}}
+{{- /* Build Copilot MCP server entries from .chezmoidata/ai-tools.yaml */ -}}
+{{- $mcpEntries := list -}}
+{{- range $name, $tool := .aiTools -}}
+  {{- if and (eq $tool.type "mcp") (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) -}}
+    {{- $m := $tool.mcp -}}
+    {{- if or (eq $m.transport "http") (eq $m.transport "sse") -}}
+      {{- $server := dict "type" $m.transport "url" $m.url -}}
+      {{- $key := default "" (index $ (default "" $m.apiKeyFrom)) -}}
+      {{- if and $m.apiKeyFrom $key -}}
+        {{- $server = merge $server (dict "headers" (dict $m.apiKeyHeader $key)) -}}
+      {{- end -}}
+      {{- $mcpEntries = append $mcpEntries (printf "\"%s\": %s" $name (toJson $server)) -}}
+    {{- else -}}
+      {{- $server := dict "command" $m.command "args" $m.args -}}
+      {{- if $m.env -}}{{- $server = merge $server (dict "env" $m.env) -}}{{- end -}}
+      {{- $mcpEntries = append $mcpEntries (printf "\"%s\": %s" $name (toJson $server)) -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
 {
   "projectManager.git.baseFolders": ["C:\\Users\\coxri\\Projects"],
   "editor.fontFamily": "FiraCode Nerd Font",
@@ -83,10 +102,25 @@
   ],
   "chat.viewSessions.orientation": "stacked",
   "remote.autoForwardPortsSource": "hybrid",
-  "chat.disableAIFeatures": true,
+  "chat.disableAIFeatures": false,
   "claudeCode.preferredLocation": "panel",
   "azureTerraform.survey": {
     "surveyPromptDate": "2026-06-10T14:28:19.072Z",
     "surveyPromptIgnoredCount": 1
+  },
+  "chat.hookFilesLocations": {
+    ".github/hooks": true,
+    ".claude/settings.local.json": true,
+    ".claude/settings.json": true,
+    "~/.copilot/hooks": true,
+    "~/.claude/settings.json": true,
+    "~/.agents/hooks": true
+  },
+  "git.confirmSync": false,
+  "chat.mcp.discovery.enabled": true,
+  "mcp": {
+    "servers": {
+      {{ $mcpEntries | join ",\n      " }}
+    }
   }
 }

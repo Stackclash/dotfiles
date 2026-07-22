@@ -1,0 +1,140 @@
+# -------------------------------------------------------
+# AI Tools Sync (PowerShell, templated)
+# Installs/updates AI tools declared in .chezmoidata/ai-tools.yaml:
+#   mcp     -> registers the server with Claude Code (user scope)
+#   plugin  -> adds the marketplace + installs the plugin (Claude / Copilot)
+#   package -> runs any postInstall step (the package itself is handled by mise)
+#   custom  -> copies your authored skill/agent from ~/.ai into each assistant
+#   projectOnly / forPersonal-skipped tools are reported, never installed.
+# Copilot MCP servers are provided via the managed VS Code settings.json instead.
+#
+# NOT elevated — MCPs/skills must register for the current user, not Administrator.
+# Every external command is best-effort so `chezmoi apply` never fails on a
+# not-yet-installed CLI.
+# -------------------------------------------------------
+
+$script:Notes = @()
+function Add-Note { param([string]$Text) $script:Notes += $Text }
+function Test-Cmd { param([string]$Name) [bool](Get-Command $Name -ErrorAction SilentlyContinue) }
+
+function Register-ClaudeMcp {
+    param(
+        [string]$Name, [string]$Transport,
+        [string]$Url, [string]$ApiKeyHeader, [string]$ApiKey,
+        [string]$Command, [string[]]$CmdArgs, [hashtable]$EnvVars
+    )
+    if (-not (Test-Cmd "claude")) { Add-Note "claude CLI not found - register MCP '$Name' later with 'chezmoi apply'."; return }
+    claude mcp remove $Name --scope user 2>$null | Out-Null
+    $a = @("mcp", "add", $Name, "--scope", "user", "--transport", $Transport)
+    if ($Transport -eq "http" -or $Transport -eq "sse") {
+        $a += $Url
+        if ($ApiKey) { $a += @("--header", "$($ApiKeyHeader): $ApiKey") }
+    } else {
+        if ($EnvVars) { foreach ($k in $EnvVars.Keys) { $a += @("--env", "$k=$($EnvVars[$k])") } }
+        $a += "--"; $a += $Command
+        if ($CmdArgs) { $a += $CmdArgs }
+    }
+    & claude @a
+    if ($LASTEXITCODE -eq 0) { Write-Host "  Claude MCP '$Name' registered" }
+    else { Add-Note "Failed to register Claude MCP '$Name'." }
+}
+
+function Install-Plugin {
+    param([string]$Name, [string]$Cli, [string]$MarketplaceAdd, [string]$Install)
+    if (-not (Test-Cmd $Cli)) { Add-Note "$Cli not found - install plugin '$Name' later: $Cli plugin install $Install"; return }
+    if ($MarketplaceAdd) { & $Cli plugin marketplace add $MarketplaceAdd 2>$null | Out-Null }
+    & $Cli plugin install $Install
+    if ($LASTEXITCODE -eq 0) { Write-Host "  $Cli plugin '$Name' installed" }
+    else { Add-Note "Could not auto-install plugin '$Name' for $Cli. In an interactive session run: /plugin install $Install" }
+}
+
+function Invoke-PostInstall {
+    param([string]$Name, [string]$Cmd)
+    Write-Host "  postInstall: $Cmd"
+    try { Invoke-Expression $Cmd; if ($LASTEXITCODE -ne 0) { throw "exit $LASTEXITCODE" } }
+    catch { Add-Note "postInstall for '$Name' failed - run manually: $Cmd" }
+}
+
+function Update-CopilotManifest {
+    param([string]$Name)
+    $manifest = Join-Path $HOME ".agents/.copilot-for-azure-skills-manifest.json"
+    if (-not (Test-Path $manifest)) { return }
+    try {
+        $json = Get-Content $manifest -Raw | ConvertFrom-Json
+        $skills = @($json.skills)
+        if ($skills -notcontains $Name) {
+            $json.skills = @(($skills + $Name) | Sort-Object)
+            $json | ConvertTo-Json -Depth 20 | Set-Content $manifest
+            Write-Host "  registered '$Name' in Copilot skills manifest"
+        }
+    } catch { Add-Note "Could not update Copilot skills manifest for '$Name'." }
+}
+
+function Copy-Custom {
+    param([string]$Name, [string]$Kind, [string]$Assistant)
+    $sub = if ($Kind -eq "agent") { "agents" } else { "skills" }
+    $src = Join-Path $HOME ".ai/$sub/$Name"
+    if (-not (Test-Path $src)) { Add-Note "custom $Kind '$Name' has no source at $src - author it under home/dot_ai/$sub/$Name/."; return }
+    $targets = @()
+    if ($Assistant -eq "claude" -or $Assistant -eq "both") { $targets += (Join-Path $HOME ".claude/$sub/$Name") }
+    if (($Assistant -eq "copilot" -or $Assistant -eq "both") -and $Kind -eq "skill") { $targets += (Join-Path $HOME ".agents/skills/$Name") }
+    foreach ($dest in $targets) {
+        New-Item -ItemType Directory -Force -Path (Split-Path $dest -Parent) | Out-Null
+        if (Test-Path $dest) { Remove-Item -Recurse -Force $dest }
+        Copy-Item -Recurse -Force $src $dest
+        Write-Host "  copied $Kind '$Name' -> $dest"
+    }
+    if (($Assistant -eq "copilot" -or $Assistant -eq "both") -and $Kind -eq "skill") { Update-CopilotManifest $Name }
+}
+
+Write-Host "Syncing AI tools (skills, agents, MCPs)"
+Write-Host "--------------------------------------"
+{{ range $name, $tool := .aiTools }}
+{{- if and $tool.forPersonal $.workComputer }}
+Write-Host "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else if $tool.projectOnly }}
+Write-Host "{{ $name }}: per-project tool (documented, not installed)"
+{{- if $tool.projectNote }}
+Add-Note '{{ $name }} (per-project): {{ $tool.projectNote | replace "'" "''" }}'
+{{- end }}
+{{- else if eq $tool.type "mcp" }}
+{{- $m := $tool.mcp }}
+Write-Host "`n* {{ $name }} (mcp, {{ $tool.assistant }})"
+{{- if or (eq $tool.assistant "claude") (eq $tool.assistant "both") }}
+{{- if or (eq $m.transport "http") (eq $m.transport "sse") }}
+{{- $key := "" }}{{ if $m.apiKeyFrom }}{{ $key = default "" (index $ $m.apiKeyFrom) }}{{ end }}
+Register-ClaudeMcp -Name '{{ $name }}' -Transport '{{ $m.transport }}' -Url '{{ $m.url }}'{{ if $key }} -ApiKeyHeader '{{ $m.apiKeyHeader }}' -ApiKey '{{ $key | replace "'" "''" }}'{{ end }}
+{{- else }}
+Register-ClaudeMcp -Name '{{ $name }}' -Transport 'stdio' -Command '{{ $m.command }}'{{ if $m.args }} -CmdArgs @({{ range $i, $arg := $m.args }}{{ if $i }},{{ end }}'{{ $arg }}'{{ end }}){{ end }}{{ if $m.env }} -EnvVars @{ {{ range $k, $v := $m.env }}'{{ $k }}'='{{ $v }}'; {{ end }}}{{ end }}
+{{- end }}
+{{- end }}
+{{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
+Write-Host "  Copilot MCP for {{ $name }} is provided via managed VS Code settings.json"
+{{- end }}
+{{- else if eq $tool.type "plugin" }}
+Write-Host "`n* {{ $name }} (plugin, {{ $tool.assistant }})"
+{{- if and (or (eq $tool.assistant "claude") (eq $tool.assistant "both")) $tool.plugin.claude }}
+Install-Plugin -Name '{{ $name }}' -Cli 'claude' -MarketplaceAdd '{{ $tool.plugin.claude.marketplaceAdd }}' -Install '{{ $tool.plugin.claude.install }}'
+{{- end }}
+{{- if and (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) $tool.plugin.copilot }}
+Install-Plugin -Name '{{ $name }}' -Cli 'copilot' -MarketplaceAdd '{{ $tool.plugin.copilot.marketplaceAdd }}' -Install '{{ $tool.plugin.copilot.install }}'
+{{- end }}
+{{- else if eq $tool.type "package" }}
+Write-Host "`n* {{ $name }} (package)"
+{{- if $tool.postInstall }}
+Invoke-PostInstall -Name '{{ $name }}' -Cmd '{{ $tool.postInstall | replace "'" "''" }}'
+{{- end }}
+{{- if $tool.projectNote }}
+Add-Note '{{ $name }}: {{ $tool.projectNote | replace "'" "''" }}'
+{{- end }}
+{{- else if eq $tool.type "custom" }}
+Write-Host "`n* {{ $name }} (custom, {{ $tool.assistant }})"
+Copy-Custom -Name '{{ $name }}' -Kind '{{ $tool.custom.kind }}' -Assistant '{{ $tool.assistant }}'
+{{- end }}
+{{ end }}
+Write-Host ""
+if ($script:Notes.Count -gt 0) {
+    Write-Host "Follow-ups:"
+    foreach ($n in $script:Notes) { Write-Host "  - $n" }
+}
+Write-Host "AI tools sync complete"

@@ -1,0 +1,143 @@
+#!/bin/bash
+# -------------------------------------------------------
+# AI Tools Sync (bash, templated)
+# Installs/updates AI tools declared in .chezmoidata/ai-tools.yaml:
+#   mcp     -> registers the server with Claude Code (user scope)
+#   plugin  -> adds the marketplace + installs the plugin (Claude / Copilot)
+#   package -> runs any postInstall step (the package itself is handled by mise)
+#   custom  -> copies your authored skill/agent from ~/.ai into each assistant
+#   projectOnly / forPersonal-skipped tools are reported, never installed.
+# Copilot MCP servers are provided via the managed VS Code settings.json instead.
+#
+# Not elevated — MCPs/skills must register for the current user.
+# Every external command is best-effort so `chezmoi apply` never fails on a
+# not-yet-installed CLI.
+# -------------------------------------------------------
+
+set -u
+NOTES=()
+add_note() { NOTES+=("$1"); }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+# register_claude_mcp NAME TRANSPORT URL APIKEYHEADER APIKEY ENVFLAGS COMMAND [ARGS...]
+register_claude_mcp() {
+  local name="$1" transport="$2" url="$3" hdr="$4" key="$5" envflags="$6" command="$7"; shift 7
+  local args=("$@")
+  if ! have claude; then add_note "claude CLI not found - register MCP '$name' later with 'chezmoi apply'."; return; fi
+  claude mcp remove "$name" --scope user >/dev/null 2>&1 || true
+  if [ "$transport" = "http" ] || [ "$transport" = "sse" ]; then
+    if [ -n "$key" ]; then
+      claude mcp add "$name" --scope user --transport "$transport" "$url" --header "$hdr: $key"
+    else
+      claude mcp add "$name" --scope user --transport "$transport" "$url"
+    fi
+  else
+    # shellcheck disable=SC2086
+    claude mcp add "$name" --scope user --transport stdio $envflags -- "$command" "${args[@]}"
+  fi
+  if [ $? -eq 0 ]; then echo "  Claude MCP '$name' registered"; else add_note "Failed to register Claude MCP '$name'."; fi
+}
+
+# install_plugin NAME CLI MARKETPLACEADD INSTALL
+install_plugin() {
+  local name="$1" cli="$2" mkt="$3" install="$4"
+  if ! have "$cli"; then add_note "$cli not found - install plugin '$name' later: $cli plugin install $install"; return; fi
+  [ -n "$mkt" ] && "$cli" plugin marketplace add "$mkt" >/dev/null 2>&1 || true
+  if "$cli" plugin install "$install"; then
+    echo "  $cli plugin '$name' installed"
+  else
+    add_note "Could not auto-install plugin '$name' for $cli. In an interactive session run: /plugin install $install"
+  fi
+}
+
+# invoke_postinstall NAME CMD
+invoke_postinstall() {
+  local name="$1" cmd="$2"
+  echo "  postInstall: $cmd"
+  if ! eval "$cmd"; then add_note "postInstall for '$name' failed - run manually: $cmd"; fi
+}
+
+# update_copilot_manifest NAME
+update_copilot_manifest() {
+  local name="$1"
+  local manifest="$HOME/.agents/.copilot-for-azure-skills-manifest.json"
+  [ -f "$manifest" ] || return 0
+  if ! have jq; then add_note "jq not found - add '$name' to $manifest manually."; return 0; fi
+  local tmp; tmp="$(mktemp)"
+  if jq --arg s "$name" '.skills = ((.skills // []) + [$s] | unique)' "$manifest" > "$tmp" 2>/dev/null; then
+    mv "$tmp" "$manifest"
+    echo "  registered '$name' in Copilot skills manifest"
+  else
+    rm -f "$tmp"; add_note "Could not update Copilot skills manifest for '$name'."
+  fi
+}
+
+# copy_custom NAME KIND ASSISTANT
+copy_custom() {
+  local name="$1" kind="$2" assistant="$3"
+  local sub="skills"; [ "$kind" = "agent" ] && sub="agents"
+  local src="$HOME/.ai/$sub/$name"
+  if [ ! -d "$src" ]; then add_note "custom $kind '$name' has no source at $src - author it under home/dot_ai/$sub/$name/."; return; fi
+  local targets=()
+  { [ "$assistant" = "claude" ] || [ "$assistant" = "both" ]; } && targets+=("$HOME/.claude/$sub/$name")
+  { { [ "$assistant" = "copilot" ] || [ "$assistant" = "both" ]; } && [ "$kind" = "skill" ]; } && targets+=("$HOME/.agents/skills/$name")
+  for dest in "${targets[@]}"; do
+    mkdir -p "$(dirname "$dest")"
+    rm -rf "$dest"
+    cp -R "$src" "$dest"
+    echo "  copied $kind '$name' -> $dest"
+  done
+  { { [ "$assistant" = "copilot" ] || [ "$assistant" = "both" ]; } && [ "$kind" = "skill" ]; } && update_copilot_manifest "$name"
+}
+
+echo "Syncing AI tools (skills, agents, MCPs)"
+echo "--------------------------------------"
+{{ range $name, $tool := .aiTools }}
+{{- if and $tool.forPersonal $.workComputer }}
+echo "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else if $tool.projectOnly }}
+echo "{{ $name }}: per-project tool (documented, not installed)"
+{{- if $tool.projectNote }}
+add_note '{{ $name }} (per-project): {{ $tool.projectNote | replace "'" "'\\''" }}'
+{{- end }}
+{{- else if eq $tool.type "mcp" }}
+{{- $m := $tool.mcp }}
+echo ""; echo "* {{ $name }} (mcp, {{ $tool.assistant }})"
+{{- if or (eq $tool.assistant "claude") (eq $tool.assistant "both") }}
+{{- if or (eq $m.transport "http") (eq $m.transport "sse") }}
+{{- $key := "" }}{{ if $m.apiKeyFrom }}{{ $key = default "" (index $ $m.apiKeyFrom) }}{{ end }}
+register_claude_mcp '{{ $name }}' '{{ $m.transport }}' '{{ $m.url }}' '{{ $m.apiKeyHeader }}' '{{ $key | replace "'" "'\\''" }}' '' ''
+{{- else }}
+register_claude_mcp '{{ $name }}' 'stdio' '' '' '' '{{ range $k, $v := $m.env }}--env {{ $k }}={{ $v }} {{ end }}' '{{ $m.command }}'{{ range $arg := $m.args }} '{{ $arg }}'{{ end }}
+{{- end }}
+{{- end }}
+{{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
+echo "  Copilot MCP for {{ $name }} is provided via managed VS Code settings.json"
+{{- end }}
+{{- else if eq $tool.type "plugin" }}
+echo ""; echo "* {{ $name }} (plugin, {{ $tool.assistant }})"
+{{- if and (or (eq $tool.assistant "claude") (eq $tool.assistant "both")) $tool.plugin.claude }}
+install_plugin '{{ $name }}' 'claude' '{{ $tool.plugin.claude.marketplaceAdd }}' '{{ $tool.plugin.claude.install }}'
+{{- end }}
+{{- if and (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) $tool.plugin.copilot }}
+install_plugin '{{ $name }}' 'copilot' '{{ $tool.plugin.copilot.marketplaceAdd }}' '{{ $tool.plugin.copilot.install }}'
+{{- end }}
+{{- else if eq $tool.type "package" }}
+echo ""; echo "* {{ $name }} (package)"
+{{- if $tool.postInstall }}
+invoke_postinstall '{{ $name }}' '{{ $tool.postInstall | replace "'" "'\\''" }}'
+{{- end }}
+{{- if $tool.projectNote }}
+add_note '{{ $name }}: {{ $tool.projectNote | replace "'" "'\\''" }}'
+{{- end }}
+{{- else if eq $tool.type "custom" }}
+echo ""; echo "* {{ $name }} (custom, {{ $tool.assistant }})"
+copy_custom '{{ $name }}' '{{ $tool.custom.kind }}' '{{ $tool.assistant }}'
+{{- end }}
+{{ end }}
+echo ""
+if [ ${#NOTES[@]} -gt 0 ]; then
+  echo "Follow-ups:"
+  for n in "${NOTES[@]}"; do echo "  - $n"; done
+fi
+echo "AI tools sync complete"

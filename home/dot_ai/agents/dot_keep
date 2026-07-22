@@ -1,0 +1,4 @@
+# Author custom Claude agents here, one folder per agent:
+#   ~/.ai/agents/<name>/
+# Then add a matching `type: custom` entry (kind: agent) to
+# .chezmoidata/ai-tools.yaml and run `chezmoi apply`.

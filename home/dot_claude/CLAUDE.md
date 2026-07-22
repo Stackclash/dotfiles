@@ -22,6 +22,13 @@ Global instructions for all prompts. Applies to coding, writing, and research.
 - Offer alternatives when you see a better path, but the final call is mine — present the option, don't override.
 - State tradeoffs explicitly when a decision has them.
 
+## Environment
+
+- CLI tools (node, terraform, etc.) are installed and managed via **mise**, not system package managers, nvm, asdf, or similar.
+- Before running or invoking any CLI tool for the first time in a session (node, terraform, python, etc.), check whether it's mise-managed: run `mise which <tool>` or `mise ls` to confirm the active version and that it resolves through mise, rather than assuming a system/global install.
+- Check `~\.config\mise\config.toml` for pinned versions before assuming a global/system version.
+- Apply this whenever troubleshooting tool versions or PATH issues, suggesting install/upgrade commands, or writing scripts/CI steps that shell out to a CLI tool.
+
 ## Coding
 
 - For existing codebases, match the existing code style, conventions, and patterns.
@@ -43,3 +50,7 @@ Global instructions for all prompts. Applies to coding, writing, and research.
 - No filler openers ("Great question!", "I'd be happy to", "Certainly!").
 - No restating my question back to me.
 - No empty praise or sycophancy.
+
+## graphify
+- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
