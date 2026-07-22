@@ -1,0 +1,30 @@
+#!/bin/bash
+
+if ! command -v git >/dev/null 2>&1; then
+  echo "'git' not found in PATH. Skipping remote skill installs."
+  exit 0
+fi
+
+{{- range $key, $skill := .aiTools.remoteSkills }}
+
+echo ""
+echo "=== Remote skill: {{ $key }} ==="
+tmpdir="$(mktemp -d)"
+{{- if $skill.ref }}
+git clone --quiet --depth 1 --branch {{ $skill.ref }} {{ $skill.repo }} "$tmpdir"
+{{- else }}
+git clone --quiet --depth 1 {{ $skill.repo }} "$tmpdir"
+{{- end }}
+if [ -d "$tmpdir/{{ $skill.path }}" ]; then
+  rm -rf "$HOME/.claude/skills/{{ $key }}"
+  mkdir -p "$HOME/.claude/skills/{{ $key }}"
+  cp -r "$tmpdir/{{ $skill.path }}/." "$HOME/.claude/skills/{{ $key }}/"
+  echo "  Installed to ~/.claude/skills/{{ $key }}"
+else
+  echo "  '{{ $skill.path }}' not found in {{ $skill.repo }} — skipping"
+fi
+rm -rf "$tmpdir"
+{{- end }}
+
+echo ""
+echo "Remote skills processed."

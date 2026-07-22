@@ -1,0 +1,31 @@
+if (-not (Get-Command "git" -ErrorAction SilentlyContinue)) {
+    Write-Host "'git' not found in PATH. Skipping remote skill installs."
+    exit 0
+}
+
+{{- range $key, $skill := .aiTools.remoteSkills }}
+
+Write-Host ""
+Write-Host "=== Remote skill: {{ $key }} ==="
+$tmpdir = Join-Path ([System.IO.Path]::GetTempPath()) ([System.IO.Path]::GetRandomFileName())
+New-Item -ItemType Directory -Path $tmpdir | Out-Null
+{{- if $skill.ref }}
+git clone --quiet --depth 1 --branch {{ $skill.ref }} {{ $skill.repo }} $tmpdir
+{{- else }}
+git clone --quiet --depth 1 {{ $skill.repo }} $tmpdir
+{{- end }}
+$srcPath = Join-Path $tmpdir "{{ $skill.path }}"
+if (Test-Path $srcPath) {
+    $destPath = Join-Path $env:USERPROFILE ".claude\skills\{{ $key }}"
+    if (Test-Path $destPath) { Remove-Item -Recurse -Force $destPath }
+    New-Item -ItemType Directory -Path $destPath -Force | Out-Null
+    Copy-Item -Path (Join-Path $srcPath "*") -Destination $destPath -Recurse -Force
+    Write-Host "  Installed to $destPath"
+} else {
+    Write-Host "  '{{ $skill.path }}' not found in {{ $skill.repo }} -- skipping"
+}
+Remove-Item -Recurse -Force $tmpdir
+{{- end }}
+
+Write-Host ""
+Write-Host "Remote skills processed."

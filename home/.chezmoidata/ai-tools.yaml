@@ -12,6 +12,12 @@ aiTools:
       plugin: "superpowers@superpowers-marketplace"
       # clis: ["claude"]  # example: install on Claude Code only
 
+    openspec-superpowers-workflow:
+      # Pinned to a commit since this plugin lives in a subdirectory of a
+      # larger, less curated marketplace repo (claude-dev-workflow).
+      marketplace: "chinlung/claude-dev-workflow#ef31514c86213b9124ca1de8cd148449c5e51a79"
+      plugin: "openspec-superpowers-workflow@scl-claude-plugins"
+
   # MCP servers, registered via the Claude Code CLI (`claude mcp add --scope
   # user`), the Copilot CLI (`copilot mcp add`), and VS Code/Copilot Chat's
   # user mcp.json — all generated from this one list.
@@ -44,3 +50,12 @@ aiTools:
   cliSkills:
     graphify:
       command: "graphify install"
+
+  # Third-party skills not distributed via a plugin marketplace — fetched
+  # directly from a path inside a git repo and copied into
+  # ~/.claude/skills/<key>/. Optional `ref` pins a branch/tag; omit it to
+  # track the repo's default branch.
+  remoteSkills:
+    read-bin-docs:
+      repo: "https://github.com/YPares/agent-skills.git"
+      path: "read-bin-docs"
