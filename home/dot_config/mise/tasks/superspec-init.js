@@ -145,7 +145,7 @@ try {
   } else {
     console.log(`✅ Workflows enabled: ${workflows.join(", ")}`)
   }
-  run("openspec schemas")
+  run("openspec update")
   console.log("\n✅ superspec is set up in this repo.")
 } catch {
   console.warn("\n⚠️  Verification reported issues — check the output above.")
