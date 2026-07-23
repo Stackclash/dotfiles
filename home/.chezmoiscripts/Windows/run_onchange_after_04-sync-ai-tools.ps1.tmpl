@@ -1,12 +1,12 @@
 # -------------------------------------------------------
 # AI Tools Sync (PowerShell, templated)
 # Installs/updates AI tools declared in .chezmoidata/ai-tools.yaml:
-#   mcp     -> registers the server with Claude Code (user scope)
-#   plugin  -> adds the marketplace + installs the plugin (Claude / Copilot)
-#   package -> runs any postInstall step (the package itself is handled by mise)
-#   custom  -> copies your authored skill/agent from ~/.ai into each assistant
-#   projectOnly / forPersonal-skipped tools are reported, never installed.
-# Copilot MCP servers are provided via the managed VS Code settings.json instead.
+#   aiTools.mcp     -> registers the server with Claude Code (user scope)
+#   aiTools.plugin  -> adds the marketplace + installs the plugin (Claude / Copilot)
+#   aiTools.package -> runs any postInstall step (the package itself is handled by mise)
+#   aiTools.custom  -> copies your authored skill/agent from ~/.ai into each assistant
+# forPersonal-skipped tools are reported, never installed.
+# Copilot MCP servers are provided via the managed VS Code mcp.json instead.
 #
 # NOT elevated — MCPs/skills must register for the current user, not Administrator.
 # Every external command is best-effort so `chezmoi apply` never fails on a
@@ -18,23 +18,10 @@ function Add-Note { param([string]$Text) $script:Notes += $Text }
 function Test-Cmd { param([string]$Name) [bool](Get-Command $Name -ErrorAction SilentlyContinue) }
 
 function Register-ClaudeMcp {
-    param(
-        [string]$Name, [string]$Transport,
-        [string]$Url, [string]$ApiKeyHeader, [string]$ApiKey,
-        [string]$Command, [string[]]$CmdArgs, [hashtable]$EnvVars
-    )
+    param([string]$Name, [string]$Json)
     if (-not (Test-Cmd "claude")) { Add-Note "claude CLI not found - register MCP '$Name' later with 'chezmoi apply'."; return }
     claude mcp remove $Name --scope user 2>$null | Out-Null
-    $a = @("mcp", "add", $Name, "--scope", "user", "--transport", $Transport)
-    if ($Transport -eq "http" -or $Transport -eq "sse") {
-        $a += $Url
-        if ($ApiKey) { $a += @("--header", "$($ApiKeyHeader): $ApiKey") }
-    } else {
-        if ($EnvVars) { foreach ($k in $EnvVars.Keys) { $a += @("--env", "$k=$($EnvVars[$k])") } }
-        $a += "--"; $a += $Command
-        if ($CmdArgs) { $a += $CmdArgs }
-    }
-    & claude @a
+    claude mcp add-json --scope user $Name $Json
     if ($LASTEXITCODE -eq 0) { Write-Host "  Claude MCP '$Name' registered" }
     else { Add-Note "Failed to register Claude MCP '$Name'." }
 }
@@ -89,37 +76,36 @@ function Copy-Custom {
 
 Write-Host "Syncing AI tools (skills, agents, MCPs)"
 Write-Host "--------------------------------------"
-{{ range $name, $tool := .aiTools }}
+{{ range $name, $tool := .aiTools.mcp }}
 {{- if and $tool.forPersonal $.workComputer }}
 Write-Host "Skipping {{ $name }} (personal tool on a work computer)"
-{{- else if $tool.projectOnly }}
-Write-Host "{{ $name }}: per-project tool (documented, not installed)"
-{{- if $tool.projectNote }}
-Add-Note '{{ $name }} (per-project): {{ $tool.projectNote | replace "'" "''" }}'
-{{- end }}
-{{- else if eq $tool.type "mcp" }}
-{{- $m := $tool.mcp }}
+{{- else }}
 Write-Host "`n* {{ $name }} (mcp, {{ $tool.assistant }})"
 {{- if or (eq $tool.assistant "claude") (eq $tool.assistant "both") }}
-{{- if or (eq $m.transport "http") (eq $m.transport "sse") }}
-{{- $key := "" }}{{ if $m.apiKeyFrom }}{{ $key = default "" (index $ $m.apiKeyFrom) }}{{ end }}
-Register-ClaudeMcp -Name '{{ $name }}' -Transport '{{ $m.transport }}' -Url '{{ $m.url }}'{{ if $key }} -ApiKeyHeader '{{ $m.apiKeyHeader }}' -ApiKey '{{ $key | replace "'" "''" }}'{{ end }}
-{{- else }}
-Register-ClaudeMcp -Name '{{ $name }}' -Transport 'stdio' -Command '{{ $m.command }}'{{ if $m.args }} -CmdArgs @({{ range $i, $arg := $m.args }}{{ if $i }},{{ end }}'{{ $arg }}'{{ end }}){{ end }}{{ if $m.env }} -EnvVars @{ {{ range $k, $v := $m.env }}'{{ $k }}'='{{ $v }}'; {{ end }}}{{ end }}
-{{- end }}
+Register-ClaudeMcp -Name '{{ $name }}' -Json '{{ includeTemplate "mcp-server-json" $tool.config | replace "'" "''" }}'
 {{- end }}
 {{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
 Write-Host "  Copilot MCP for {{ $name }} is provided via managed VS Code mcp.json"
 {{- end }}
-{{- else if eq $tool.type "plugin" }}
+{{- end }}
+{{ end }}
+{{ range $name, $tool := .aiTools.plugin }}
+{{- if and $tool.forPersonal $.workComputer }}
+Write-Host "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else }}
 Write-Host "`n* {{ $name }} (plugin, {{ $tool.assistant }})"
-{{- if and (or (eq $tool.assistant "claude") (eq $tool.assistant "both")) $tool.plugin.claude }}
-Install-Plugin -Name '{{ $name }}' -Cli 'claude' -MarketplaceAdd '{{ $tool.plugin.claude.marketplaceAdd }}' -Install '{{ $tool.plugin.claude.install }}'
+{{- if and (or (eq $tool.assistant "claude") (eq $tool.assistant "both")) $tool.claude }}
+Install-Plugin -Name '{{ $name }}' -Cli 'claude' -MarketplaceAdd '{{ $tool.claude.marketplaceAdd }}' -Install '{{ $tool.claude.install }}'
 {{- end }}
-{{- if and (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) $tool.plugin.copilot }}
-Install-Plugin -Name '{{ $name }}' -Cli 'copilot' -MarketplaceAdd '{{ $tool.plugin.copilot.marketplaceAdd }}' -Install '{{ $tool.plugin.copilot.install }}'
+{{- if and (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) $tool.copilot }}
+Install-Plugin -Name '{{ $name }}' -Cli 'copilot' -MarketplaceAdd '{{ $tool.copilot.marketplaceAdd }}' -Install '{{ $tool.copilot.install }}'
 {{- end }}
-{{- else if eq $tool.type "package" }}
+{{- end }}
+{{ end }}
+{{ range $name, $tool := .aiTools.package }}
+{{- if and $tool.forPersonal $.workComputer }}
+Write-Host "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else }}
 Write-Host "`n* {{ $name }} (package)"
 {{- if $tool.postInstall }}
 Invoke-PostInstall -Name '{{ $name }}' -Cmd '{{ $tool.postInstall | replace "'" "''" }}'
@@ -127,9 +113,14 @@ Invoke-PostInstall -Name '{{ $name }}' -Cmd '{{ $tool.postInstall | replace "'" 
 {{- if $tool.projectNote }}
 Add-Note '{{ $name }}: {{ $tool.projectNote | replace "'" "''" }}'
 {{- end }}
-{{- else if eq $tool.type "custom" }}
+{{- end }}
+{{ end }}
+{{ range $name, $tool := .aiTools.custom }}
+{{- if and $tool.forPersonal $.workComputer }}
+Write-Host "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else }}
 Write-Host "`n* {{ $name }} (custom, {{ $tool.assistant }})"
-Copy-Custom -Name '{{ $name }}' -Kind '{{ $tool.custom.kind }}' -Assistant '{{ $tool.assistant }}'
+Copy-Custom -Name '{{ $name }}' -Kind '{{ $tool.kind }}' -Assistant '{{ $tool.assistant }}'
 {{- end }}
 {{ end }}
 Write-Host ""
