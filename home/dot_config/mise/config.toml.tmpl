@@ -23,10 +23,8 @@ node = "22"
 "pipx:azure-cli" = "latest"
 "vfox:mise-plugins/vfox-azure-functions-core-tools" = "latest"
 # AI Tools (generated from .chezmoidata/ai-tools.yaml -- edit that file, not here)
-{{- range $name, $tool := .aiTools }}
-{{- if and (eq $tool.type "package") (not $tool.projectOnly) }}
+{{- range $name, $tool := .aiTools.package }}
 "{{ $tool.mise.backend }}:{{ $tool.mise.package }}" = "latest" # {{ $name }}
-{{- end }}
 {{- end }}
 
 [env]

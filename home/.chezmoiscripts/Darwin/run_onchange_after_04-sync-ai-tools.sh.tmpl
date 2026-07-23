@@ -2,12 +2,12 @@
 # -------------------------------------------------------
 # AI Tools Sync (bash, templated)
 # Installs/updates AI tools declared in .chezmoidata/ai-tools.yaml:
-#   mcp     -> registers the server with Claude Code (user scope)
-#   plugin  -> adds the marketplace + installs the plugin (Claude / Copilot)
-#   package -> runs any postInstall step (the package itself is handled by mise)
-#   custom  -> copies your authored skill/agent from ~/.ai into each assistant
-#   projectOnly / forPersonal-skipped tools are reported, never installed.
-# Copilot MCP servers are provided via the managed VS Code settings.json instead.
+#   aiTools.mcp     -> registers the server with Claude Code (user scope)
+#   aiTools.plugin  -> adds the marketplace + installs the plugin (Claude / Copilot)
+#   aiTools.package -> runs any postInstall step (the package itself is handled by mise)
+#   aiTools.custom  -> copies your authored skill/agent from ~/.ai into each assistant
+# forPersonal-skipped tools are reported, never installed.
+# Copilot MCP servers are provided via the managed VS Code mcp.json instead.
 #
 # Not elevated — MCPs/skills must register for the current user.
 # Every external command is best-effort so `chezmoi apply` never fails on a
@@ -19,23 +19,16 @@ NOTES=()
 add_note() { NOTES+=("$1"); }
 have() { command -v "$1" >/dev/null 2>&1; }
 
-# register_claude_mcp NAME TRANSPORT URL APIKEYHEADER APIKEY ENVFLAGS COMMAND [ARGS...]
+# register_claude_mcp NAME JSON
 register_claude_mcp() {
-  local name="$1" transport="$2" url="$3" hdr="$4" key="$5" envflags="$6" command="$7"; shift 7
-  local args=("$@")
+  local name="$1" json="$2"
   if ! have claude; then add_note "claude CLI not found - register MCP '$name' later with 'chezmoi apply'."; return; fi
   claude mcp remove "$name" --scope user >/dev/null 2>&1 || true
-  if [ "$transport" = "http" ] || [ "$transport" = "sse" ]; then
-    if [ -n "$key" ]; then
-      claude mcp add "$name" --scope user --transport "$transport" "$url" --header "$hdr: $key"
-    else
-      claude mcp add "$name" --scope user --transport "$transport" "$url"
-    fi
+  if claude mcp add-json --scope user "$name" "$json"; then
+    echo "  Claude MCP '$name' registered"
   else
-    # shellcheck disable=SC2086
-    claude mcp add "$name" --scope user --transport stdio $envflags -- "$command" "${args[@]}"
+    add_note "Failed to register Claude MCP '$name'."
   fi
-  if [ $? -eq 0 ]; then echo "  Claude MCP '$name' registered"; else add_note "Failed to register Claude MCP '$name'."; fi
 }
 
 # install_plugin NAME CLI MARKETPLACEADD INSTALL
@@ -92,37 +85,36 @@ copy_custom() {
 
 echo "Syncing AI tools (skills, agents, MCPs)"
 echo "--------------------------------------"
-{{ range $name, $tool := .aiTools }}
+{{ range $name, $tool := .aiTools.mcp }}
 {{- if and $tool.forPersonal $.workComputer }}
 echo "Skipping {{ $name }} (personal tool on a work computer)"
-{{- else if $tool.projectOnly }}
-echo "{{ $name }}: per-project tool (documented, not installed)"
-{{- if $tool.projectNote }}
-add_note '{{ $name }} (per-project): {{ $tool.projectNote | replace "'" "'\\''" }}'
-{{- end }}
-{{- else if eq $tool.type "mcp" }}
-{{- $m := $tool.mcp }}
+{{- else }}
 echo ""; echo "* {{ $name }} (mcp, {{ $tool.assistant }})"
 {{- if or (eq $tool.assistant "claude") (eq $tool.assistant "both") }}
-{{- if or (eq $m.transport "http") (eq $m.transport "sse") }}
-{{- $key := "" }}{{ if $m.apiKeyFrom }}{{ $key = default "" (index $ $m.apiKeyFrom) }}{{ end }}
-register_claude_mcp '{{ $name }}' '{{ $m.transport }}' '{{ $m.url }}' '{{ $m.apiKeyHeader }}' '{{ $key | replace "'" "'\\''" }}' '' ''
-{{- else }}
-register_claude_mcp '{{ $name }}' 'stdio' '' '' '' '{{ range $k, $v := $m.env }}--env {{ $k }}={{ $v }} {{ end }}' '{{ $m.command }}'{{ range $arg := $m.args }} '{{ $arg }}'{{ end }}
-{{- end }}
+register_claude_mcp '{{ $name }}' '{{ includeTemplate "mcp-server-json" $tool.config | replace "'" "'\\''" }}'
 {{- end }}
 {{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
 echo "  Copilot MCP for {{ $name }} is provided via managed VS Code mcp.json"
 {{- end }}
-{{- else if eq $tool.type "plugin" }}
+{{- end }}
+{{ end }}
+{{ range $name, $tool := .aiTools.plugin }}
+{{- if and $tool.forPersonal $.workComputer }}
+echo "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else }}
 echo ""; echo "* {{ $name }} (plugin, {{ $tool.assistant }})"
-{{- if and (or (eq $tool.assistant "claude") (eq $tool.assistant "both")) $tool.plugin.claude }}
-install_plugin '{{ $name }}' 'claude' '{{ $tool.plugin.claude.marketplaceAdd }}' '{{ $tool.plugin.claude.install }}'
+{{- if and (or (eq $tool.assistant "claude") (eq $tool.assistant "both")) $tool.claude }}
+install_plugin '{{ $name }}' 'claude' '{{ $tool.claude.marketplaceAdd }}' '{{ $tool.claude.install }}'
 {{- end }}
-{{- if and (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) $tool.plugin.copilot }}
-install_plugin '{{ $name }}' 'copilot' '{{ $tool.plugin.copilot.marketplaceAdd }}' '{{ $tool.plugin.copilot.install }}'
+{{- if and (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) $tool.copilot }}
+install_plugin '{{ $name }}' 'copilot' '{{ $tool.copilot.marketplaceAdd }}' '{{ $tool.copilot.install }}'
 {{- end }}
-{{- else if eq $tool.type "package" }}
+{{- end }}
+{{ end }}
+{{ range $name, $tool := .aiTools.package }}
+{{- if and $tool.forPersonal $.workComputer }}
+echo "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else }}
 echo ""; echo "* {{ $name }} (package)"
 {{- if $tool.postInstall }}
 invoke_postinstall '{{ $name }}' '{{ $tool.postInstall | replace "'" "'\\''" }}'
@@ -130,9 +122,14 @@ invoke_postinstall '{{ $name }}' '{{ $tool.postInstall | replace "'" "'\\''" }}'
 {{- if $tool.projectNote }}
 add_note '{{ $name }}: {{ $tool.projectNote | replace "'" "'\\''" }}'
 {{- end }}
-{{- else if eq $tool.type "custom" }}
+{{- end }}
+{{ end }}
+{{ range $name, $tool := .aiTools.custom }}
+{{- if and $tool.forPersonal $.workComputer }}
+echo "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else }}
 echo ""; echo "* {{ $name }} (custom, {{ $tool.assistant }})"
-copy_custom '{{ $name }}' '{{ $tool.custom.kind }}' '{{ $tool.assistant }}'
+copy_custom '{{ $name }}' '{{ $tool.kind }}' '{{ $tool.assistant }}'
 {{- end }}
 {{ end }}
 echo ""
