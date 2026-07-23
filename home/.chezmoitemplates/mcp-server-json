@@ -1,0 +1,31 @@
+{{- /*
+  Recursively renders an aiTools.mcp.<name>.config value as JSON text.
+  Call with: {{ includeTemplate "mcp-server-json" $tool.config }}
+
+  Any string value containing "{{" is executed as a real chezmoi template
+  (via `chezmoi execute-template`, called with each argument as its own
+  argv element -- never interpolated into a shell string) before being
+  JSON-encoded, so functions like dopplerProjectJson work. Strings without
+  "{{" are JSON-encoded unchanged, with no subprocess spawned for them.
+*/ -}}
+{{- if kindIs "map" . -}}
+{{- $node := . -}}
+{{- $keys := keys $node | sortAlpha -}}
+{ {{- range $i, $k := $keys -}}
+{{- if $i }},{{ end -}}
+{{ $k | toJson }}:{{ includeTemplate "mcp-server-json" (get $node $k) }}
+{{- end -}} }
+{{- else if kindIs "slice" . -}}
+[ {{- range $i, $v := . -}}
+{{- if $i }},{{ end -}}
+{{ includeTemplate "mcp-server-json" $v }}
+{{- end -}} ]
+{{- else if kindIs "string" . -}}
+{{- if contains "{{" . -}}
+{{- (output "chezmoi" "execute-template" .) | trim | toJson -}}
+{{- else -}}
+{{- . | toJson -}}
+{{- end -}}
+{{- else -}}
+{{- . | toJson -}}
+{{- end -}}
