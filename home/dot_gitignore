@@ -1,0 +1,4 @@
+.claude
+.github/prompts/**/*
+.github/skills/**/*
+openspec/**/*

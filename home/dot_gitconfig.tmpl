@@ -117,7 +117,11 @@
 	{{ else }}
 	autocrlf = input
 	{{- end }}
-	excludesFile = C:\\Users\\coxri\\.gitignore
+	{{- if eq .chezmoi.os "windows" }}
+	excludesFile = {{ .chezmoi.homeDir }}\\.gitignore
+	{{- else }}
+	excludesFile = {{ .chezmoi.homeDir }}/.gitignore
+	{{- end }}
 
 [credential "https://github.com"]
 	{{- if eq .chezmoi.os "windows" }}

@@ -6,11 +6,20 @@
 // Run from a repo root that already has OpenSpec + Superpowers set up:
 //   mise run superspec-init
 //
-// It sparse-checks-out the superspec schema into openspec/schemas/superspec/
-// and writes openspec/config.yaml. Cross-platform (uses Node fs, not `cp`).
+// It configures the global OpenSpec profile/delivery/workflows superspec needs,
+// sparse-checks-out the superspec schema into openspec/schemas/superspec/ and
+// writes openspec/config.yaml. Cross-platform (uses Node fs, not `cp`/`jq`).
 
 const { execSync } = require("child_process")
-const { existsSync, mkdirSync, mkdtempSync, rmSync, cpSync, writeFileSync } = require("fs")
+const {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  rmSync,
+  cpSync,
+  readFileSync,
+  writeFileSync,
+} = require("fs")
 const os = require("os")
 const path = require("path")
 
@@ -18,6 +27,20 @@ const REPO = process.cwd()
 const SCHEMA_DEST = path.join(REPO, "openspec", "schemas", "superspec")
 const CONFIG = path.join(REPO, "openspec", "config.yaml")
 const REPO_URL = "https://github.com/danielhanold/superspec.git"
+
+// Workflows superspec requires to be enabled in the global OpenSpec config.
+const REQUIRED_WORKFLOWS = [
+  "propose",
+  "explore",
+  "new",
+  "continue",
+  "apply",
+  "ff",
+  "sync",
+  "archive",
+  "bulk-archive",
+  "verify",
+]
 
 function have(cmd) {
   try {
@@ -30,6 +53,18 @@ function have(cmd) {
 
 function run(cmd) {
   execSync(cmd, { stdio: "inherit" })
+}
+
+function capture(cmd) {
+  return execSync(cmd, { encoding: "utf8", stdio: ["ignore", "pipe", "inherit"] }).trim()
+}
+
+function readJson(file) {
+  try {
+    return JSON.parse(readFileSync(file, "utf8"))
+  } catch {
+    return {}
+  }
 }
 
 // --- prerequisite checks ---------------------------------------------------
@@ -48,8 +83,31 @@ if (!existsSync(path.join(REPO, "openspec"))) {
   console.error("   openspec init --profile custom")
   process.exit(1)
 }
-if (!have("jq")) {
-  console.warn("⚠️  jq not found — optional, but recommended for full superspec automation.")
+
+// --- global OpenSpec config (profile / delivery / workflows) ---------------
+
+const globalConfig = capture("openspec config path")
+const before = existsSync(globalConfig) ? readJson(globalConfig) : {}
+const enabled = Array.isArray(before.workflows) ? before.workflows : []
+const missing = REQUIRED_WORKFLOWS.filter((w) => !enabled.includes(w))
+
+if (!missing.length && before.profile === "custom" && before.delivery === "both") {
+  console.log("✅ Global OpenSpec config already matches superspec (profile, delivery, workflows).")
+} else {
+  console.log(`⚙️  Configuring global OpenSpec config: ${globalConfig}`)
+
+  // Seed a known-good baseline, then switch to the profile superspec expects.
+  run("openspec config profile core")
+  run("openspec config set profile custom")
+  run("openspec config set delivery both")
+
+  // `openspec config set` can't take an array from the shell portably, so patch
+  // the JSON directly. Keep any extra workflows the user had already enabled.
+  const extras = enabled.filter((w) => !REQUIRED_WORKFLOWS.includes(w))
+  const config = readJson(globalConfig)
+  config.workflows = [...REQUIRED_WORKFLOWS, ...extras]
+  writeFileSync(globalConfig, `${JSON.stringify(config, null, 2)}\n`)
+  console.log(`✅ Enabled workflows: ${config.workflows.join(", ")}`)
 }
 
 // --- sparse-checkout the schema -------------------------------------------
@@ -79,8 +137,15 @@ console.log(`✅ Wrote ${path.relative(REPO, CONFIG)}`)
 
 console.log("\n🔎 Verifying…")
 try {
+  const workflows = JSON.parse(capture("openspec config get workflows"))
+  const stillMissing = REQUIRED_WORKFLOWS.filter((w) => !workflows.includes(w))
+  if (stillMissing.length) {
+    console.warn(`⚠️  Workflows still not enabled: ${stillMissing.join(", ")}`)
+    console.warn("   Run `openspec config profile` and enable all workflows interactively.")
+  } else {
+    console.log(`✅ Workflows enabled: ${workflows.join(", ")}`)
+  }
   run("openspec schemas")
-  run("openspec validate")
   console.log("\n✅ superspec is set up in this repo.")
 } catch {
   console.warn("\n⚠️  Verification reported issues — check the output above.")
