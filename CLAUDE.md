@@ -96,7 +96,7 @@ Templates in `home/.chezmoitemplates/` are included with `{{ template "name" . }
 
 Some files are also written by the tool that owns them at runtime, so chezmoi manages only specific keys instead of the whole file. These use chezmoi's `modify_` template mechanism (the `chezmoi:modify-template` directive): chezmoi feeds the file's current contents to the template on `.chezmoi.stdin`, and the rendered output becomes the new file — so untouched keys survive `chezmoi apply`.
 
-- **`dot_claude/modify_settings.json.tmpl`** — Enforces `includeCoAuthoredBy: false` in `~/.claude/settings.json` (turns off the Claude Code attribution footer on commits/PRs) while leaving every other Claude Code setting alone.
+- **`dot_claude/modify_settings.json.tmpl`** — Enforces Claude Code's `attribution` block in `~/.claude/settings.json` (blank `commit`/`pr` footers and `sessionUrl: false`) while leaving every other Claude Code setting alone.
 
 ### Cross-Platform Handling
 

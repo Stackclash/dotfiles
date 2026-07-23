@@ -1,17 +1,18 @@
 {{- /* chezmoi:modify-template */ -}}
 {{- /*
-     Enforce a single Claude Code setting — turn off the Claude attribution
-     footer (the "Co-Authored-By: Claude" trailer and "Generated with Claude
-     Code" line) on commits and PRs — WITHOUT clobbering any other settings.
+     Enforce Claude Code's attribution settings — blank out the commit and PR
+     footers and drop the session URL — WITHOUT clobbering any other settings.
 
      ~/.claude/settings.json is also written by Claude Code itself at runtime
      (theme, feature flags, etc.), so this is a modify-template rather than a
      managed static file: it reads the current file on stdin, sets only the
-     one key, and writes everything else back untouched.
+     attribution key, and writes everything else back untouched.
 */ -}}
 {{- $settings := dict -}}
 {{- if (.chezmoi.stdin | trim) -}}
 {{-   $settings = .chezmoi.stdin | fromJson -}}
 {{- end -}}
-{{- $_ := set $settings "includeCoAuthoredBy" false -}}
+{{- /* Drop the legacy key in case an earlier apply set it. */ -}}
+{{- $_ := unset $settings "includeCoAuthoredBy" -}}
+{{- $_ := set $settings "attribution" (dict "commit" "" "pr" "" "sessionUrl" false) -}}
 {{ $settings | toPrettyJson }}
