@@ -33,12 +33,8 @@ aiTools:
       config:
         type: http
         url: "https://mcp.context7.com/mcp"
-        # Doppler-backed secret, resolved via `chezmoi execute-template` at
-        # apply time. Swap "dotfiles"/"prd" for your own Doppler project and
-        # config names. Remove the headers block entirely to run keyless
-        # (rate-limited).
         headers:
-          CONTEXT7_API_KEY: "{{ (dopplerProjectJson \"dotfiles\" \"prd\").CONTEXT7_API_KEY }}"
+          CONTEXT7_API_KEY: "{{ (dopplerProjectJson).CONTEXT7_API_TOKEN }}"
 
   plugin:
     superpowers:

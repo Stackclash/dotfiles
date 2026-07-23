@@ -4,4 +4,19 @@
 {{-   $settings = .chezmoi.stdin | fromJson -}}
 {{- end -}}
 {{- $_ := set $settings "attribution" (dict "commit" "" "pr" "" "sessionUrl" false) -}}
+{{- $worktree := dict -}}
+{{- if (hasKey $settings "worktree") -}}
+{{-   $worktree = index $settings "worktree" -}}
+{{- end -}}
+{{- $symlinkDirs := list -}}
+{{- if (hasKey $worktree "symlinkDirectories") -}}
+{{-   $symlinkDirs = index $worktree "symlinkDirectories" -}}
+{{- end -}}
+{{- range list "openspec" ".env" "node_modules" -}}
+{{-   if not (has . $symlinkDirs) -}}
+{{-     $symlinkDirs = append $symlinkDirs . -}}
+{{-   end -}}
+{{- end -}}
+{{- $_ := set $worktree "symlinkDirectories" $symlinkDirs -}}
+{{- $_ := set $settings "worktree" $worktree -}}
 {{ $settings | toPrettyJson }}
