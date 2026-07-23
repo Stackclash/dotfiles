@@ -28,77 +28,84 @@ tool never fails `chezmoi apply`.
 
 ## The schema
 
-Every entry has an `assistant` (`claude`, `copilot`, or `both`) and a `type` that
-decides how it's installed.
+`aiTools` is organized by category — the key under `aiTools` tells you what
+a tool is; there is no separate `type:` field.
 
 ```yaml
 aiTools:
-  <name>:
-    assistant: claude | copilot | both
-    type: mcp | package | plugin | custom
-    forPersonal: false        # optional — skipped on work machines
-    projectOnly: true         # optional — documented only, never auto-installed
-    projectNote: "..."        # optional — shown in docs and task output
+  mcp:     { <name>: {...} }
+  plugin:  { <name>: {...} }
+  package: { <name>: {...} }
+  custom:  { <name>: {...} }
 ```
 
-### `type: mcp` — MCP servers
+Every entry has an `assistant` (`claude`, `copilot`, or `both`) and,
+optionally, `forPersonal: false` to skip it on work machines.
 
-Registered with **Claude** (user scope, via `claude mcp add`) and, for `copilot`/`both`,
-written into the managed VS Code **`mcp.json`** (a dedicated file next to
-`settings.json`, with a top-level `servers` object — VS Code no longer accepts MCP
-config inside `settings.json`).
+### `mcp` — MCP servers
+
+Registered with **Claude** (user scope, via `claude mcp add-json`) and, for
+`copilot`/`both`, written into the managed VS Code **`mcp.json`**. A single
+`config:` dict is used verbatim as the server's JSON for both — any field
+either tool's MCP schema supports just works.
 
 ```yaml
-  playwright-mcp:
-    assistant: both
-    type: mcp
-    mcp:
-      transport: stdio            # stdio | http | sse
-      command: npx
-      args: ["@playwright/mcp@latest"]
+  mcp:
+    playwright-mcp:
+      assistant: both
+      config:
+        type: stdio
+        command: npx
+        args: ["@playwright/mcp@latest"]
 
-  context7:
-    assistant: both
-    type: mcp
-    mcp:
-      transport: http
-      url: "https://mcp.context7.com/mcp"
-      apiKeyHeader: CONTEXT7_API_KEY   # header injected with the key below
-      apiKeyFrom: context7ApiKey       # name of the chezmoi data value to use
+    context7:
+      assistant: both
+      config:
+        type: http
+        url: "https://mcp.context7.com/mcp"
+        headers:
+          CONTEXT7_API_KEY: "{{ (dopplerProjectJson \"dotfiles\" \"prd\").CONTEXT7_API_KEY }}"
 ```
 
-### `type: package` — package-manager CLIs
+**Secrets**: any string inside `config:` containing `{{` is executed as a
+real chezmoi template (via `chezmoi execute-template`) before being embedded
+in the rendered JSON — not simple `{{ .key }}` substitution, so any chezmoi
+template function works, including Doppler's. The Doppler CLI is already
+mise-managed (`github:DopplerHQ/cli`); authenticate it once per machine
+(`doppler login`, `doppler setup`) and reference secrets with
+`{{ (dopplerProjectJson "<project>" "<config>").<SECRET_NAME> }}`. Remove a
+`headers`/`env` entry entirely to run a server keyless.
 
-The `mise` block is rendered into `~/.config/mise/config.toml` `[tools]`, so mise
-installs and keeps it updated. An optional `postInstall` runs afterward.
+### `package` — package-manager CLIs
+
+Unchanged in shape, just relocated:
 
 ```yaml
-  graphify:
-    assistant: claude
-    type: package
-    mise: { backend: pipx, package: graphifyy }   # backend: npm | pipx
-    postInstall: "graphify install"
+  package:
+    graphify:
+      assistant: claude
+      mise: { backend: pipx, package: graphifyy }
+      postInstall: "graphify install"
 ```
 
-### `type: plugin` — marketplace plugins
+### `plugin` — marketplace plugins
 
 ```yaml
-  superpowers:
-    assistant: both
-    type: plugin
-    plugin:
-      claude:
-        marketplaceAdd: "anthropics/claude-plugins-official"
-        install: "superpowers@claude-plugins-official"
-      copilot:
-        marketplaceAdd: "obra/superpowers-marketplace"
-        install: "superpowers@superpowers-marketplace"
+  plugin:
+    superpowers:
+      assistant: both
+      claude:  { marketplaceAdd: "anthropics/claude-plugins-official", install: "superpowers@claude-plugins-official" }
+      copilot: { marketplaceAdd: "obra/superpowers-marketplace", install: "superpowers@superpowers-marketplace" }
 ```
 
-If the CLI can't install it non-interactively, the task prints the manual
-`/plugin install …` command to run in an interactive session.
+### `custom` — your own skills and agents
 
-### `type: custom` — your own skills and agents
+```yaml
+  custom:
+    my-skill:
+      assistant: both
+      kind: skill        # skill | agent
+```
 
 Author the content once under the neutral source directory, then declare it:
 
@@ -107,50 +114,13 @@ home/dot_ai/skills/<name>/SKILL.md     ->  ~/.ai/skills/<name>/
 home/dot_ai/agents/<name>/             ->  ~/.ai/agents/<name>/
 ```
 
-```yaml
-  my-skill:
-    assistant: both
-    type: custom
-    custom: { kind: skill }     # kind: skill | agent
-```
-
-The sync script **copies** it into each assistant's location (copy, not symlink — so
-it works on Windows without Developer Mode):
+The sync script **copies** it into each assistant's location (copy, not
+symlink — so it works on Windows without Developer Mode):
 
 | kind | Claude | Copilot |
 |------|--------|---------|
 | skill | `~/.claude/skills/<name>` | `~/.agents/skills/<name>` (+ registered in the Copilot skills manifest if present) |
 | agent | `~/.claude/agents/<name>` | — (Copilot agents are extension-defined) |
-
-## Project-only tools (opt-in, per-project)
-
-Some tools **must** be installed inside a project and are intentionally **not**
-automated. They're marked `projectOnly: true` and only surface as documentation.
-
-| Tool | How to enable it in a repo |
-|------|----------------------------|
-| **OpenSpec** | CLI is global (mise); run `openspec init` in the repo |
-| **nestjs-doctor** | `npm i -D nestjs-doctor && npx nestjs-doctor --init` |
-| **superspec** | `mise run superspec-init` (needs OpenSpec + Superpowers) — see below |
-
-### `mise run superspec-init`
-
-A helper that sets up the [superspec](https://github.com/danielhanold/superspec)
-OpenSpec schema in the **current** repo: it sparse-checks-out the schema into
-`openspec/schemas/superspec/` and writes `openspec/config.yaml`. Run it from a repo
-root that already has OpenSpec initialized (`openspec init --profile custom`).
-
-## Context7 API key
-
-`chezmoi init` prompts for a **Context7 API key** (leave blank to run keyless with
-rate limits). The key is injected as the `CONTEXT7_API_KEY` header for both Claude and
-the VS Code MCP entry.
-
-> [!WARNING]
-> The key is stored in plaintext in `~/.config/chezmoi/chezmoi.json` and VS Code
-> `mcp.json`, and is embedded in the rendered sync script at apply time. If you'd
-> rather keep it out of dotfiles, source it from Doppler/an env var instead and leave
-> the prompt blank.
 
 ## Running it
 
@@ -181,5 +151,3 @@ mise ls                  # graphifyy + @fission-ai/openspec present
 | superpowers | plugin | both | skills/workflow bundle |
 | graphify | package (pipx) | claude | `graphify install` post-step |
 | openspec | package (npm) | both | per-repo `openspec init` |
-| nestjs-doctor | projectOnly | both | per-project dev dependency |
-| superspec | projectOnly | both | `mise run superspec-init` |
