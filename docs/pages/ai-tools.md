@@ -43,10 +43,57 @@ aiTools:
 
 ### `type: mcp` — MCP servers
 
-Registered with **Claude** (user scope, via `claude mcp add`) and, for `copilot`/`both`,
-written into the managed VS Code **`mcp.json`** (a dedicated file next to
-`settings.json`, with a top-level `servers` object — VS Code no longer accepts MCP
-config inside `settings.json`).
+Registered with **Claude** (user scope, via `claude mcp add-json`) and, for
+`copilot`/`both`, written into the managed VS Code **`mcp.json`** (a dedicated file
+next to `settings.json`, with a top-level `servers` object — VS Code no longer accepts
+MCP config inside `settings.json`). Both consumers are fed the **same JSON**, produced
+by the shared `mcp-server-json` template, so a server behaves identically for Claude and
+VS Code.
+
+There are two ways to declare the server. Use whichever fits.
+
+#### Full `config:` block (recommended)
+
+The `config:` block is emitted **verbatim as the server's JSON**, so you can use any
+field the assistant supports — not just a fixed `transport`/`url`/`apiKey*` shape. This
+is the way to reach the full MCP config surface (custom headers, multiple env vars,
+alternate transports, and any future fields).
+
+```yaml
+  context7:
+    assistant: both
+    type: mcp
+    mcp:
+      config:
+        type: http                       # http | sse | stdio
+        url: "https://mcp.context7.com/mcp"
+        headers:
+          CONTEXT7_API_KEY: "{{ .context7ApiKey }}"
+```
+
+**Injecting secrets — `{{ .someKey }}` templating.** Anywhere inside a `config:` block
+you can reference a value from your chezmoi config (`~/.config/chezmoi/chezmoi.json` —
+including everything collected at `chezmoi init`) with `{{ .someKey }}`. Each reference
+is replaced at apply time with the JSON-escaped value, so a secret can go into **any**
+field, standalone or embedded mid-string:
+
+```yaml
+      config:
+        type: stdio
+        command: some-mcp-server
+        args: ["--flag"]
+        env:
+          API_TOKEN: "{{ .someSecret }}"
+          AUTH: "Bearer {{ .someSecret }}"   # embedded is fine
+```
+
+A reference to a key that isn't in your chezmoi config is left untouched (so a stray
+placeholder is visible rather than silently blanked). Only top-level config keys are
+substituted.
+
+#### Legacy shorthand
+
+The original constrained fields still work and are handy for simple servers:
 
 ```yaml
   playwright-mcp:
@@ -66,6 +113,8 @@ config inside `settings.json`).
       apiKeyHeader: CONTEXT7_API_KEY   # header injected with the key below
       apiKeyFrom: context7ApiKey       # name of the chezmoi data value to use
 ```
+
+With the shorthand, a blank `apiKeyFrom` value drops the header entirely (keyless mode).
 
 ### `type: package` — package-manager CLIs
 
@@ -140,17 +189,22 @@ OpenSpec schema in the **current** repo: it sparse-checks-out the schema into
 `openspec/schemas/superspec/` and writes `openspec/config.yaml`. Run it from a repo
 root that already has OpenSpec initialized (`openspec init --profile custom`).
 
-## Context7 API key
+## Secrets and the Context7 API key
 
 `chezmoi init` prompts for a **Context7 API key** (leave blank to run keyless with
-rate limits). The key is injected as the `CONTEXT7_API_KEY` header for both Claude and
-the VS Code MCP entry.
+rate limits) and stores it in your chezmoi config as `context7ApiKey`. It reaches the
+MCP config the same way any secret does — the `apiKeyFrom` shorthand, or a
+`{{ .context7ApiKey }}` reference in a `config:` block. To add more secrets, prompt for
+them in `home/.chezmoi.json.tmpl` (so they land in your chezmoi config) and reference
+them with `{{ .yourKey }}` wherever you need them.
 
 > [!WARNING]
-> The key is stored in plaintext in `~/.config/chezmoi/chezmoi.json` and VS Code
-> `mcp.json`, and is embedded in the rendered sync script at apply time. If you'd
-> rather keep it out of dotfiles, source it from Doppler/an env var instead and leave
-> the prompt blank.
+> Any value injected this way is stored in plaintext in
+> `~/.config/chezmoi/chezmoi.json` and the VS Code `mcp.json`, and is embedded in the
+> rendered sync script at apply time. If you'd rather keep a secret out of dotfiles,
+> leave its prompt blank and source it at runtime instead — e.g. a `${env:VAR}`
+> reference in the MCP `config:` for tools that expand it, or an external secret
+> manager (Doppler, 1Password, …).
 
 ## Running it
 

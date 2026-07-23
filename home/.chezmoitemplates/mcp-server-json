@@ -1,0 +1,47 @@
+{{- /*
+  Renders one MCP server's config as a single line of JSON from an
+  ai-tools.yaml `mcp:` block. The output is valid for BOTH the VS Code
+  user `mcp.json` ("servers" entries) and `claude mcp add-json`.
+
+  Input (passed via includeTemplate):
+    dict "mcp" <tool.mcp> "root" $      -- $ is the chezmoi data root
+
+  Two ways to declare the server in ai-tools.yaml:
+
+    1. mcp.config: a full server-config dict, emitted verbatim as JSON. Use
+       any field the assistant supports (type, url, headers, command, args,
+       env, timeouts, ...) -- no longer limited to a fixed set of keys.
+
+    2. Legacy shorthand: { transport, command, args, env, url, apiKeyHeader,
+       apiKeyFrom }. Still supported; builds the same JSON.
+
+  Secret templating: anywhere in a `config:` block you may reference a
+  chezmoi config value with {{ .someKey }} (any top-level key from
+  ~/.config/chezmoi/chezmoi.json -- e.g. the values collected at
+  `chezmoi init`). Each reference is replaced here with the (JSON-escaped)
+  value, so a secret can be injected into any field, standalone or embedded
+  (e.g. "Bearer {{ .someKey }}"). References to unknown keys are left as-is.
+*/ -}}
+{{- $m := .mcp -}}
+{{- $root := .root -}}
+{{- $server := dict -}}
+{{- if $m.config -}}
+  {{- $server = $m.config -}}
+{{- else if or (eq $m.transport "http") (eq $m.transport "sse") -}}
+  {{- $server = dict "type" $m.transport "url" $m.url -}}
+  {{- $key := default "" (index $root (default "" $m.apiKeyFrom)) -}}
+  {{- if and $m.apiKeyFrom $key -}}
+    {{- $server = merge $server (dict "headers" (dict $m.apiKeyHeader $key)) -}}
+  {{- end -}}
+{{- else -}}
+  {{- $server = dict "type" "stdio" "command" $m.command "args" $m.args -}}
+  {{- if $m.env -}}{{- $server = merge $server (dict "env" $m.env) -}}{{- end -}}
+{{- end -}}
+{{- $json := toJson $server -}}
+{{- range $k, $v := $root -}}
+  {{- if kindIs "string" $v -}}
+    {{- $esc := $v | toJson | trimPrefix "\"" | trimSuffix "\"" -}}
+    {{- $json = $json | replace (printf "{{ .%s }}" $k) $esc | replace (printf "{{.%s}}" $k) $esc -}}
+  {{- end -}}
+{{- end -}}
+{{- $json -}}

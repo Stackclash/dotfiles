@@ -18,23 +18,12 @@ function Add-Note { param([string]$Text) $script:Notes += $Text }
 function Test-Cmd { param([string]$Name) [bool](Get-Command $Name -ErrorAction SilentlyContinue) }
 
 function Register-ClaudeMcp {
-    param(
-        [string]$Name, [string]$Transport,
-        [string]$Url, [string]$ApiKeyHeader, [string]$ApiKey,
-        [string]$Command, [string[]]$CmdArgs, [hashtable]$EnvVars
-    )
+    # $Json is a full server config (see the shared "mcp-server-json" template),
+    # registered via `claude mcp add-json`.
+    param([string]$Name, [string]$Json)
     if (-not (Test-Cmd "claude")) { Add-Note "claude CLI not found - register MCP '$Name' later with 'chezmoi apply'."; return }
     claude mcp remove $Name --scope user 2>$null | Out-Null
-    $a = @("mcp", "add", $Name, "--scope", "user", "--transport", $Transport)
-    if ($Transport -eq "http" -or $Transport -eq "sse") {
-        $a += $Url
-        if ($ApiKey) { $a += @("--header", "$($ApiKeyHeader): $ApiKey") }
-    } else {
-        if ($EnvVars) { foreach ($k in $EnvVars.Keys) { $a += @("--env", "$k=$($EnvVars[$k])") } }
-        $a += "--"; $a += $Command
-        if ($CmdArgs) { $a += $CmdArgs }
-    }
-    & claude @a
+    & claude mcp add-json $Name $Json --scope user
     if ($LASTEXITCODE -eq 0) { Write-Host "  Claude MCP '$Name' registered" }
     else { Add-Note "Failed to register Claude MCP '$Name'." }
 }
@@ -98,15 +87,9 @@ Write-Host "{{ $name }}: per-project tool (documented, not installed)"
 Add-Note '{{ $name }} (per-project): {{ $tool.projectNote | replace "'" "''" }}'
 {{- end }}
 {{- else if eq $tool.type "mcp" }}
-{{- $m := $tool.mcp }}
 Write-Host "`n* {{ $name }} (mcp, {{ $tool.assistant }})"
 {{- if or (eq $tool.assistant "claude") (eq $tool.assistant "both") }}
-{{- if or (eq $m.transport "http") (eq $m.transport "sse") }}
-{{- $key := "" }}{{ if $m.apiKeyFrom }}{{ $key = default "" (index $ $m.apiKeyFrom) }}{{ end }}
-Register-ClaudeMcp -Name '{{ $name }}' -Transport '{{ $m.transport }}' -Url '{{ $m.url }}'{{ if $key }} -ApiKeyHeader '{{ $m.apiKeyHeader }}' -ApiKey '{{ $key | replace "'" "''" }}'{{ end }}
-{{- else }}
-Register-ClaudeMcp -Name '{{ $name }}' -Transport 'stdio' -Command '{{ $m.command }}'{{ if $m.args }} -CmdArgs @({{ range $i, $arg := $m.args }}{{ if $i }},{{ end }}'{{ $arg }}'{{ end }}){{ end }}{{ if $m.env }} -EnvVars @{ {{ range $k, $v := $m.env }}'{{ $k }}'='{{ $v }}'; {{ end }}}{{ end }}
-{{- end }}
+Register-ClaudeMcp -Name '{{ $name }}' -Json '{{ includeTemplate "mcp-server-json" (dict "mcp" $tool.mcp "root" $) | replace "'" "''" }}'
 {{- end }}
 {{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
 Write-Host "  Copilot MCP for {{ $name }} is provided via managed VS Code mcp.json"

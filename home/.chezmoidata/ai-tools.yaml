@@ -11,7 +11,12 @@
 #   projectNote: "..."                      -- shown in docs and task output
 #
 # Per-type payloads
-#   mcp:     { transport, command, args, env, url, apiKeyHeader, apiKeyFrom }
+#   mcp:     Either a full `config:` block -- any fields the assistant supports,
+#            rendered straight to JSON (used verbatim for both `claude mcp
+#            add-json` and the VS Code mcp.json) -- or the legacy shorthand
+#            { transport, command, args, env, url, apiKeyHeader, apiKeyFrom }.
+#            Inside a `config:` block, reference any chezmoi config value with
+#            {{ .someKey }} to inject a secret anywhere (see context7 below).
 #   package: { mise: { backend: npm|pipx, package }, postInstall }
 #   plugin:  { claude|copilot: { marketplaceAdd, install } }
 #   custom:  { kind: skill|agent }  -- content authored under ~/.ai/<kind>/<name>
@@ -31,12 +36,42 @@ aiTools:
     assistant: both
     type: mcp
     mcp:
+      # Legacy shorthand: the API key is prompted at `chezmoi init` and injected
+      # as this header. Leave the prompt blank to run keyless (the header is
+      # omitted, rate-limited).
       transport: http
       url: "https://mcp.context7.com/mcp"
-      # API key is prompted at `chezmoi init` and injected as this header.
-      # Leave the prompt blank to run keyless (rate-limited).
       apiKeyHeader: CONTEXT7_API_KEY
       apiKeyFrom: context7ApiKey
+
+  # The same server written with a full `config:` block instead of the shorthand
+  # -- put any field the assistant supports here, and pull in any secret with
+  # the {{ .someKey }} syntax (resolved from your chezmoi config at apply time):
+  #
+  #   context7:
+  #     assistant: both
+  #     type: mcp
+  #     mcp:
+  #       config:
+  #         type: http
+  #         url: "https://mcp.context7.com/mcp"
+  #         headers:
+  #           CONTEXT7_API_KEY: "{{ .context7ApiKey }}"
+  #
+  # A stdio server with templated secrets in its environment (note secrets can
+  # be embedded mid-string, e.g. "Bearer <token>"):
+  #
+  #   my-mcp:
+  #     assistant: both
+  #     type: mcp
+  #     mcp:
+  #       config:
+  #         type: stdio
+  #         command: some-mcp-server
+  #         args: ["--flag"]
+  #         env:
+  #           API_TOKEN: "{{ .someSecret }}"
+  #           AUTH: "Bearer {{ .someSecret }}"
 
   # --- Plugins (marketplace) -------------------------------------------------
   superpowers:
