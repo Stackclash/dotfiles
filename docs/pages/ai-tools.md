@@ -39,8 +39,12 @@ aiTools:
   custom:  { <name>: {...} }
 ```
 
-Every entry has an `assistant` (`claude`, `copilot`, or `both`) and,
-optionally, `forPersonal: false` to skip it on work machines.
+Every entry may set `forPersonal: false` to skip it on work machines.
+`mcp` and `custom` entries also require an `assistant` (`claude`, `copilot`,
+or `both`) field — their single payload has no other way to say which
+CLI(s) it targets. `plugin` entries target a CLI by declaring its
+`claude:`/`copilot:` subkey instead; `package` entries have no per-CLI
+behavior. Neither `plugin` nor `package` entries carry `assistant`.
 
 ### `mcp` — MCP servers
 
@@ -78,22 +82,23 @@ mise-managed (`github:DopplerHQ/cli`); authenticate it once per machine
 
 ### `package` — package-manager CLIs
 
-Unchanged in shape, just relocated:
+No `assistant` field — package installs aren't per-CLI:
 
 ```yaml
   package:
     graphify:
-      assistant: claude
       mise: { backend: pipx, package: graphifyy }
       postInstall: "graphify install"
 ```
 
 ### `plugin` — marketplace plugins
 
+No `assistant` field either — a plugin installs for whichever of
+`claude:`/`copilot:` it declares:
+
 ```yaml
   plugin:
     superpowers:
-      assistant: both
       claude:  { marketplaceAdd: "anthropics/claude-plugins-official", install: "superpowers@claude-plugins-official" }
       copilot: { marketplaceAdd: "obra/superpowers-marketplace", install: "superpowers@superpowers-marketplace" }
 ```
