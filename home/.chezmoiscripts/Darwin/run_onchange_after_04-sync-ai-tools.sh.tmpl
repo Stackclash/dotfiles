@@ -15,6 +15,7 @@
 # -------------------------------------------------------
 
 set -u
+# ai-tools.yaml hash: {{ .aiTools | toString | sha256sum }}
 NOTES=()
 add_note() { NOTES+=("$1"); }
 have() { command -v "$1" >/dev/null 2>&1; }
