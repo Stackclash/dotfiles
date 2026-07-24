@@ -4,9 +4,12 @@
 # docs/pages/ai-tools.md for details.
 #
 # aiTools is organized by category -- mcp, plugin, package, custom -- each a
-# map of tool name to its definition. Common fields on every entry:
-#   assistant:   claude | copilot | both   -- which assistant(s) the tool targets
-#   forPersonal: true|false                 -- optional; skipped on work machines
+# map of tool name to its definition. Every entry may set:
+#   forPersonal: true|false  -- optional; skipped on work machines
+# assistant: claude | copilot | both is required on mcp and custom entries
+# (their single payload has no other way to say which CLI(s) it targets).
+# plugin entries target a CLI by declaring its claude:/copilot: subkey;
+# package entries have no per-CLI behavior. Neither carries assistant.
 #
 # Per-category payloads
 #   mcp:     { config: {...} } -- verbatim MCP server JSON: any field either
@@ -38,7 +41,6 @@ aiTools:
 
   plugin:
     superpowers:
-      assistant: both
       claude:
         marketplaceAdd: "anthropics/claude-plugins-official"
         install: "superpowers@claude-plugins-official"
@@ -48,14 +50,12 @@ aiTools:
 
   package:
     graphify:
-      assistant: claude
       mise:
         backend: pipx
         package: graphifyy
       postInstall: "graphify install"
 
     openspec:
-      assistant: both
       mise:
         backend: npm
         package: "@fission-ai/openspec"
