@@ -102,11 +102,11 @@ echo "  Copilot MCP for {{ $name }} is provided via managed VS Code mcp.json"
 {{- if and $tool.forPersonal $.workComputer }}
 echo "Skipping {{ $name }} (personal tool on a work computer)"
 {{- else }}
-echo ""; echo "* {{ $name }} (plugin, {{ $tool.assistant }})"
-{{- if and (or (eq $tool.assistant "claude") (eq $tool.assistant "both")) $tool.claude }}
+echo ""; echo "* {{ $name }} (plugin)"
+{{- if $tool.claude }}
 install_plugin '{{ $name }}' 'claude' '{{ $tool.claude.marketplaceAdd }}' '{{ $tool.claude.install }}'
 {{- end }}
-{{- if and (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) $tool.copilot }}
+{{- if $tool.copilot }}
 install_plugin '{{ $name }}' 'copilot' '{{ $tool.copilot.marketplaceAdd }}' '{{ $tool.copilot.install }}'
 {{- end }}
 {{- end }}
