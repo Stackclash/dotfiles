@@ -93,11 +93,11 @@ Write-Host "  Copilot MCP for {{ $name }} is provided via managed VS Code mcp.js
 {{- if and $tool.forPersonal $.workComputer }}
 Write-Host "Skipping {{ $name }} (personal tool on a work computer)"
 {{- else }}
-Write-Host "`n* {{ $name }} (plugin, {{ $tool.assistant }})"
-{{- if and (or (eq $tool.assistant "claude") (eq $tool.assistant "both")) $tool.claude }}
+Write-Host "`n* {{ $name }} (plugin)"
+{{- if $tool.claude }}
 Install-Plugin -Name '{{ $name }}' -Cli 'claude' -MarketplaceAdd '{{ $tool.claude.marketplaceAdd }}' -Install '{{ $tool.claude.install }}'
 {{- end }}
-{{- if and (or (eq $tool.assistant "copilot") (eq $tool.assistant "both")) $tool.copilot }}
+{{- if $tool.copilot }}
 Install-Plugin -Name '{{ $name }}' -Cli 'copilot' -MarketplaceAdd '{{ $tool.copilot.marketplaceAdd }}' -Install '{{ $tool.copilot.install }}'
 {{- end }}
 {{- end }}
