@@ -39,6 +39,14 @@ aiTools:
         headers:
           CONTEXT7_API_KEY: "{{ (dopplerProjectJson).CONTEXT7_API_TOKEN }}"
 
+    github:
+      assistant: both
+      config:
+        type: http
+        url: "https://api.githubcopilot.com/mcp/"
+        headers:
+          Authorization: "Bearer {{ (dopplerProjectJson).GITHUB_PAT }}"
+
   plugin:
     superpowers:
       claude:
