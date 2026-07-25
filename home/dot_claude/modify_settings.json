@@ -12,7 +12,7 @@
 {{- if (hasKey $worktree "symlinkDirectories") -}}
 {{-   $symlinkDirs = index $worktree "symlinkDirectories" -}}
 {{- end -}}
-{{- range list "openspec" ".env" "node_modules" -}}
+{{- range list "openspec" "node_modules" -}}
 {{-   if not (has . $symlinkDirs) -}}
 {{-     $symlinkDirs = append $symlinkDirs . -}}
 {{-   end -}}

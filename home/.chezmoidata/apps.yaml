@@ -34,6 +34,15 @@ apps:
       id: "calibre.calibre"
       method: "winget"
 
+  syncthing:
+    forPersonal: false
+    windows:
+      id: "Syncthing.Syncthing"
+      method: "winget"
+    darwin:
+      id: "syncthing"
+      method: "brew"
+
   # Shells
   fish:
     forPersonal: false
