@@ -105,6 +105,15 @@ apps:
       id: "dotnet"
       method: "brew"
 
+  copilot-cli:
+    forPersonal: false
+    windows:
+      id: "GitHub.Copilot"
+      method: "winget"
+    darwin:
+      id: "copilot-cli"
+      method: "brew"
+
   # Browser
   firefox-dev:
     forPersonal: false
