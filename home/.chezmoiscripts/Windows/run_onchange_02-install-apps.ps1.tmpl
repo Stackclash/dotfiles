@@ -16,9 +16,9 @@ $WinGetServerDown = $false
 $WinGetLookupAttempts = 3
 
 function Get-WinGetErrorKind {
-  # Deliberately untyped: the cmdlets raise a terminating CmdletInvocationException
-  # rather than writing an ErrorRecord, so anything narrower fails to bind.
-  param($ErrorRecord)
+  # Untyped on purpose: this is handed either an ErrorRecord (from catch) or the
+  # bare exception that -ErrorVariable collects, and a narrower type fails to bind.
+  param($WinGetError)
 
   # Returns "ServerUnavailable" (the COM server could not be started - worth a
   # repair), "Com" (some other COM error - the lookup still did not answer, so
@@ -29,10 +29,10 @@ function Get-WinGetErrorKind {
   $serverHResults = @(-2147023174, -2147023170, -2147221164, -2147024770)
   $kind = "None"
 
-  if ($ErrorRecord -is [System.Management.Automation.ErrorRecord]) {
-    $exception = $ErrorRecord.Exception
+  if ($WinGetError -is [System.Management.Automation.ErrorRecord]) {
+    $exception = $WinGetError.Exception
   } else {
-    $exception = $ErrorRecord -as [System.Exception]
+    $exception = $WinGetError -as [System.Exception]
   }
 
   # The COM failure is wrapped, so walk the chain: the outer
@@ -88,16 +88,20 @@ function Resolve-WinGetPackageVersion {
   }
 
   for ($attempt = 1; $attempt -le $script:WinGetLookupAttempts; $attempt++) {
-    # -ErrorAction Stop plus try/catch, not -ErrorVariable: these cmdlets raise
-    # terminating errors, which SilentlyContinue neither suppresses nor collects.
+    $errorKind = "None"
+
+    # Two error channels to cover: SilentlyContinue quietly absorbs the ordinary
+    # non-terminating "nothing matched", while try/catch takes the terminating COM
+    # failures that SilentlyContinue neither suppresses nor collects.
     try {
       $version = $null
+      $lookupErrors = $null
 
       if ($Source -eq "Available") {
-        $package = Find-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction Stop | Select-Object -First 1
+        $package = Find-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction SilentlyContinue -ErrorVariable lookupErrors | Select-Object -First 1
         $version = $package.Version
       } else {
-        $package = Get-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction Stop | Select-Object -First 1
+        $package = Get-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction SilentlyContinue -ErrorVariable lookupErrors | Select-Object -First 1
         $version = $package.InstalledVersion
       }
 
@@ -105,19 +109,26 @@ function Resolve-WinGetPackageVersion {
         return [PSCustomObject]@{ Status = "Found"; Version = $version }
       }
 
-      return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
-    } catch {
-      $errorKind = Get-WinGetErrorKind $_
+      # Nothing matched, which is only trustworthy if nothing went wrong getting
+      # there. A COM error on the way makes the empty result meaningless.
+      foreach ($record in $lookupErrors) {
+        $recordKind = Get-WinGetErrorKind $record
+        if ($recordKind -ne "None") { $errorKind = $recordKind }
+      }
 
-      # WinGet answered and said no - e.g. "No installed package found".
       if ($errorKind -eq "None") {
         return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
       }
+    } catch {
+      # Only terminating errors land here, so the lookup never ran to completion.
+      # Whatever it was, it is not evidence that the package is absent - an
+      # unrecognised error still has to fall through to Failed, never NotFound.
+      $errorKind = Get-WinGetErrorKind $_
+    }
 
-      if ($attempt -lt $script:WinGetLookupAttempts) {
-        if ($errorKind -eq "ServerUnavailable") { Repair-WinGetComServer }
-        Start-Sleep -Seconds ($attempt * 3)
-      }
+    if ($attempt -lt $script:WinGetLookupAttempts) {
+      if ($errorKind -eq "ServerUnavailable") { Repair-WinGetComServer }
+      Start-Sleep -Seconds ($attempt * 3)
     }
   }
 
