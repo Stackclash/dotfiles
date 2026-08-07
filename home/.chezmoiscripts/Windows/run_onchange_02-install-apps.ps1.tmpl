@@ -1,6 +1,85 @@
 {{ template "elevate-powershell" }}
 
-{{- $workComputer := .workComputer -}}
+# The Microsoft.WinGet.Client cmdlets do not talk to winget.exe -- they talk to an
+# out-of-process COM server (WindowsPackageManagerServer.exe). When that server cannot
+# be started the cmdlets fail with "Failed to create instance: -2147023174"
+# (0x800706BA, RPC_S_SERVER_UNAVAILABLE) and emit nothing on the success stream, which
+# is indistinguishable from "no such package" unless the error stream is inspected.
+# The helpers below retry, try to repair the COM server once, and keep "WinGet is
+# broken" separate from "the package does not exist".
+
+$WinGetLookupFailures = [System.Collections.Generic.List[string]]::new()
+$WinGetRepairAttempted = $false
+$WinGetLookupAttempts = 3
+
+function Test-WinGetComFailure {
+  param([System.Management.Automation.ErrorRecord[]]$ErrorRecords)
+
+  foreach ($record in $ErrorRecords) {
+    if ($record.Exception -is [System.Runtime.InteropServices.COMException]) { return $true }
+    if ($record.Exception -and $record.Exception.Message -like "*Failed to create instance*") { return $true }
+  }
+
+  return $false
+}
+
+function Repair-WinGetComServer {
+  if ($script:WinGetRepairAttempted) { return }
+  $script:WinGetRepairAttempted = $true
+
+  if (-not (Get-Command Repair-WinGetPackageManager -ErrorAction SilentlyContinue)) {
+    Write-Host "  WinGet COM server unreachable and Repair-WinGetPackageManager is unavailable." -ForegroundColor Yellow
+    Write-Host "  Update Microsoft.WinGet.Client to enable automatic repair." -ForegroundColor Yellow
+    return
+  }
+
+  Write-Host "  WinGet COM server unreachable - running Repair-WinGetPackageManager..." -ForegroundColor Yellow
+  try {
+    Repair-WinGetPackageManager -Latest -Force -ErrorAction Stop | Out-Null
+  } catch {
+    Write-Host "  Repair-WinGetPackageManager failed: $($_.Exception.Message)" -ForegroundColor Red
+  }
+}
+
+function Resolve-WinGetPackageVersion {
+  param(
+    [Parameter(Mandatory)][ValidateSet("Available", "Installed")][string]$Source,
+    [Parameter(Mandatory)][string]$Id
+  )
+
+  # Status is one of:
+  #   Found    - Version holds the available (Source=Available) or installed version
+  #   NotFound - WinGet answered, the package is genuinely not there
+  #   Failed   - WinGet never answered; the result says nothing about the package
+  for ($attempt = 1; $attempt -le $script:WinGetLookupAttempts; $attempt++) {
+    $lookupErrors = $null
+
+    if ($Source -eq "Available") {
+      $package = Find-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction SilentlyContinue -ErrorVariable lookupErrors | Select-Object -First 1
+      $version = $package.Version
+    } else {
+      $package = Get-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction SilentlyContinue -ErrorVariable lookupErrors | Select-Object -First 1
+      $version = $package.InstalledVersion
+    }
+
+    if ($version) {
+      return [PSCustomObject]@{ Status = "Found"; Version = $version }
+    }
+
+    if (-not (Test-WinGetComFailure $lookupErrors)) {
+      return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
+    }
+
+    if ($attempt -lt $script:WinGetLookupAttempts) {
+      Repair-WinGetComServer
+      Start-Sleep -Seconds ($attempt * 3)
+    }
+  }
+
+  return [PSCustomObject]@{ Status = "Failed"; Version = $null }
+}
+
+{{ $workComputer := .workComputer -}}
 {{- range $key, $app := .apps -}}
 
 {{- if $app.windows -}}
@@ -8,22 +87,23 @@
 Write-Host "Processing {{ $key }}"
 {{- if eq $app.windows.method "winget" }}
 
-$PackageVersion = $(Find-WinGetPackage -MatchOption Equals -Id {{ $app.windows.id }}).Version
-$InstalledVersion = $(Get-WinGetPackage -MatchOption Equals -Id {{ $app.windows.id }}).InstalledVersion
-if ($InstalledVersion) {
-  if (($PackageVersion -ne $InstalledVersion) -and ($PackageVersion -ne "Unknown")) {
-    Write-Host "Updating from $($InstalledVersion) to $($PackageVersion) via WinGet..." -ForegroundColor Green
-    Update-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $app.windows.id }}
+$Available = Resolve-WinGetPackageVersion -Source Available -Id "{{ $app.windows.id }}"
+$Installed = Resolve-WinGetPackageVersion -Source Installed -Id "{{ $app.windows.id }}"
+if (($Available.Status -eq "Failed") -or ($Installed.Status -eq "Failed")) {
+  Write-Host "Could not reach WinGet - skipping {{ $app.windows.id }}" -ForegroundColor Red
+  $WinGetLookupFailures.Add("{{ $app.windows.id }}")
+} elseif ($Installed.Status -eq "Found") {
+  if (($Available.Status -eq "Found") -and ($Available.Version -ne $Installed.Version) -and ($Available.Version -ne "Unknown")) {
+    Write-Host "Updating from $($Installed.Version) to $($Available.Version) via WinGet..." -ForegroundColor Green
+    Update-WinGetPackage -Mode Silent -MatchOption Equals -Id "{{ $app.windows.id }}"
   } else {
     Write-Host "No update required" -ForegroundColor Yellow
   }
+} elseif ($Available.Status -eq "NotFound") {
+  Write-Host "Does not exist in WinGet" -ForegroundColor Red
 } else {
-  if (-not $PackageVersion) {
-    Write-Host "Does not exist in WinGet" -ForegroundColor Red
-  } else {
-    Write-Host "Installing {{ $app.windows.id }} via WinGet..." -ForegroundColor Green
-    Install-WinGetPackage -Mode Silent -MatchOption Equals -Id {{ $app.windows.id }}
-  }
+  Write-Host "Installing {{ $app.windows.id }} via WinGet..." -ForegroundColor Green
+  Install-WinGetPackage -Mode Silent -MatchOption Equals -Id "{{ $app.windows.id }}"
 }
 
 {{- else if eq $app.windows.method "choco" }}
@@ -40,9 +120,10 @@ if ($InstalledVersion) {
 } else {
   if (-not $PackageVersion) {
     Write-Host "Does not exist in Chocolately" -ForegroundColor Red
+  } else {
+    Write-Host "Installing {{ $app.windows.id }} via Chocolately..." -ForegroundColor Green
+    choco install -e {{ $app.windows.id }} -y | Out-Null
   }
-  Write-Host "Installing {{ $app.windows.id }} via Chocolately..." -ForegroundColor Green
-  choco install -e {{ $app.windows.id }} -y | Out-Null
 }
 {{ end }}
 Write-Host ""
@@ -50,3 +131,16 @@ Write-Host ""
 {{- end }}
 {{- end }}
 refreshenv
+
+if ($WinGetLookupFailures.Count -gt 0) {
+  Write-Host ""
+  Write-Host "WinGet could not be reached for the following packages:" -ForegroundColor Red
+  foreach ($failedId in $WinGetLookupFailures) {
+    Write-Host "  - $failedId" -ForegroundColor Red
+  }
+  Write-Host ""
+  Write-Host "This is the WinGet COM server (WindowsPackageManagerServer.exe) failing to start," -ForegroundColor Yellow
+  Write-Host "not a missing package. Sign out and back in (or reboot) so App Installer re-registers," -ForegroundColor Yellow
+  Write-Host "then run 'chezmoi apply' again." -ForegroundColor Yellow
+  exit 1
+}
