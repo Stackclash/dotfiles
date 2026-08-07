@@ -40,9 +40,14 @@ install_plugin() {
   if [ -n "$mkt" ] && ! "$cli" plugin marketplace add "$mkt" >/dev/null 2>&1; then
     add_note "$cli could not add marketplace '$mkt' - plugin '$name' cannot install until it does."
   fi
-  local out status
-  out="$("$cli" plugin install "$install" 2>&1)"; status=$?
-  [ -n "$out" ] && printf '%s\n' "$out"
+  # tee so a slow install still streams progress, while the output stays
+  # available for the locked-folder check below. PIPESTATUS keeps the CLI's
+  # exit code rather than tee's.
+  local out status tmp
+  tmp="$(mktemp)"
+  "$cli" plugin install "$install" 2>&1 | tee "$tmp"
+  status=${PIPESTATUS[0]}
+  out="$(cat "$tmp")"; rm -f "$tmp"
   if [ $status -eq 0 ]; then
     echo "  $cli plugin '$name' installed"
     return

@@ -55,9 +55,10 @@ function Install-Plugin {
         & $Cli plugin marketplace add $MarketplaceAdd 2>&1 | Out-Null
         if ($LASTEXITCODE -ne 0) { Add-Note "$Cli could not add marketplace '$MarketplaceAdd' (exit $LASTEXITCODE) - plugin '$Name' cannot install until it does." }
     }
-    $out = & $Cli plugin install $Install 2>&1
+    # Echo each line as it arrives and collect it, so a slow install still shows
+    # progress while the output stays available for the os-error-5 check below.
+    $out = & $Cli plugin install $Install 2>&1 | ForEach-Object { Write-Host $_; $_ }
     $code = $LASTEXITCODE
-    $out | ForEach-Object { Write-Host $_ }
     if ($code -eq 0) { Write-Host "  $Cli plugin '$Name' installed"; return }
     $note = "Could not install plugin '$Name' for $Cli (exit $code) - run manually: $Cli plugin install $Install"
     if (($out | Out-String) -match 'os error 5|Access is denied') {
