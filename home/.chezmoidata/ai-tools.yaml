@@ -61,7 +61,7 @@ aiTools:
 
   skill:
     # Installed with the skills CLI:
-    #   npx skills add <repo> [--skill <skill>] --agent <claude-code|github-copilot> -g
+    #   npx --yes skills add <repo> [--skill <skill>] --agent <claude-code|github-copilot> -g -y
     # One invocation per assistant, global (-g) so the skill lands in the
     # user-level skills directory. Drop `skill:` to install every skill in the repo.
     #

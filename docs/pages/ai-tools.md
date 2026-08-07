@@ -110,7 +110,7 @@ Installed with the [skills CLI](https://github.com/vercel-labs/skills), the
 package manager for agent skills:
 
 ```bash
-npx skills add <repo> [--skill <skill>] --agent <claude-code|github-copilot> -g
+npx --yes skills add <repo> [--skill <skill>] --agent <claude-code|github-copilot> -g -y
 ```
 
 ```yaml
@@ -177,7 +177,7 @@ Verify:
 ```bash
 claude mcp list          # playwright + context7 registered
 mise ls                  # graphifyy + @fission-ai/openspec present
-ls ~/.claude/skills      # installed + custom skills present
+ls ~/.claude/skills ~/.agents/skills  # installed + custom skills present (Claude + Copilot)
 ```
 
 ## Starter tools

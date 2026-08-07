@@ -51,7 +51,7 @@ install_skill() {
   local args=(skills add "$repo")
   [ -n "$skill" ] && args+=(--skill "$skill")
   args+=(--agent "$agent" -g -y)
-  local manual="npx ${args[*]}"
+  local manual="npx --yes ${args[*]}"
   if ! have npx; then add_note "npx not found - install skill '$name' later: $manual"; return; fi
   if npx --yes "${args[@]}"; then
     echo "  skill '$name' installed for $agent"

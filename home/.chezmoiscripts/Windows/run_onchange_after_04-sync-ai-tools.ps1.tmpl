@@ -41,7 +41,7 @@ function Install-Skill {
     $cliArgs = @("skills", "add", $Repo)
     if ($Skill) { $cliArgs += @("--skill", $Skill) }
     $cliArgs += @("--agent", $Agent, "-g", "-y")
-    $manual = "npx $($cliArgs -join ' ')"
+    $manual = "npx --yes $($cliArgs -join ' ')"
     if (-not (Test-Cmd "npx")) { Add-Note "npx not found - install skill '$Name' later: $manual"; return }
     & npx --yes @cliArgs
     if ($LASTEXITCODE -eq 0) { Write-Host "  skill '$Name' installed for $Agent" }
