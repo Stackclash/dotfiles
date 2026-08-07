@@ -186,6 +186,65 @@ ls ~/.claude/skills ~/.agents/skills  # installed + custom skills present (Claud
 |------|------|-----------|-------|
 | playwright-mcp | mcp | both | browser automation |
 | context7 | mcp | both | docs lookup; optional API key |
+| github | mcp | both | GitHub API; needs a PAT |
 | superpowers | plugin | both | skills/workflow bundle |
+| vercel-react-best-practices | skill | both | from `vercel-labs/agent-skills` |
+| web-design-guidelines | skill | both | from `vercel-labs/agent-skills` |
 | graphify | package (pipx) | claude | `graphify install` post-step |
 | openspec | package (npm) | both | per-repo `openspec init` |
+
+## Troubleshooting
+
+### `Invalid configuration: : Invalid input` when registering an MCP
+
+Fixed — but worth knowing why, because it will bite any new PowerShell code that
+passes JSON to a native command. Windows PowerShell reconstructs a command line
+from the argument strings and does **not** escape embedded double quotes, so
+`{"type":"stdio"}` reached `claude` as `{type:stdio}` (and any config with a
+space in it — a `Bearer <token>` header — was split into several arguments).
+`claude mcp add-json` then failed schema validation on the garbage it parsed.
+
+The Windows sync script routes JSON through `ConvertTo-NativeArg`, which escapes
+to the `CommandLineToArgvW` rules. PowerShell 7.3+ handles this natively via
+`$PSNativeCommandArgumentPassing`, except in its default `Windows` mode when the
+target is a `.cmd`/`.bat` shim — which is exactly how npm-installed CLIs land on
+`PATH` — so the helper checks both before deciding to escape.
+
+### An MCP is skipped for rendering `<no value>`
+
+A `{{ ... }}` expression inside `config:` resolved to nothing — nearly always a
+Doppler secret that doesn't exist under the name given, since `missingkey=zero`
+turns a missing key into the literal text `<no value>`. Check what the config
+actually renders to:
+
+```bash
+chezmoi execute-template '{{ includeTemplate "mcp-server-json" .aiTools.mcp.github.config }}'
+```
+
+Fix the secret name (or add the secret in Doppler) and re-run `chezmoi apply --force`.
+
+The sync script refuses to register a server in this state. That guard matters
+more than it looks on Windows: `<` and `>` are cmd.exe redirection operators, so
+an unresolved value doesn't just store a broken server — it corrupts the command
+line on the way to a `.cmd`-shimmed `claude`, which surfaces as the same
+`Invalid configuration: : Invalid input` described above. The same hazard applies
+to any secret containing `&`, `|`, `^`, `<` or `>`; if you hit that, configure the
+server in `~/.claude.json` directly rather than through the CLI.
+
+### `No matching skills found for: <name>`
+
+The `skill:` key must be the published skill name **exactly**; the CLI does not
+fuzzy-match. Run `npx --yes skills add <owner>/<repo>` with no `--skill` to list
+what the repo actually offers, then copy the name verbatim. (Vercel's skills are
+all `vercel-`-prefixed: `vercel-react-best-practices`, not `react-best-practices`.)
+
+### `Failed to install plugin: Access is denied. (os error 5)`
+
+A [known Copilot CLI bug on Windows](https://github.com/github/copilot-cli/issues/4095):
+the installer swaps the installed-plugins folder, and Windows refuses to replace
+a directory while VS Code's Copilot extension or a live `copilot` session holds
+watcher handles on it. Close VS Code and any running `copilot` session, then:
+
+```bash
+chezmoi apply --force
+```
