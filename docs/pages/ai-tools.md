@@ -210,6 +210,27 @@ to the `CommandLineToArgvW` rules. PowerShell 7.3+ handles this natively via
 target is a `.cmd`/`.bat` shim — which is exactly how npm-installed CLIs land on
 `PATH` — so the helper checks both before deciding to escape.
 
+### An MCP is skipped for rendering `<no value>`
+
+A `{{ ... }}` expression inside `config:` resolved to nothing — nearly always a
+Doppler secret that doesn't exist under the name given, since `missingkey=zero`
+turns a missing key into the literal text `<no value>`. Check what the config
+actually renders to:
+
+```bash
+chezmoi execute-template '{{ includeTemplate "mcp-server-json" .aiTools.mcp.github.config }}'
+```
+
+Fix the secret name (or add the secret in Doppler) and re-run `chezmoi apply --force`.
+
+The sync script refuses to register a server in this state. That guard matters
+more than it looks on Windows: `<` and `>` are cmd.exe redirection operators, so
+an unresolved value doesn't just store a broken server — it corrupts the command
+line on the way to a `.cmd`-shimmed `claude`, which surfaces as the same
+`Invalid configuration: : Invalid input` described above. The same hazard applies
+to any secret containing `&`, `|`, `^`, `<` or `>`; if you hit that, configure the
+server in `~/.claude.json` directly rather than through the CLI.
+
 ### `No matching skills found for: <name>`
 
 The `skill:` key must be the published skill name **exactly**; the CLI does not

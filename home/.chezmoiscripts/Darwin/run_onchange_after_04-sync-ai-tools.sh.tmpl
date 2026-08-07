@@ -25,6 +25,13 @@ have() { command -v "$1" >/dev/null 2>&1; }
 register_claude_mcp() {
   local name="$1" json="$2"
   if ! have claude; then add_note "claude CLI not found - register MCP '$name' later with 'chezmoi apply'."; return; fi
+  # A template that resolved to nothing (a missing Doppler secret, most often)
+  # renders as "<no value>"; registering that would store a broken server.
+  case "$json" in
+    *"<no value>"*)
+      add_note "MCP '$name' skipped - its config rendered '<no value>', so a template (usually a Doppler secret) did not resolve. Check the secret name in .chezmoidata/ai-tools.yaml, then re-run 'chezmoi apply --force'."
+      return ;;
+  esac
   claude mcp remove "$name" --scope user >/dev/null 2>&1 || true
   if claude mcp add-json --scope user "$name" "$json"; then
     echo "  Claude MCP '$name' registered"

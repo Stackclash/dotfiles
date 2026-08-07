@@ -42,6 +42,14 @@ function ConvertTo-NativeArg {
 function Register-ClaudeMcp {
     param([string]$Name, [string]$Json)
     if (-not (Test-Cmd "claude")) { Add-Note "claude CLI not found - register MCP '$Name' later with 'chezmoi apply'."; return }
+    # A template that resolved to nothing (a missing Doppler secret, most often)
+    # renders as "<no value>". Registering that would store a broken server, and
+    # its angle brackets are cmd.exe redirection operators, so they also corrupt
+    # the command line on the way to a .cmd-shimmed claude.
+    if ($Json -match '<no value>') {
+        Add-Note "MCP '$Name' skipped - its config rendered '<no value>', so a template (usually a Doppler secret) did not resolve. Check the secret name in .chezmoidata/ai-tools.yaml, then re-run 'chezmoi apply --force'."
+        return
+    }
     claude mcp remove $Name --scope user 2>$null | Out-Null
     claude mcp add-json --scope user $Name (ConvertTo-NativeArg -Value $Json -Command "claude")
     if ($LASTEXITCODE -eq 0) { Write-Host "  Claude MCP '$Name' registered" }
