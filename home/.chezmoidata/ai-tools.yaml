@@ -3,13 +3,13 @@
 # The run_onchange_after_04-sync-ai-tools script does the work. See
 # docs/pages/ai-tools.md for details.
 #
-# aiTools is organized by category -- mcp, plugin, package, custom -- each a
-# map of tool name to its definition. Every entry may set:
+# aiTools is organized by category -- mcp, plugin, skill, package, custom --
+# each a map of tool name to its definition. Every entry may set:
 #   forPersonal: true|false  -- optional; skipped on work machines
-# assistant: claude | copilot | both is required on mcp and custom entries
-# (their single payload has no other way to say which CLI(s) it targets).
-# plugin entries target a CLI by declaring its claude:/copilot: subkey;
-# package entries have no per-CLI behavior. Neither carries assistant.
+# assistant: claude | copilot | both is required on mcp, skill and custom
+# entries (their single payload has no other way to say which CLI(s) it
+# targets). plugin entries target a CLI by declaring its claude:/copilot:
+# subkey; package entries have no per-CLI behavior. Neither carries assistant.
 #
 # Per-category payloads
 #   mcp:     { config: {...} } -- verbatim MCP server JSON: any field either
@@ -19,6 +19,9 @@
 #            `chezmoi execute-template` at apply time. See docs/pages/ai-tools.md.
 #   package: { mise: { backend: npm|pipx, package }, postInstall, projectNote }
 #   plugin:  { claude|copilot: { marketplaceAdd, install } }
+#   skill:   { repo: owner/repo, skill } -- installed from a GitHub repo with
+#            the skills CLI (`npx skills add`); omit `skill` to take the whole
+#            repo. assistant maps to the CLI's --agent (claude-code/github-copilot).
 #   custom:  { kind: skill|agent } -- content authored under ~/.ai/<kind>/<name>
 
 aiTools:
@@ -55,6 +58,17 @@ aiTools:
       copilot:
         marketplaceAdd: "obra/superpowers-marketplace"
         install: "superpowers@superpowers-marketplace"
+
+  skill:
+    # Installed with the skills CLI:
+    #   npx skills add <repo> [--skill <skill>] --agent <claude-code|github-copilot> -g
+    # One invocation per assistant, global (-g) so the skill lands in the
+    # user-level skills directory. Drop `skill:` to install every skill in the repo.
+    #
+    # brainstorming:
+    #   assistant: both
+    #   repo: obra/superpowers
+    #   skill: brainstorming
 
   package:
     graphify:
