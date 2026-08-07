@@ -3,6 +3,7 @@
 # Installs/updates AI tools declared in .chezmoidata/ai-tools.yaml:
 #   aiTools.mcp     -> registers the server with Claude Code (user scope)
 #   aiTools.plugin  -> adds the marketplace + installs the plugin (Claude / Copilot)
+#   aiTools.skill   -> installs a published skill via `npx skills add` (Claude / Copilot)
 #   aiTools.package -> runs any postInstall step (the package itself is handled by mise)
 #   aiTools.custom  -> copies your authored skill/agent from ~/.ai into each assistant
 # forPersonal-skipped tools are reported, never installed.
@@ -33,6 +34,18 @@ function Install-Plugin {
     & $Cli plugin install $Install
     if ($LASTEXITCODE -eq 0) { Write-Host "  $Cli plugin '$Name' installed" }
     else { Add-Note "Could not auto-install plugin '$Name' for $Cli. In an interactive session run: /plugin install $Install" }
+}
+
+function Install-Skill {
+    param([string]$Name, [string]$Repo, [string]$Skill, [string]$Agent)
+    $cliArgs = @("skills", "add", $Repo)
+    if ($Skill) { $cliArgs += @("--skill", $Skill) }
+    $cliArgs += @("--agent", $Agent, "-g", "-y")
+    $manual = "npx --yes $($cliArgs -join ' ')"
+    if (-not (Test-Cmd "npx")) { Add-Note "npx not found - install skill '$Name' later: $manual"; return }
+    & npx --yes @cliArgs
+    if ($LASTEXITCODE -eq 0) { Write-Host "  skill '$Name' installed for $Agent" }
+    else { Add-Note "Could not install skill '$Name' for $Agent - run manually: $manual" }
 }
 
 function Invoke-PostInstall {
@@ -99,6 +112,19 @@ Install-Plugin -Name '{{ $name }}' -Cli 'claude' -MarketplaceAdd '{{ $tool.claud
 {{- end }}
 {{- if $tool.copilot }}
 Install-Plugin -Name '{{ $name }}' -Cli 'copilot' -MarketplaceAdd '{{ $tool.copilot.marketplaceAdd }}' -Install '{{ $tool.copilot.install }}'
+{{- end }}
+{{- end }}
+{{ end }}
+{{ range $name, $tool := .aiTools.skill }}
+{{- if and $tool.forPersonal $.workComputer }}
+Write-Host "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else }}
+Write-Host "`n* {{ $name }} (skill, {{ $tool.assistant }})"
+{{- if or (eq $tool.assistant "claude") (eq $tool.assistant "both") }}
+Install-Skill -Name '{{ $name }}' -Repo '{{ $tool.repo }}' -Skill '{{ $tool.skill | default "" }}' -Agent 'claude-code'
+{{- end }}
+{{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
+Install-Skill -Name '{{ $name }}' -Repo '{{ $tool.repo }}' -Skill '{{ $tool.skill | default "" }}' -Agent 'github-copilot'
 {{- end }}
 {{- end }}
 {{ end }}

@@ -18,7 +18,7 @@ run `chezmoi apply` — nothing else needs touching.
 | Mechanism | Handles |
 |-----------|---------|
 | **chezmoi templates** | package tools → mise config (`~/.config/mise/config.toml`); Copilot MCP servers → VS Code `mcp.json` (next to `settings.json`) |
-| **`run_onchange_after_04-sync-ai-tools` script** (per-OS: PowerShell + bash) | imperative installs: Claude MCP registration, plugin installs, custom skill/agent copy, package post-install steps |
+| **`run_onchange_after_04-sync-ai-tools` script** (per-OS: PowerShell + bash) | imperative installs: Claude MCP registration, plugin installs, published skill installs (`npx skills add`), custom skill/agent copy, package post-install steps |
 
 The sync script inlines the tool list from `ai-tools.yaml` at render time (like
 `run_onchange_02-install-apps`), so it re-runs automatically whenever the data
@@ -35,14 +35,15 @@ a tool is; there is no separate `type:` field.
 aiTools:
   mcp:     { <name>: {...} }
   plugin:  { <name>: {...} }
+  skill:   { <name>: {...} }
   package: { <name>: {...} }
   custom:  { <name>: {...} }
 ```
 
 Every entry may set `forPersonal: false` to skip it on work machines.
-`mcp` and `custom` entries also require an `assistant` (`claude`, `copilot`,
-or `both`) field — their single payload has no other way to say which
-CLI(s) it targets. `plugin` entries target a CLI by declaring its
+`mcp`, `skill` and `custom` entries also require an `assistant` (`claude`,
+`copilot`, or `both`) field — their single payload has no other way to say
+which CLI(s) it targets. `plugin` entries target a CLI by declaring its
 `claude:`/`copilot:` subkey instead; `package` entries have no per-CLI
 behavior. Neither `plugin` nor `package` entries carry `assistant`.
 
@@ -103,6 +104,37 @@ No `assistant` field either — a plugin installs for whichever of
       copilot: { marketplaceAdd: "obra/superpowers-marketplace", install: "superpowers@superpowers-marketplace" }
 ```
 
+### `skill` — published skills from a GitHub repo
+
+Installed with the [skills CLI](https://github.com/vercel-labs/skills), the
+package manager for agent skills:
+
+```bash
+npx --yes skills add <repo> [--skill <skill>] --agent <claude-code|github-copilot> -g -y
+```
+
+```yaml
+  skill:
+    brainstorming:
+      assistant: both
+      repo: obra/superpowers    # <owner>/<repo> on GitHub
+      skill: brainstorming      # optional -- omit to install every skill in the repo
+```
+
+| Field | Required | Meaning |
+|-------|----------|---------|
+| `repo` | yes | `<owner>/<repo>` to install from |
+| `skill` | no | a single skill inside that repo; omit to take them all |
+| `assistant` | yes | `claude` → `--agent claude-code`, `copilot` → `--agent github-copilot`, `both` → one invocation each |
+
+The sync script runs one `npx skills add` per assistant, always with `-g`
+(user-level, so the skill applies to every project) and `-y` (no prompts, so
+`chezmoi apply` never blocks). If `npx` is missing or an install fails, the
+exact command is printed as a follow-up note instead of failing the apply.
+
+Use this for skills someone else publishes; use `custom` below for skills you
+write yourself.
+
 ### `custom` — your own skills and agents
 
 ```yaml
@@ -145,6 +177,7 @@ Verify:
 ```bash
 claude mcp list          # playwright + context7 registered
 mise ls                  # graphifyy + @fission-ai/openspec present
+ls ~/.claude/skills ~/.agents/skills  # installed + custom skills present (Claude + Copilot)
 ```
 
 ## Starter tools

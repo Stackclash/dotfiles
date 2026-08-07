@@ -4,6 +4,7 @@
 # Installs/updates AI tools declared in .chezmoidata/ai-tools.yaml:
 #   aiTools.mcp     -> registers the server with Claude Code (user scope)
 #   aiTools.plugin  -> adds the marketplace + installs the plugin (Claude / Copilot)
+#   aiTools.skill   -> installs a published skill via `npx skills add` (Claude / Copilot)
 #   aiTools.package -> runs any postInstall step (the package itself is handled by mise)
 #   aiTools.custom  -> copies your authored skill/agent from ~/.ai into each assistant
 # forPersonal-skipped tools are reported, never installed.
@@ -41,6 +42,21 @@ install_plugin() {
     echo "  $cli plugin '$name' installed"
   else
     add_note "Could not auto-install plugin '$name' for $cli. In an interactive session run: /plugin install $install"
+  fi
+}
+
+# install_skill NAME REPO SKILL AGENT
+install_skill() {
+  local name="$1" repo="$2" skill="$3" agent="$4"
+  local args=(skills add "$repo")
+  [ -n "$skill" ] && args+=(--skill "$skill")
+  args+=(--agent "$agent" -g -y)
+  local manual="npx --yes ${args[*]}"
+  if ! have npx; then add_note "npx not found - install skill '$name' later: $manual"; return; fi
+  if npx --yes "${args[@]}"; then
+    echo "  skill '$name' installed for $agent"
+  else
+    add_note "Could not install skill '$name' for $agent - run manually: $manual"
   fi
 }
 
@@ -109,6 +125,19 @@ install_plugin '{{ $name }}' 'claude' '{{ $tool.claude.marketplaceAdd }}' '{{ $t
 {{- end }}
 {{- if $tool.copilot }}
 install_plugin '{{ $name }}' 'copilot' '{{ $tool.copilot.marketplaceAdd }}' '{{ $tool.copilot.install }}'
+{{- end }}
+{{- end }}
+{{ end }}
+{{ range $name, $tool := .aiTools.skill }}
+{{- if and $tool.forPersonal $.workComputer }}
+echo "Skipping {{ $name }} (personal tool on a work computer)"
+{{- else }}
+echo ""; echo "* {{ $name }} (skill, {{ $tool.assistant }})"
+{{- if or (eq $tool.assistant "claude") (eq $tool.assistant "both") }}
+install_skill '{{ $name }}' '{{ $tool.repo }}' '{{ $tool.skill | default "" }}' 'claude-code'
+{{- end }}
+{{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") }}
+install_skill '{{ $name }}' '{{ $tool.repo }}' '{{ $tool.skill | default "" }}' 'github-copilot'
 {{- end }}
 {{- end }}
 {{ end }}
