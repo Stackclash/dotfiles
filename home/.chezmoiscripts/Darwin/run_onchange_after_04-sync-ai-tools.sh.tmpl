@@ -37,12 +37,22 @@ register_claude_mcp() {
 install_plugin() {
   local name="$1" cli="$2" mkt="$3" install="$4"
   if ! have "$cli"; then add_note "$cli not found - install plugin '$name' later: $cli plugin install $install"; return; fi
-  [ -n "$mkt" ] && "$cli" plugin marketplace add "$mkt" >/dev/null 2>&1 || true
-  if "$cli" plugin install "$install"; then
-    echo "  $cli plugin '$name' installed"
-  else
-    add_note "Could not auto-install plugin '$name' for $cli. In an interactive session run: /plugin install $install"
+  if [ -n "$mkt" ] && ! "$cli" plugin marketplace add "$mkt" >/dev/null 2>&1; then
+    add_note "$cli could not add marketplace '$mkt' - plugin '$name' cannot install until it does."
   fi
+  local out status
+  out="$("$cli" plugin install "$install" 2>&1)"; status=$?
+  [ -n "$out" ] && printf '%s\n' "$out"
+  if [ $status -eq 0 ]; then
+    echo "  $cli plugin '$name' installed"
+    return
+  fi
+  local note="Could not install plugin '$name' for $cli (exit $status) - run manually: $cli plugin install $install"
+  case "$out" in
+    *"os error 5"*|*"Access is denied"*)
+      note="$note. The plugin folder is locked - close your editor and any running $cli session, then re-run 'chezmoi apply --force'." ;;
+  esac
+  add_note "$note"
 }
 
 # install_skill NAME REPO SKILL AGENT

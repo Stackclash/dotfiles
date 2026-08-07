@@ -18,22 +18,54 @@ $script:Notes = @()
 function Add-Note { param([string]$Text) $script:Notes += $Text }
 function Test-Cmd { param([string]$Name) [bool](Get-Command $Name -ErrorAction SilentlyContinue) }
 
+# Windows PowerShell rebuilds a native command line from the argument strings
+# and does NOT escape embedded double quotes, so '{"a":1}' reaches the child
+# process as '{a:1}' -- which is how every `claude mcp add-json` call used to
+# die with "Invalid configuration: : Invalid input". PowerShell 7.3+ fixed this
+# with $PSNativeCommandArgumentPassing, except in 'Windows' mode when the target
+# is a .cmd/.bat shim (which is how npm-installed CLIs land on PATH). Escape to
+# the CommandLineToArgvW rules whenever the legacy behavior is in play: double
+# any run of backslashes preceding a quote, then backslash-escape the quote.
+function ConvertTo-NativeArg {
+    param([string]$Value, [string]$Command)
+    $mode = if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $ExecutionContext.SessionState.PSVariable.GetValue('PSNativeCommandArgumentPassing')
+    } else { 'Legacy' }
+    if ($mode -eq 'Standard') { return $Value }
+    if ($mode -eq 'Windows') {
+        $source = (Get-Command $Command -ErrorAction SilentlyContinue).Source
+        if ($source -notmatch '\.(cmd|bat)$') { return $Value }
+    }
+    [regex]::Replace($Value, '(\\*)"', '$1$1\"')
+}
+
 function Register-ClaudeMcp {
     param([string]$Name, [string]$Json)
     if (-not (Test-Cmd "claude")) { Add-Note "claude CLI not found - register MCP '$Name' later with 'chezmoi apply'."; return }
     claude mcp remove $Name --scope user 2>$null | Out-Null
-    claude mcp add-json --scope user $Name $Json
+    claude mcp add-json --scope user $Name (ConvertTo-NativeArg -Value $Json -Command "claude")
     if ($LASTEXITCODE -eq 0) { Write-Host "  Claude MCP '$Name' registered" }
-    else { Add-Note "Failed to register Claude MCP '$Name'." }
+    else { Add-Note "Failed to register Claude MCP '$Name' (claude mcp add-json exited $LASTEXITCODE)." }
 }
 
 function Install-Plugin {
     param([string]$Name, [string]$Cli, [string]$MarketplaceAdd, [string]$Install)
     if (-not (Test-Cmd $Cli)) { Add-Note "$Cli not found - install plugin '$Name' later: $Cli plugin install $Install"; return }
-    if ($MarketplaceAdd) { & $Cli plugin marketplace add $MarketplaceAdd 2>$null | Out-Null }
-    & $Cli plugin install $Install
-    if ($LASTEXITCODE -eq 0) { Write-Host "  $Cli plugin '$Name' installed" }
-    else { Add-Note "Could not auto-install plugin '$Name' for $Cli. In an interactive session run: /plugin install $Install" }
+    if ($MarketplaceAdd) {
+        & $Cli plugin marketplace add $MarketplaceAdd 2>&1 | Out-Null
+        if ($LASTEXITCODE -ne 0) { Add-Note "$Cli could not add marketplace '$MarketplaceAdd' (exit $LASTEXITCODE) - plugin '$Name' cannot install until it does." }
+    }
+    $out = & $Cli plugin install $Install 2>&1
+    $code = $LASTEXITCODE
+    $out | ForEach-Object { Write-Host $_ }
+    if ($code -eq 0) { Write-Host "  $Cli plugin '$Name' installed"; return }
+    $note = "Could not install plugin '$Name' for $Cli (exit $code) - run manually: $Cli plugin install $Install"
+    if (($out | Out-String) -match 'os error 5|Access is denied') {
+        # github/copilot-cli#4095 / #4151: Windows cannot replace the installed-plugins
+        # folder while VS Code or a live CLI session holds watcher handles on it.
+        $note += ". Windows denied the plugin folder swap - close VS Code and any running $Cli session, then re-run 'chezmoi apply --force'."
+    }
+    Add-Note $note
 }
 
 function Install-Skill {

@@ -65,10 +65,24 @@ aiTools:
     # One invocation per assistant, global (-g) so the skill lands in the
     # user-level skills directory. Drop `skill:` to install every skill in the repo.
     #
+    # `skill:` must match the published skill name exactly -- the CLI does not
+    # fuzzy-match, it just lists what the repo actually offers and exits.
+    # `npx skills add <repo>` with no --skill prints the available names.
+    #
     # brainstorming:
     #   assistant: both
     #   repo: obra/superpowers
     #   skill: brainstorming
+
+    vercel-react-best-practices:
+      assistant: both
+      repo: vercel-labs/agent-skills
+      skill: vercel-react-best-practices
+
+    web-design-guidelines:
+      assistant: both
+      repo: vercel-labs/agent-skills
+      skill: web-design-guidelines
 
   package:
     graphify:
