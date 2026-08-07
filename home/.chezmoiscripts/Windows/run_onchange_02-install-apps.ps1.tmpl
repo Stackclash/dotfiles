@@ -12,15 +12,32 @@ $WinGetLookupFailures = [System.Collections.Generic.List[string]]::new()
 $WinGetRepairAttempted = $false
 $WinGetLookupAttempts = 3
 
-function Test-WinGetComFailure {
+function Get-WinGetErrorKind {
   param([System.Management.Automation.ErrorRecord[]]$ErrorRecords)
 
+  # Returns "ServerUnavailable" (the COM server could not be started - worth a
+  # repair), "Com" (some other COM error - the lookup still did not answer, so
+  # it must not be read as "no such package"), or "None".
+  #
+  #   0x800706BA RPC_S_SERVER_UNAVAILABLE   0x800706BE RPC_S_CALL_FAILED
+  #   0x80040154 REGDB_E_CLASSNOTREG        0x8007007E ERROR_MOD_NOT_FOUND
+  $serverHResults = @(-2147023174, -2147023170, -2147221164, -2147024770)
+  $kind = "None"
+
   foreach ($record in $ErrorRecords) {
-    if ($record.Exception -is [System.Runtime.InteropServices.COMException]) { return $true }
-    if ($record.Exception -and $record.Exception.Message -like "*Failed to create instance*") { return $true }
+    $exception = $record.Exception
+    if (-not $exception) { continue }
+
+    if (($exception.HResult -in $serverHResults) -or ($exception.Message -like "*Failed to create instance*")) {
+      return "ServerUnavailable"
+    }
+
+    if ($exception -is [System.Runtime.InteropServices.COMException]) {
+      $kind = "Com"
+    }
   }
 
-  return $false
+  return $kind
 }
 
 function Repair-WinGetComServer {
@@ -66,12 +83,13 @@ function Resolve-WinGetPackageVersion {
       return [PSCustomObject]@{ Status = "Found"; Version = $version }
     }
 
-    if (-not (Test-WinGetComFailure $lookupErrors)) {
+    $errorKind = Get-WinGetErrorKind $lookupErrors
+    if ($errorKind -eq "None") {
       return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
     }
 
     if ($attempt -lt $script:WinGetLookupAttempts) {
-      Repair-WinGetComServer
+      if ($errorKind -eq "ServerUnavailable") { Repair-WinGetComServer }
       Start-Sleep -Seconds ($attempt * 3)
     }
   }
@@ -112,16 +130,16 @@ $PackageVersion = $(choco search -r -e {{ $app.windows.id }} | ConvertFrom-Csv -
 $InstalledVersion = $(choco list --lo -r -e {{ $app.windows.id }} | ConvertFrom-Csv -delimiter "|" -Header Id,Version).Version
 if ($InstalledVersion) {
   if ($PackageVersion -ne $InstalledVersion) {
-    Write-Host "Updating from $($InstalledVersion) to $($PackageVersion) via Chocolately..." -ForegroundColor Green
+    Write-Host "Updating from $($InstalledVersion) to $($PackageVersion) via Chocolatey..." -ForegroundColor Green
     choco upgrade -e {{ $app.windows.id }} -y | Out-Null
   } else {
     Write-Host "No update required" -ForegroundColor Yellow
   }
 } else {
   if (-not $PackageVersion) {
-    Write-Host "Does not exist in Chocolately" -ForegroundColor Red
+    Write-Host "Does not exist in Chocolatey" -ForegroundColor Red
   } else {
-    Write-Host "Installing {{ $app.windows.id }} via Chocolately..." -ForegroundColor Green
+    Write-Host "Installing {{ $app.windows.id }} via Chocolatey..." -ForegroundColor Green
     choco install -e {{ $app.windows.id }} -y | Out-Null
   }
 }
