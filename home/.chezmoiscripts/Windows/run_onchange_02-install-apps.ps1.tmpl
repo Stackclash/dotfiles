@@ -4,16 +4,21 @@
 # out-of-process COM server (WindowsPackageManagerServer.exe). When that server cannot
 # be started the cmdlets fail with "Failed to create instance: -2147023174"
 # (0x800706BA, RPC_S_SERVER_UNAVAILABLE) and emit nothing on the success stream, which
-# is indistinguishable from "no such package" unless the error stream is inspected.
-# The helpers below retry, try to repair the COM server once, and keep "WinGet is
-# broken" separate from "the package does not exist".
+# is indistinguishable from "no such package" unless the error is inspected. The
+# failure arrives as a terminating CmdletInvocationException wrapping a COMException,
+# so it has to be caught rather than collected via -ErrorVariable. The helpers below
+# retry, try to repair the COM server once, and keep "WinGet is broken" separate from
+# "the package does not exist".
 
 $WinGetLookupFailures = [System.Collections.Generic.List[string]]::new()
 $WinGetRepairAttempted = $false
+$WinGetServerDown = $false
 $WinGetLookupAttempts = 3
 
 function Get-WinGetErrorKind {
-  param([System.Management.Automation.ErrorRecord[]]$ErrorRecords)
+  # Deliberately untyped: the cmdlets raise a terminating CmdletInvocationException
+  # rather than writing an ErrorRecord, so anything narrower fails to bind.
+  param($ErrorRecord)
 
   # Returns "ServerUnavailable" (the COM server could not be started - worth a
   # repair), "Com" (some other COM error - the lookup still did not answer, so
@@ -24,10 +29,15 @@ function Get-WinGetErrorKind {
   $serverHResults = @(-2147023174, -2147023170, -2147221164, -2147024770)
   $kind = "None"
 
-  foreach ($record in $ErrorRecords) {
-    $exception = $record.Exception
-    if (-not $exception) { continue }
+  if ($ErrorRecord -is [System.Management.Automation.ErrorRecord]) {
+    $exception = $ErrorRecord.Exception
+  } else {
+    $exception = $ErrorRecord -as [System.Exception]
+  }
 
+  # The COM failure is wrapped, so walk the chain: the outer
+  # CmdletInvocationException carries a generic HResult of its own.
+  while ($exception) {
     if (($exception.HResult -in $serverHResults) -or ($exception.Message -like "*Failed to create instance*")) {
       return "ServerUnavailable"
     }
@@ -35,6 +45,8 @@ function Get-WinGetErrorKind {
     if ($exception -is [System.Runtime.InteropServices.COMException]) {
       $kind = "Com"
     }
+
+    $exception = $exception.InnerException
   }
 
   return $kind
@@ -68,32 +80,48 @@ function Resolve-WinGetPackageVersion {
   #   Found    - Version holds the available (Source=Available) or installed version
   #   NotFound - WinGet answered, the package is genuinely not there
   #   Failed   - WinGet never answered; the result says nothing about the package
+  #
+  # A repair that did not take means the server is not coming back during this
+  # run, so stop paying the retry and stack-trace cost for every later package.
+  if ($script:WinGetServerDown) {
+    return [PSCustomObject]@{ Status = "Failed"; Version = $null }
+  }
+
   for ($attempt = 1; $attempt -le $script:WinGetLookupAttempts; $attempt++) {
-    $lookupErrors = $null
+    # -ErrorAction Stop plus try/catch, not -ErrorVariable: these cmdlets raise
+    # terminating errors, which SilentlyContinue neither suppresses nor collects.
+    try {
+      $version = $null
 
-    if ($Source -eq "Available") {
-      $package = Find-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction SilentlyContinue -ErrorVariable lookupErrors | Select-Object -First 1
-      $version = $package.Version
-    } else {
-      $package = Get-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction SilentlyContinue -ErrorVariable lookupErrors | Select-Object -First 1
-      $version = $package.InstalledVersion
-    }
+      if ($Source -eq "Available") {
+        $package = Find-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction Stop | Select-Object -First 1
+        $version = $package.Version
+      } else {
+        $package = Get-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction Stop | Select-Object -First 1
+        $version = $package.InstalledVersion
+      }
 
-    if ($version) {
-      return [PSCustomObject]@{ Status = "Found"; Version = $version }
-    }
+      if ($version) {
+        return [PSCustomObject]@{ Status = "Found"; Version = $version }
+      }
 
-    $errorKind = Get-WinGetErrorKind $lookupErrors
-    if ($errorKind -eq "None") {
       return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
-    }
+    } catch {
+      $errorKind = Get-WinGetErrorKind $_
 
-    if ($attempt -lt $script:WinGetLookupAttempts) {
-      if ($errorKind -eq "ServerUnavailable") { Repair-WinGetComServer }
-      Start-Sleep -Seconds ($attempt * 3)
+      # WinGet answered and said no - e.g. "No installed package found".
+      if ($errorKind -eq "None") {
+        return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
+      }
+
+      if ($attempt -lt $script:WinGetLookupAttempts) {
+        if ($errorKind -eq "ServerUnavailable") { Repair-WinGetComServer }
+        Start-Sleep -Seconds ($attempt * 3)
+      }
     }
   }
 
+  if ($script:WinGetRepairAttempted) { $script:WinGetServerDown = $true }
   return [PSCustomObject]@{ Status = "Failed"; Version = $null }
 }
 
