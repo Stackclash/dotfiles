@@ -8,11 +8,11 @@ vscodeProfiles:
     - FanaticPythoner.better-todo-tree
     - jannchie.codetime
     - github.copilot-chat
+    - dbaeumer.vscode-eslint
 
   profiles:
     Typescript Azure Functions:
       extensions:
-        - dbaeumer.vscode-eslint
         - ms-azuretools.vscode-azurefunctions
         - ms-azuretools.vscode-azureresourcegroups
         - humao.rest-client
@@ -20,7 +20,6 @@ vscodeProfiles:
 
     Typescript NestJS API:
       extensions:
-        - dbaeumer.vscode-eslint
         - humao.rest-client
         - Orta.vscode-jest
         - AbhijoyBasak.nestjs-files
@@ -29,7 +28,6 @@ vscodeProfiles:
 
     Typescript NextJS React UI:
       extensions:
-        - dbaeumer.vscode-eslint
         - bradlc.vscode-tailwindcss
         - dsznajder.es7-react-js-snippets
         - formulahendry.auto-rename-tag

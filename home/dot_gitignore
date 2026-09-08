@@ -1,4 +1,4 @@
-.claude
+Work/**/.claude
 .github/prompts/**/*
 .github/skills/**/*
 openspec/**/*
