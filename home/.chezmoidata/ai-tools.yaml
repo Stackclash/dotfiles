@@ -6,10 +6,13 @@
 # aiTools is organized by category -- mcp, plugin, skill, package, custom --
 # each a map of tool name to its definition. Every entry may set:
 #   forPersonal: true|false  -- optional; skipped on work machines
-# assistant: claude | copilot | both is required on mcp, skill and custom
-# entries (their single payload has no other way to say which CLI(s) it
-# targets). plugin entries target a CLI by declaring its claude:/copilot:
-# subkey; package entries have no per-CLI behavior. Neither carries assistant.
+#   agents: [claude, ...]    -- optional on mcp, skill and custom entries:
+#                               which agents (keys of ai-agents.yaml) receive
+#                               it. Omit to target every agent.
+# plugin entries target an agent by declaring a subkey named after it;
+# package entries have no per-agent behavior. Neither carries `agents`.
+# HOW each agent receives a tool (CLI flags, directories, MCP mechanism) is
+# defined once per agent in ai-agents.yaml, not here.
 #
 # Per-category payloads
 #   mcp:     { config: {...} } -- verbatim MCP server JSON: any field either
@@ -18,16 +21,15 @@
 #            expression (e.g. Doppler's dopplerProjectJson) -- resolved via
 #            `chezmoi execute-template` at apply time. See docs/pages/ai-tools.md.
 #   package: { mise: { backend: npm|pipx, package }, postInstall, projectNote }
-#   plugin:  { claude|copilot: { marketplaceAdd, install } }
+#   plugin:  { <agent>: { marketplaceAdd, install } } -- agents with plugins.supported
 #   skill:   { repo: owner/repo, skill } -- installed from a GitHub repo with
 #            the skills CLI (`npx skills add`); omit `skill` to take the whole
-#            repo. assistant maps to the CLI's --agent (claude-code/github-copilot).
+#            repo. Each agent's skills.cliAgent is passed as the CLI's --agent.
 #   custom:  { kind: skill|agent } -- content authored under ~/.ai/<kind>/<name>
 
 aiTools:
   mcp:
     playwright-mcp:
-      assistant: both
       config:
         type: stdio
         command: npx
@@ -35,7 +37,6 @@ aiTools:
           - "@playwright/mcp@latest"
 
     context7:
-      assistant: both
       config:
         type: http
         url: "https://mcp.context7.com/mcp"
@@ -43,7 +44,6 @@ aiTools:
           CONTEXT7_API_KEY: "{{ (dopplerProjectJson).CONTEXT7_API_TOKEN }}"
 
     github:
-      assistant: both
       config:
         type: http
         url: "https://api.githubcopilot.com/mcp/"
@@ -51,7 +51,6 @@ aiTools:
           Authorization: "Bearer {{ (dopplerProjectJson).GITHUB_PAT }}"
 
     azure-ado:
-      assistant: both
       config:
         type: stdio
         command: npx
@@ -71,8 +70,8 @@ aiTools:
 
   skill:
     # Installed with the skills CLI:
-    #   npx --yes skills add <repo> [--skill <skill>] --agent <claude-code|github-copilot> -g -y
-    # One invocation per assistant, global (-g) so the skill lands in the
+    #   npx --yes skills add <repo> [--skill <skill>] --agent <skills.cliAgent> -g -y
+    # One invocation per agent, global (-g) so the skill lands in the
     # user-level skills directory. Drop `skill:` to install every skill in the repo.
     #
     # `skill:` must match the published skill name exactly -- the CLI does not
@@ -80,16 +79,14 @@ aiTools:
     # `npx skills add <repo>` with no --skill prints the available names.
     #
     # brainstorming:
-    #   assistant: both
+    #   agents: [claude, codex]   # optional; omit for every agent
     #   repo: obra/superpowers
     #   skill: brainstorming
     web-design-guidelines:
-      assistant: both
       repo: vercel-labs/agent-skills
       skill: web-design-guidelines
 
     vercel-react-best-practices:
-      assistant: both
       repo: vercel-labs/agent-skills
       skill: vercel-react-best-practices
 
@@ -111,5 +108,5 @@ aiTools:
     # home/dot_ai/agents/<name>/ (an agent), then uncomment and rename:
     #
     # my-skill:
-    #   assistant: both
+    #   agents: [claude, codex]   # optional; omit for every agent
     #   kind: skill        # skill | agent

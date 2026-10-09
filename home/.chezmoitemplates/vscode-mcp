@@ -1,9 +1,18 @@
 {{- /* VS Code user-level MCP servers, generated from .chezmoidata/ai-tools.yaml.
-       Rendered into <Code>/User/mcp.json (next to settings.json). Includes tools
-       whose assistant is copilot or both. */ -}}
+       Rendered into <Code>/User/mcp.json (next to settings.json). Includes the
+       tools targeting any agent whose ai-agents.yaml mcp.method is vscode-json
+       (an mcp entry with no `agents` list targets every agent). */ -}}
+{{- $vscodeAgents := list -}}
+{{- range $agent, $def := .aiAgents -}}
+  {{- if eq $def.mcp.method "vscode-json" -}}{{- $vscodeAgents = append $vscodeAgents $agent -}}{{- end -}}
+{{- end -}}
 {{- $mcpEntries := list -}}
 {{- range $name, $tool := .aiTools.mcp -}}
-  {{- if or (eq $tool.assistant "copilot") (eq $tool.assistant "both") -}}
+  {{- $wanted := false -}}
+  {{- range $agent := $vscodeAgents -}}
+    {{- if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agent "agents" $.aiAgents) -}}{{- $wanted = true -}}{{- end -}}
+  {{- end -}}
+  {{- if $wanted -}}
     {{- $json := includeTemplate "mcp-server-json" $tool.config -}}
     {{- $mcpEntries = append $mcpEntries (printf "    \"%s\": %s" $name $json) -}}
   {{- end -}}

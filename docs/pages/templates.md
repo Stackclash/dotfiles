@@ -68,8 +68,17 @@ And their macOS equivalents.
 
 ### `vscode-mcp`
 Generates the VS Code user **`mcp.json`** (next to `settings.json`) from
-`.chezmoidata/ai-tools.yaml` — the MCP servers whose `assistant` is `copilot` or
-`both`. VS Code requires MCP config in this dedicated file, not inside `settings.json`.
+`.chezmoidata/ai-tools.yaml` — the MCP servers targeting any agent whose
+`ai-agents.yaml` `mcp.method` is `vscode-json` (Copilot today). VS Code requires MCP
+config in this dedicated file, not inside `settings.json`.
+
+---
+
+### `mcp-server-json` / `mcp-server-toml` / `ai-targets`
+Helpers for the AI tools sync. `mcp-server-json` renders an MCP `config:` as JSON
+(resolving `{{ ... }}` secrets); `mcp-server-toml` renders the same config as a Codex
+`[mcp_servers.<name>]` table; `ai-targets` answers "does this `ai-tools.yaml` entry
+target this agent?" and rejects agent names `ai-agents.yaml` doesn't define.
 
 ---
 

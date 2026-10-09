@@ -1,0 +1,18 @@
+{{- /*
+  Renders one aiTools.mcp entry as a Codex config.toml table.
+  Call with: {{ includeTemplate "mcp-server-toml" (dict "name" $name "config" $tool.config) }}
+
+  The config is the same JSON-shaped dict every agent shares. Codex differs in
+  two ways, handled here so ai-tools.yaml stays agent-neutral:
+    - `type` is dropped (Codex infers stdio vs. streamable HTTP from command/url)
+    - `headers` is spelled `http_headers`
+  Leaf values go through mcp-server-json, so "{{ ... }}" template strings
+  (Doppler secrets) resolve exactly as they do for every other agent.
+*/ -}}
+{{- $config := .config -}}
+[mcp_servers.{{ .name | toJson }}]
+{{ range $k := keys $config | sortAlpha -}}
+{{- if ne $k "type" -}}
+{{ if eq $k "headers" }}http_headers{{ else }}{{ $k }}{{ end }} = {{ includeTemplate "mcp-server-toml-value" (get $config $k) }}
+{{ end -}}
+{{- end -}}

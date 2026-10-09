@@ -1,0 +1,17 @@
+{{- /*
+  Recursively renders a value as a TOML inline value (helper for mcp-server-toml).
+  Maps become inline tables, slices become arrays, scalars reuse mcp-server-json
+  (whose JSON strings, numbers and booleans are valid TOML).
+*/ -}}
+{{- if kindIs "map" . -}}
+{{- $node := . -}}
+{ {{- range $i, $k := keys $node | sortAlpha -}}
+{{- if $i }},{{ end }} {{ $k | toJson }} = {{ includeTemplate "mcp-server-toml-value" (get $node $k) }}
+{{- end }} }
+{{- else if kindIs "slice" . -}}
+[ {{- range $i, $v := . -}}
+{{- if $i }},{{ end }} {{ includeTemplate "mcp-server-toml-value" $v }}
+{{- end }} ]
+{{- else -}}
+{{- includeTemplate "mcp-server-json" . -}}
+{{- end -}}

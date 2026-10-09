@@ -22,6 +22,12 @@ node = "22"
 # Azure Tools
 "pipx:azure-cli" = "latest"
 "vfox:mise-plugins/vfox-azure-functions-core-tools" = "latest"
+# AI agent CLIs (generated from .chezmoidata/ai-agents.yaml -- edit that file, not here)
+{{- range $name, $agent := .aiAgents }}
+{{- if $agent.install }}
+"{{ $agent.install.mise.backend }}:{{ $agent.install.mise.package }}" = "latest" # {{ $name }}
+{{- end }}
+{{- end }}
 # AI Tools (generated from .chezmoidata/ai-tools.yaml -- edit that file, not here)
 {{- range $name, $tool := .aiTools.package }}
 "{{ $tool.mise.backend }}:{{ $tool.mise.package }}" = "latest" # {{ $name }}
