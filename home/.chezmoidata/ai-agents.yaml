@@ -1,0 +1,74 @@
+# AI agent registry: one entry per coding agent (CLI) this setup can target.
+# ai-tools.yaml says WHAT to install; this file says HOW each agent receives it.
+# To add an agent, add one entry here -- no script or template needs touching
+# unless the agent needs a brand-new mcp.method (see docs/pages/ai-tools.md).
+#
+# Every ai-tools.yaml entry may list `agents: [claude, codex]`; omit it to
+# target every agent declared here.
+#
+# Per-agent fields
+#   displayName   human label used in script output
+#   cli           binary the sync script probes with `command -v` / Get-Command
+#   install       optional { mise: { backend, package } } -- installs the CLI
+#                 itself via mise. Omit when the CLI is installed elsewhere
+#                 (apps.yaml, a native installer, ...).
+#   mcp.method    how MCP servers reach the agent:
+#                   claude-cli  -- `claude mcp add-json --scope user`
+#                   vscode-json -- the managed VS Code mcp.json
+#                   codex-toml  -- a managed block in mcp.file (TOML)
+#                   none        -- the agent gets no MCP servers from here
+#   mcp.file      (codex-toml) config file, relative to $HOME
+#   plugins       { supported: true } -- agent has `<cli> plugin marketplace add`
+#                 / `<cli> plugin install`. A plugin entry targets it through a
+#                 subkey named after the agent (plugin.<name>.<agent>).
+#   skills.cliAgent  value for `npx skills add --agent` ("" = not supported)
+#   skills.dir       where custom skills are copied, relative to $HOME
+#   skills.agentsDir where custom agents are copied, relative to $HOME
+#                    ("" = the agent has no user-level agents directory)
+#   skills.manifest  optional file, relative to $HOME, that lists installed
+#                    custom skills; updated if present
+
+aiAgents:
+  claude:
+    displayName: Claude Code
+    cli: claude
+    mcp:
+      method: claude-cli
+    plugins:
+      supported: true
+    skills:
+      cliAgent: claude-code
+      dir: .claude/skills
+      agentsDir: .claude/agents
+      manifest: ""
+
+  copilot:
+    displayName: GitHub Copilot
+    cli: copilot
+    mcp:
+      method: vscode-json
+    plugins:
+      supported: true
+    skills:
+      cliAgent: github-copilot
+      dir: .agents/skills
+      agentsDir: ""
+      manifest: .agents/.copilot-for-azure-skills-manifest.json
+
+  codex:
+    displayName: OpenAI Codex
+    cli: codex
+    install:
+      mise:
+        backend: npm
+        package: "@openai/codex"
+    mcp:
+      method: codex-toml
+      file: .codex/config.toml
+    plugins:
+      supported: false
+    skills:
+      cliAgent: codex
+      dir: .codex/skills
+      agentsDir: ""
+      manifest: ""

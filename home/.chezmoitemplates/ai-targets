@@ -1,0 +1,16 @@
+{{- /*
+  Does an aiTools entry target an agent? Prints "true" or nothing.
+  Call with: {{ if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents) }}
+
+  An entry with no `agents` list targets every agent in ai-agents.yaml. A name
+  in `agents` that ai-agents.yaml does not define fails the render, so a typo
+  is an error rather than a tool that silently installs nowhere.
+*/ -}}
+{{- $all := keys .agents | sortAlpha -}}
+{{- range $listed := .tool.agents -}}
+  {{- if not (has $listed $all) -}}
+    {{- fail (printf "ai-tools.yaml names agent %q but ai-agents.yaml only defines: %s" $listed (join ", " $all)) -}}
+  {{- end -}}
+{{- end -}}
+{{- $targets := .tool.agents | default $all -}}
+{{- if has .agent $targets -}}true{{- end -}}

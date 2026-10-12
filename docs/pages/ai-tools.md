@@ -5,11 +5,18 @@ title: AI Tools
 # AI Tools (`ai-tools.yaml`)
 
 A data-driven workflow for adding and managing AI developer tools — MCP servers,
-Claude/Copilot plugins, skills, agents, and package-manager CLIs — the same way
+plugins, skills, agents, and package-manager CLIs — across any number of AI coding
+agents (Claude Code, GitHub Copilot, OpenAI Codex, …), the same way
 [`apps.yaml`](scripts.md) manages applications.
 
-Everything is declared in **`home/.chezmoidata/ai-tools.yaml`**. Edit that file and
-run `chezmoi apply` — nothing else needs touching.
+Two files drive it:
+
+| File | Answers |
+|------|---------|
+| **`home/.chezmoidata/ai-tools.yaml`** | *What* to install: MCP servers, plugins, skills, packages |
+| **`home/.chezmoidata/ai-agents.yaml`** | *How each agent* receives things: its CLI, how MCP servers reach it, where skills go |
+
+Edit those files and run `chezmoi apply` — nothing else needs touching.
 
 ## How it works
 
@@ -17,14 +24,61 @@ run `chezmoi apply` — nothing else needs touching.
 
 | Mechanism | Handles |
 |-----------|---------|
-| **chezmoi templates** | package tools → mise config (`~/.config/mise/config.toml`); Copilot MCP servers → VS Code `mcp.json` (next to `settings.json`) |
-| **`run_onchange_after_04-sync-ai-tools` script** (per-OS: PowerShell + bash) | imperative installs: Claude MCP registration, plugin installs, published skill installs (`npx skills add`), custom skill/agent copy, package post-install steps |
+| **chezmoi templates** | package tools and agent CLIs → mise config (`~/.config/mise/config.toml`); `vscode-json` agents' MCP servers → VS Code `mcp.json` (next to `settings.json`) |
+| **`run_onchange_after_04-sync-ai-tools` script** (per-OS: PowerShell + bash) | imperative installs: MCP registration, plugin installs, published skill installs (`npx skills add`), custom skill/agent copy, package post-install steps |
 
 The sync script inlines the tool list from `ai-tools.yaml` at render time (like
 `run_onchange_02-install-apps`), so it re-runs automatically whenever the data
 changes. Every external command it runs is **best-effort**: if a CLI (`claude`,
-`copilot`, …) isn't installed yet, it logs a follow-up note and moves on — a missing
+`codex`, …) isn't installed yet, it logs a follow-up note and moves on — a missing
 tool never fails `chezmoi apply`.
+
+## Agents (`ai-agents.yaml`)
+
+One entry per agent. The sync script and templates never name an agent; they
+loop over this registry, so **adding an agent is one new entry** — no script
+edits for any agent whose needs fit the existing options below.
+
+```yaml
+aiAgents:
+  codex:
+    displayName: OpenAI Codex
+    cli: codex                      # binary probed before CLI-based installs
+    install:                        # optional: install the CLI itself via mise
+      mise: { backend: npm, package: "@openai/codex" }
+    mcp:
+      method: codex-toml            # claude-cli | vscode-json | codex-toml | none
+      file: .codex/config.toml      # (codex-toml) relative to $HOME
+    plugins:
+      supported: false              # has `<cli> plugin marketplace add` / `plugin install`?
+    skills:
+      cliAgent: codex               # `npx skills add --agent <this>` ("" = unsupported)
+      dir: .codex/skills            # custom skills are copied here (relative to $HOME)
+      agentsDir: ""                 # custom agents are copied here ("" = none)
+      manifest: ""                  # optional skills manifest to update (relative to $HOME)
+```
+
+| `mcp.method` | What happens |
+|--------------|--------------|
+| `claude-cli` | `claude mcp add-json --scope user` (best-effort; skipped if the CLI is missing) |
+| `vscode-json` | the server is written to the managed VS Code `mcp.json` (Copilot reads it from there) |
+| `codex-toml` | the servers are rendered as `[mcp_servers.<name>]` tables inside a marker-delimited block (`# BEGIN/END chezmoi ai-tools mcp`) in `mcp.file`. Everything else in that file — Codex stores trust levels there — is left alone. `type` is dropped and `headers` becomes `http_headers`. |
+| `none` | the agent receives no MCP servers from here |
+
+Define an MCP server in a way the existing methods can't express (a different
+config format, say) by adding one branch for the new `mcp.method` in each of the
+two sync scripts and a rendering template if needed — everything else stays data.
+
+### Adding an agent
+
+1. Add its entry to `ai-agents.yaml`.
+2. Run `chezmoi apply`. Every tool in `ai-tools.yaml` with no `agents:` list now
+   targets it automatically, and its CLI is installed if `install:` is set.
+3. Optional: a `plugin` entry gains support by declaring a subkey named after the
+   agent (and the agent needs `plugins.supported: true`).
+
+A misspelled agent name in an `agents:` list fails the render with the list of
+valid names, rather than silently installing nowhere.
 
 ## The schema
 
@@ -41,30 +95,28 @@ aiTools:
 ```
 
 Every entry may set `forPersonal: false` to skip it on work machines.
-`mcp`, `skill` and `custom` entries also require an `assistant` (`claude`,
-`copilot`, or `both`) field — their single payload has no other way to say
-which CLI(s) it targets. `plugin` entries target a CLI by declaring its
-`claude:`/`copilot:` subkey instead; `package` entries have no per-CLI
-behavior. Neither `plugin` nor `package` entries carry `assistant`.
+`mcp`, `skill` and `custom` entries may set `agents: [claude, codex]` to
+limit which agents (keys of `ai-agents.yaml`) receive them; **omit it to target
+every agent**, including ones added later. `plugin` entries target an agent by
+declaring a subkey named after it; `package` entries have no per-agent
+behavior. Neither `plugin` nor `package` entries carry `agents`.
 
 ### `mcp` — MCP servers
 
-Registered with **Claude** (user scope, via `claude mcp add-json`) and, for
-`copilot`/`both`, written into the managed VS Code **`mcp.json`**. A single
-`config:` dict is used verbatim as the server's JSON for both — any field
-either tool's MCP schema supports just works.
+Delivered to each targeted agent by that agent's `mcp.method` (see
+[Agents](#agents-ai-agentsyaml)). A single `config:` dict, written in the
+Claude/VS Code JSON shape, is the one source for all of them — any field those
+schemas support just works, and the `codex-toml` method translates it for Codex.
 
 ```yaml
   mcp:
     playwright-mcp:
-      assistant: both
       config:
         type: stdio
         command: npx
         args: ["@playwright/mcp@latest"]
 
     context7:
-      assistant: both
       config:
         type: http
         url: "https://mcp.context7.com/mcp"
@@ -83,7 +135,7 @@ mise-managed (`github:DopplerHQ/cli`); authenticate it once per machine
 
 ### `package` — package-manager CLIs
 
-No `assistant` field — package installs aren't per-CLI:
+No `agents` field — package installs aren't per-agent:
 
 ```yaml
   package:
@@ -94,8 +146,8 @@ No `assistant` field — package installs aren't per-CLI:
 
 ### `plugin` — marketplace plugins
 
-No `assistant` field either — a plugin installs for whichever of
-`claude:`/`copilot:` it declares:
+A plugin installs for whichever agents it declares a subkey for (and only
+agents with `plugins.supported: true`):
 
 ```yaml
   plugin:
@@ -110,13 +162,13 @@ Installed with the [skills CLI](https://github.com/vercel-labs/skills), the
 package manager for agent skills:
 
 ```bash
-npx --yes skills add <repo> [--skill <skill>] --agent <claude-code|github-copilot> -g -y
+npx --yes skills add <repo> [--skill <skill>] --agent <skills.cliAgent> -g -y
 ```
 
 ```yaml
   skill:
     brainstorming:
-      assistant: both
+      # agents: [claude, codex]  # optional -- omit for every agent
       repo: obra/superpowers    # <owner>/<repo> on GitHub
       skill: brainstorming      # optional -- omit to install every skill in the repo
 ```
@@ -125,9 +177,9 @@ npx --yes skills add <repo> [--skill <skill>] --agent <claude-code|github-copilo
 |-------|----------|---------|
 | `repo` | yes | `<owner>/<repo>` to install from |
 | `skill` | no | a single skill inside that repo; omit to take them all |
-| `assistant` | yes | `claude` → `--agent claude-code`, `copilot` → `--agent github-copilot`, `both` → one invocation each |
+| `agents` | no | limit to these agents; default is all. Each agent's `skills.cliAgent` is the `--agent` value (`claude-code`, `github-copilot`, `codex`, …) |
 
-The sync script runs one `npx skills add` per assistant, always with `-g`
+The sync script runs one `npx skills add` per targeted agent, always with `-g`
 (user-level, so the skill applies to every project) and `-y` (no prompts, so
 `chezmoi apply` never blocks). If `npx` is missing or an install fails, the
 exact command is printed as a follow-up note instead of failing the apply.
@@ -140,8 +192,8 @@ write yourself.
 ```yaml
   custom:
     my-skill:
-      assistant: both
       kind: skill        # skill | agent
+      # agents: [claude, codex]  # optional -- omit for every agent
 ```
 
 Author the content once under the neutral source directory, then declare it:
@@ -151,13 +203,15 @@ home/dot_ai/skills/<name>/SKILL.md     ->  ~/.ai/skills/<name>/
 home/dot_ai/agents/<name>/             ->  ~/.ai/agents/<name>/
 ```
 
-The sync script **copies** it into each assistant's location (copy, not
-symlink — so it works on Windows without Developer Mode):
+The sync script **copies** it into each targeted agent's location (copy, not
+symlink — so it works on Windows without Developer Mode). The destination comes
+from the agent's `skills.dir` (skills) or `skills.agentsDir` (agents); an agent
+with an empty `agentsDir` simply skips agents. Today:
 
-| kind | Claude | Copilot |
-|------|--------|---------|
-| skill | `~/.claude/skills/<name>` | `~/.agents/skills/<name>` (+ registered in the Copilot skills manifest if present) |
-| agent | `~/.claude/agents/<name>` | — (Copilot agents are extension-defined) |
+| kind | Claude | Copilot | Codex |
+|------|--------|---------|-------|
+| skill | `~/.claude/skills/<name>` | `~/.agents/skills/<name>` (+ registered in its skills manifest if present) | `~/.codex/skills/<name>` |
+| agent | `~/.claude/agents/<name>` | — (Copilot agents are extension-defined) | — |
 
 ## Running it
 
@@ -177,21 +231,22 @@ Verify:
 ```bash
 claude mcp list          # playwright + context7 registered
 mise ls                  # graphifyy + @fission-ai/openspec present
-ls ~/.claude/skills ~/.agents/skills  # installed + custom skills present (Claude + Copilot)
+codex mcp list           # Codex servers from the managed block
+ls ~/.claude/skills ~/.agents/skills ~/.codex/skills  # installed + custom skills present
 ```
 
 ## Starter tools
 
-| Tool | Type | Assistant | Notes |
+| Tool | Type | Agents | Notes |
 |------|------|-----------|-------|
-| playwright-mcp | mcp | both | browser automation |
-| context7 | mcp | both | docs lookup; optional API key |
-| github | mcp | both | GitHub API; needs a PAT |
-| superpowers | plugin | both | skills/workflow bundle |
-| vercel-react-best-practices | skill | both | from `vercel-labs/agent-skills` |
-| web-design-guidelines | skill | both | from `vercel-labs/agent-skills` |
-| graphify | package (pipx) | claude | `graphify install` post-step |
-| openspec | package (npm) | both | per-repo `openspec init` |
+| playwright-mcp | mcp | all | browser automation |
+| context7 | mcp | all | docs lookup; optional API key |
+| github | mcp | all | GitHub API; needs a PAT |
+| superpowers | plugin | claude, copilot | skills/workflow bundle (Codex: no plugin support yet) |
+| vercel-react-best-practices | skill | all | from `vercel-labs/agent-skills` |
+| web-design-guidelines | skill | all | from `vercel-labs/agent-skills` |
+| graphify | package (pipx) | — | `graphify install` post-step |
+| openspec | package (npm) | — | per-repo `openspec init` |
 
 ## Troubleshooting
 

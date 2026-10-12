@@ -51,10 +51,12 @@ All dynamic configuration lives in `home/.chezmoidata/`:
 | File | Purpose |
 |------|---------|
 | `apps.yaml` | App definitions with per-OS install methods (winget/choco/brew) |
+| `ai-tools.yaml` | AI tools to install (MCP servers, plugins, skills, packages); `agents:` limits which agents get one |
+| `ai-agents.yaml` | AI agent registry: per-agent CLI, MCP delivery method, skills/agents directories |
 | `themes.yaml` | Color themes with RGB/hex values (dracular, molokai, mojave_dark) |
 | `vscode-profiles.yaml` | VS Code profiles with per-profile extension lists |
 
-Scripts and templates reference these as `.apps`, `.themes`, and `.vscodeProfiles`. Editing a data file and running `chezmoi apply` is enough to trigger relevant `run_onchange_*` scripts.
+Scripts and templates reference these as `.apps`, `.aiTools`, `.aiAgents`, `.themes`, and `.vscodeProfiles`. Editing a data file and running `chezmoi apply` is enough to trigger relevant `run_onchange_*` scripts.
 
 ### Script Naming Convention
 
