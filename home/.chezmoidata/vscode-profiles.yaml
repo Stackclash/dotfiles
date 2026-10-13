@@ -1,34 +1,36 @@
 vscodeProfiles:
   common_extensions:
-    - alefragnani.project-manager
-    - doppler.doppler-vscode
-    - eamodio.gitlens
-    - editorconfig.editorconfig
-    - github.vscode-pull-request-github
-    - FanaticPythoner.better-todo-tree
-    - jannchie.codetime
-    - github.copilot-chat
-    - dbaeumer.vscode-eslint
+    - alefragnani.project-manager # Project Manager
+    - doppler.doppler-vscode # Doppler
+    - eamodio.gitlens # GitLens
+    - editorconfig.editorconfig # EditorConfig
+    - github.vscode-pull-request-github # GitHub Pull Request
+    - FanaticPythoner.better-todo-tree # Better Todo Tree
+    - jannchie.codetime # Code Time
+    - github.copilot-chat # GitHub Copilot Chat
+    - dbaeumer.vscode-eslint # ESLint
+    - ms-azuretools.vscode-containers # Azure Containers
+    - ms-vscode-remote.remote-containers # Remote Containers
+    - databricks.databricks # Databricks
+    - hverlin.mise-vscode # Mise
+    - HashiCorp.terraform # Terraform
+    - redhat.vscode-yaml # YAML Support
+    - Orta.vscode-jest # Jest
 
   profiles:
     Typescript Azure Functions:
       extensions:
-        - ms-azuretools.vscode-azurefunctions
-        - ms-azuretools.vscode-azureresourcegroups
-        - humao.rest-client
-        - redhat.vscode-yaml
+        - humao.rest-client # REST Client
+        - ms-vscode.vscode-node-azure-pack # Node Azure Pack
 
     Typescript NestJS API:
       extensions:
-        - humao.rest-client
-        - Orta.vscode-jest
-        - AbhijoyBasak.nestjs-files
-        - ms-azuretools.vscode-containers
-        - redhat.vscode-yaml
+        - humao.rest-client # REST Client
+        - AbhijoyBasak.nestjs-files # NestJS Files
 
     Typescript NextJS React UI:
       extensions:
-        - bradlc.vscode-tailwindcss
-        - dsznajder.es7-react-js-snippets
-        - formulahendry.auto-rename-tag
-        - vincaslt.highlight-matching-tag
+        - bradlc.vscode-tailwindcss # Tailwind CSS
+        - dsznajder.es7-react-js-snippets # ES7 React/Redux/GraphQL/React-Native snippets
+        - formulahendry.auto-rename-tag # Auto Rename Tag
+        - vincaslt.highlight-matching-tag # Highlight Matching Tag

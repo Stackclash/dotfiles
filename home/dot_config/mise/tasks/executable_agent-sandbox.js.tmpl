@@ -1,0 +1,240 @@
+#!/usr/bin/env node
+//MISE description="Update, build and launch the code-only Agent Sandbox for the current project"
+//MISE dir="{{ "{{cwd}}" }}"
+//USAGE flag "--rebuild" help="Force a Docker image rebuild even when it looks current"
+//USAGE flag "--skip-update" help="Skip the git fast-forward and image freshness check"
+//USAGE arg "[directory]" help="Project directory to mount at /workspace (default: current directory)"
+
+const { execFileSync, spawnSync } = require("child_process")
+const { existsSync, readFileSync } = require("fs")
+const os = require("os")
+const path = require("path")
+
+// toJson, not quote: the Windows projectPath contains backslashes that would
+// otherwise be read as JS escape sequences.
+const PROJECTS_PATH = {{ .projectPath | toJson }}
+
+const REPO_PATH = path.join(PROJECTS_PATH, "Work", "biae-agent-container")
+const LAUNCHER_PATH = path.join(REPO_PATH, "agent-sandbox")
+const IS_WINDOWS = os.platform() === "win32"
+
+// Records which commit an image was built from, so a stale image is detected
+// after a pull. Deliberately not an org-namespaced label: this tag is only ever
+// built locally and never published.
+const SOURCE_COMMIT_LABEL = "local.agent-sandbox.source-commit"
+
+const asFlag = (name) => /^(1|true|yes)$/i.test(process.env[name] || "")
+const REBUILD = asFlag("usage_rebuild")
+const SKIP_UPDATE = asFlag("usage_skip_update")
+const PROJECT_DIR = path.resolve(process.env.usage_directory || process.cwd())
+
+function fail(message, ...details) {
+  console.error(`❌ ${message}`)
+  for (const detail of details) console.error(`   ${detail}`)
+  process.exit(1)
+}
+
+function run(command, args, options = {}) {
+  return execFileSync(command, args, { encoding: "utf-8", ...options }).trim()
+}
+
+function tryRun(command, args, options = {}) {
+  try {
+    return run(command, args, { stdio: ["ignore", "pipe", "ignore"], ...options })
+  } catch {
+    return null
+  }
+}
+
+const git = (...args) => run("git", ["-C", REPO_PATH, ...args])
+const tryGit = (...args) => tryRun("git", ["-C", REPO_PATH, ...args])
+
+// --- Locate the repository and read the launcher's own constants ------------
+// Release and image tag are parsed from agent-sandbox rather than duplicated
+// here. The launcher refuses to start when the image label and its
+// SANDBOX_RELEASE disagree, so these must track it exactly.
+
+if (!existsSync(LAUNCHER_PATH)) {
+  fail(
+    `Agent Sandbox launcher not found at ${LAUNCHER_PATH}`,
+    `Clone SSMHealth/biae-agent-container into ${path.join(PROJECTS_PATH, "Work")} and retry.`,
+  )
+}
+
+const launcherSource = readFileSync(LAUNCHER_PATH, "utf-8")
+
+function launcherConstant(name) {
+  const match = launcherSource.match(new RegExp(`^${name}="([^"]+)"`, "m"))
+  if (!match) fail(`Could not read ${name} from ${LAUNCHER_PATH}`)
+  return match[1]
+}
+
+const SANDBOX_RELEASE = launcherConstant("SANDBOX_RELEASE")
+const IMAGE = launcherConstant("DEFAULT_SANDBOX_IMAGE")
+
+// --- 1. Fast-forward the sandbox repository ---------------------------------
+// Never touches work in progress: a dirty tree or a non-main branch is a
+// warning, not an error, because this repo is also one Richard develops in.
+
+function updateRepository() {
+  const branch = tryGit("rev-parse", "--abbrev-ref", "HEAD")
+  const dirty = tryGit("status", "--porcelain")
+
+  if (branch !== "main") {
+    console.log(`⚠️  biae-agent-container is on branch '${branch}' — skipping pull`)
+    return
+  }
+  if (dirty) {
+    const count = dirty.split("\n").length
+    console.log(`⚠️  biae-agent-container has ${count} uncommitted change(s) — skipping pull`)
+    return
+  }
+
+  console.log("⬇️  Fetching biae-agent-container...")
+  try {
+    git("fetch", "--quiet", "origin", "main")
+  } catch (error) {
+    console.log(`⚠️  Fetch failed (${error.message.trim()}) — continuing with the current checkout`)
+    return
+  }
+
+  const before = git("rev-parse", "HEAD")
+  try {
+    git("merge", "--ff-only", "origin/main")
+  } catch {
+    console.log("⚠️  Cannot fast-forward main — continuing with the current checkout")
+    return
+  }
+  const after = git("rev-parse", "HEAD")
+
+  if (before === after) {
+    console.log("✅ Already up to date")
+  } else {
+    console.log(`✅ Updated ${before.slice(0, 7)} → ${after.slice(0, 7)}`)
+  }
+}
+
+// --- 2. Rebuild the image only when it is actually stale --------------------
+
+function imageLabel(label) {
+  return tryRun("docker", [
+    "image", "inspect", "--format", `{{ "{{" }} index .Config.Labels "${label}" {{ "}}" }}`, IMAGE,
+  ])
+}
+
+function buildReason() {
+  if (REBUILD) return "--rebuild requested"
+
+  const version = imageLabel("org.opencontainers.image.version")
+  if (version === null) return `image ${IMAGE} is not built yet`
+  if (version !== SANDBOX_RELEASE) {
+    return `image release '${version}' does not match launcher release '${SANDBOX_RELEASE}'`
+  }
+
+  const head = tryGit("rev-parse", "HEAD")
+  const builtFrom = imageLabel(SOURCE_COMMIT_LABEL)
+  if (!builtFrom) return "image has no recorded source commit"
+  if (head && builtFrom !== head) {
+    return `image was built from ${builtFrom.slice(0, 7)}, HEAD is ${head.slice(0, 7)}`
+  }
+
+  // A dirty tree may contain changes to files the Dockerfile copies in, and
+  // nothing in the image records them. Rebuild rather than guess; Docker's
+  // layer cache makes this cheap when no copied file actually changed.
+  if (tryGit("status", "--porcelain")) return "working tree has uncommitted changes"
+
+  return null
+}
+
+function buildImage(reason) {
+  console.log(`🔨 Building ${IMAGE} (${reason})`)
+  const head = tryGit("rev-parse", "HEAD") || "unknown"
+  const result = spawnSync("docker", [
+    "build",
+    "--build-arg", `SANDBOX_RELEASE=${SANDBOX_RELEASE}`,
+    "--label", `${SOURCE_COMMIT_LABEL}=${head}`,
+    "--tag", IMAGE,
+    REPO_PATH,
+  ], { stdio: "inherit" })
+
+  if (result.status !== 0) fail(`docker build failed (exit ${result.status})`)
+  console.log(`✅ Built ${IMAGE} at release ${SANDBOX_RELEASE}`)
+}
+
+// --- 3. Launch the sandbox --------------------------------------------------
+// agent-sandbox is a Bash script. On Windows it needs Git Bash specifically:
+// it uses cygpath and MSYS_NO_PATHCONV, and it reuses the Windows Databricks
+// CLI and its container-oauth token cache. WSL's bash would see neither.
+
+function resolveGitBash() {
+  const override = process.env.AGENT_SANDBOX_BASH
+  if (override) {
+    if (!existsSync(override)) fail(`AGENT_SANDBOX_BASH does not exist: ${override}`)
+    return override
+  }
+
+  const candidates = []
+  const gitExe = tryRun("where", ["git.exe"])
+  if (gitExe) {
+    // git.exe lives at <install root>/cmd/git.exe or <install root>/bin/git.exe
+    const installRoot = path.dirname(path.dirname(gitExe.split(/\r?\n/)[0].trim()))
+    candidates.push(path.join(installRoot, "bin", "bash.exe"))
+  }
+  candidates.push(
+    "C:\\Program Files\\Git\\bin\\bash.exe",
+    "C:\\Program Files (x86)\\Git\\bin\\bash.exe",
+    path.join(process.env.LOCALAPPDATA || "", "Programs", "Git", "bin", "bash.exe"),
+  )
+
+  for (const candidate of candidates) {
+    // Skip System32\bash.exe: that is the WSL launcher, not Git Bash.
+    if (/system32/i.test(candidate)) continue
+    if (existsSync(candidate)) return candidate
+  }
+
+  fail(
+    "Git Bash was not found.",
+    "Install Git for Windows, or set AGENT_SANDBOX_BASH to your bash.exe.",
+  )
+}
+
+function launch() {
+  // Git Bash accepts drive-letter paths with forward slashes; backslashes
+  // would be read as shell escapes.
+  const toShellPath = (value) => (IS_WINDOWS ? value.replace(/\\/g, "/") : value)
+
+  console.log(`🚀 Launching Agent Sandbox with ${PROJECT_DIR} mounted at /workspace`)
+
+  const result = IS_WINDOWS
+    ? spawnSync(
+        resolveGitBash(),
+        [toShellPath(LAUNCHER_PATH), toShellPath(PROJECT_DIR)],
+        { stdio: "inherit" },
+      )
+    : spawnSync(LAUNCHER_PATH, [PROJECT_DIR], { stdio: "inherit" })
+
+  if (result.error) fail(`Could not start Agent Sandbox: ${result.error.message}`)
+  if (result.status !== 0) {
+    console.error(`\n⚠️  Agent Sandbox exited with status ${result.status}`)
+    console.error(`   Check host readiness with: ${toShellPath(LAUNCHER_PATH)} doctor`)
+  }
+  process.exit(result.status === null ? 1 : result.status)
+}
+
+// --- Main -------------------------------------------------------------------
+
+if (!existsSync(PROJECT_DIR)) fail(`Project directory does not exist: ${PROJECT_DIR}`)
+
+if (SKIP_UPDATE) {
+  console.log("⏭️  Skipping update and freshness checks")
+} else {
+  updateRepository()
+  const reason = buildReason()
+  if (reason) {
+    buildImage(reason)
+  } else {
+    console.log(`✅ ${IMAGE} is current at release ${SANDBOX_RELEASE}`)
+  }
+}
+
+launch()
