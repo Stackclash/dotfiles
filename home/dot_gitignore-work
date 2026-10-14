@@ -1,0 +1,7 @@
+.claude/
+.github/prompts/**/*
+.github/skills/**/*
+openspec/**/*
+graphify-out/
+CLAUDE.md
+.agents/**/*

@@ -56,13 +56,13 @@ aiTools:
         command: npx
         args:
           - "-y"
-          - "@azure-devops/mcp"
+          - "@azure-devops/mcp@2.8.1"
           - "{{ (dopplerProjectJson).AZURE_ORG }}"
 
   plugin:
     superpowers:
       claude:
-        marketplaceAdd: "anthropics/claude-plugins-official"
+        marketplaceAdd: "obra/superpowers-marketplace"
         install: "superpowers@claude-plugins-official"
       copilot:
         marketplaceAdd: "obra/superpowers-marketplace"

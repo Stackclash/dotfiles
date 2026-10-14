@@ -1,74 +1,16 @@
 {{ template "elevate-powershell" }}
 
-# The Microsoft.WinGet.Client cmdlets do not talk to winget.exe -- they talk to an
-# out-of-process COM server (WindowsPackageManagerServer.exe). When that server cannot
-# be started the cmdlets fail with "Failed to create instance: -2147023174"
-# (0x800706BA, RPC_S_SERVER_UNAVAILABLE) and emit nothing on the success stream, which
-# is indistinguishable from "no such package" unless the error is inspected. The
-# failure arrives as a terminating CmdletInvocationException wrapping a COMException,
-# so it has to be caught rather than collected via -ErrorVariable. The helpers below
-# retry, try to repair the COM server once, and keep "WinGet is broken" separate from
-# "the package does not exist".
+# The Microsoft.WinGet.Client cmdlets talk to an out-of-process COM server
+# (WindowsPackageManagerServer.exe), which cannot be started from an elevated
+# process: every call fails with 0x800706BA ("Failed to create instance") even
+# though the same cmdlets work un-elevated. This script self-elevates, so it drives
+# winget.exe directly, which does work elevated. Exit code 0x8A150014 means WinGet
+# answered and found nothing; any other failure means it did not answer, which must
+# not be read as "no such package".
 
 $WinGetLookupFailures = [System.Collections.Generic.List[string]]::new()
-$WinGetRepairAttempted = $false
-$WinGetServerDown = $false
 $WinGetLookupAttempts = 3
-
-function Get-WinGetErrorKind {
-  # Untyped on purpose: this is handed either an ErrorRecord (from catch) or the
-  # bare exception that -ErrorVariable collects, and a narrower type fails to bind.
-  param($WinGetError)
-
-  # Returns "ServerUnavailable" (the COM server could not be started - worth a
-  # repair), "Com" (some other COM error - the lookup still did not answer, so
-  # it must not be read as "no such package"), or "None".
-  #
-  #   0x800706BA RPC_S_SERVER_UNAVAILABLE   0x800706BE RPC_S_CALL_FAILED
-  #   0x80040154 REGDB_E_CLASSNOTREG        0x8007007E ERROR_MOD_NOT_FOUND
-  $serverHResults = @(-2147023174, -2147023170, -2147221164, -2147024770)
-  $kind = "None"
-
-  if ($WinGetError -is [System.Management.Automation.ErrorRecord]) {
-    $exception = $WinGetError.Exception
-  } else {
-    $exception = $WinGetError -as [System.Exception]
-  }
-
-  # The COM failure is wrapped, so walk the chain: the outer
-  # CmdletInvocationException carries a generic HResult of its own.
-  while ($exception) {
-    if (($exception.HResult -in $serverHResults) -or ($exception.Message -like "*Failed to create instance*")) {
-      return "ServerUnavailable"
-    }
-
-    if ($exception -is [System.Runtime.InteropServices.COMException]) {
-      $kind = "Com"
-    }
-
-    $exception = $exception.InnerException
-  }
-
-  return $kind
-}
-
-function Repair-WinGetComServer {
-  if ($script:WinGetRepairAttempted) { return }
-  $script:WinGetRepairAttempted = $true
-
-  if (-not (Get-Command Repair-WinGetPackageManager -ErrorAction SilentlyContinue)) {
-    Write-Host "  WinGet COM server unreachable and Repair-WinGetPackageManager is unavailable." -ForegroundColor Yellow
-    Write-Host "  Update Microsoft.WinGet.Client to enable automatic repair." -ForegroundColor Yellow
-    return
-  }
-
-  Write-Host "  WinGet COM server unreachable - running Repair-WinGetPackageManager..." -ForegroundColor Yellow
-  try {
-    Repair-WinGetPackageManager -Latest -Force -ErrorAction Stop | Out-Null
-  } catch {
-    Write-Host "  Repair-WinGetPackageManager failed: $($_.Exception.Message)" -ForegroundColor Red
-  }
-}
+$WinGetNotFoundExitCode = -1978335212
 
 function Resolve-WinGetPackageVersion {
   param(
@@ -76,66 +18,34 @@ function Resolve-WinGetPackageVersion {
     [Parameter(Mandatory)][string]$Id
   )
 
-  # Status is one of:
-  #   Found    - Version holds the available (Source=Available) or installed version
-  #   NotFound - WinGet answered, the package is genuinely not there
-  #   Failed   - WinGet never answered; the result says nothing about the package
-  #
-  # A repair that did not take means the server is not coming back during this
-  # run, so stop paying the retry and stack-trace cost for every later package.
-  if ($script:WinGetServerDown) {
-    return [PSCustomObject]@{ Status = "Failed"; Version = $null }
-  }
-
+  # Status is Found (Version set), NotFound, or Failed (WinGet never answered).
   for ($attempt = 1; $attempt -le $script:WinGetLookupAttempts; $attempt++) {
-    $errorKind = "None"
-
-    # Two error channels to cover: SilentlyContinue quietly absorbs the ordinary
-    # non-terminating "nothing matched", while try/catch takes the terminating COM
-    # failures that SilentlyContinue neither suppresses nor collects.
-    try {
-      $version = $null
-      $lookupErrors = $null
-
-      if ($Source -eq "Available") {
-        $package = Find-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction SilentlyContinue -ErrorVariable lookupErrors | Select-Object -First 1
-        $version = $package.Version
-      } else {
-        $package = Get-WinGetPackage -MatchOption Equals -Id $Id -ErrorAction SilentlyContinue -ErrorVariable lookupErrors | Select-Object -First 1
-        $version = $package.InstalledVersion
-      }
-
-      if ($version) {
-        return [PSCustomObject]@{ Status = "Found"; Version = $version }
-      }
-
-      # Nothing matched, which is only trustworthy if nothing went wrong getting
-      # there. A COM error on the way makes the empty result meaningless.
-      foreach ($record in $lookupErrors) {
-        $recordKind = Get-WinGetErrorKind $record
-        if ($recordKind -ne "None") { $errorKind = $recordKind }
-      }
-
-      if ($errorKind -eq "None") {
-        return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
-      }
-    } catch {
-      # Only terminating errors land here, so the lookup never ran to completion.
-      # Whatever it was, it is not evidence that the package is absent - an
-      # unrecognised error still has to fall through to Failed, never NotFound.
-      $errorKind = Get-WinGetErrorKind $_
+    if ($Source -eq "Available") {
+      $lines = winget search --id $Id --exact --accept-source-agreements 2>&1
+    } else {
+      $lines = winget list --id $Id --exact --accept-source-agreements 2>&1
     }
 
-    if ($attempt -lt $script:WinGetLookupAttempts) {
-      if ($errorKind -eq "ServerUnavailable") { Repair-WinGetComServer }
-      Start-Sleep -Seconds ($attempt * 3)
+    if ($LASTEXITCODE -eq 0) {
+      foreach ($line in $lines) {
+        $tokens = "$line" -split "\s+"
+        $idIndex = [array]::FindIndex($tokens, [Predicate[string]]{ param($t) $t -ieq $Id })
+        if (($idIndex -ge 0) -and ($idIndex + 1 -lt $tokens.Count)) {
+          return [PSCustomObject]@{ Status = "Found"; Version = $tokens[$idIndex + 1] }
+        }
+      }
+      return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
     }
+
+    if ($LASTEXITCODE -eq $script:WinGetNotFoundExitCode) {
+      return [PSCustomObject]@{ Status = "NotFound"; Version = $null }
+    }
+
+    if ($attempt -lt $script:WinGetLookupAttempts) { Start-Sleep -Seconds ($attempt * 3) }
   }
 
-  if ($script:WinGetRepairAttempted) { $script:WinGetServerDown = $true }
   return [PSCustomObject]@{ Status = "Failed"; Version = $null }
 }
-
 {{ $workComputer := .workComputer -}}
 {{- range $key, $app := .apps -}}
 
@@ -152,7 +62,7 @@ if (($Available.Status -eq "Failed") -or ($Installed.Status -eq "Failed")) {
 } elseif ($Installed.Status -eq "Found") {
   if (($Available.Status -eq "Found") -and ($Available.Version -ne $Installed.Version) -and ($Available.Version -ne "Unknown")) {
     Write-Host "Updating from $($Installed.Version) to $($Available.Version) via WinGet..." -ForegroundColor Green
-    Update-WinGetPackage -Mode Silent -MatchOption Equals -Id "{{ $app.windows.id }}"
+    winget upgrade --id "{{ $app.windows.id }}" --exact --silent --accept-package-agreements --accept-source-agreements
   } else {
     Write-Host "No update required" -ForegroundColor Yellow
   }
@@ -160,7 +70,7 @@ if (($Available.Status -eq "Failed") -or ($Installed.Status -eq "Failed")) {
   Write-Host "Does not exist in WinGet" -ForegroundColor Red
 } else {
   Write-Host "Installing {{ $app.windows.id }} via WinGet..." -ForegroundColor Green
-  Install-WinGetPackage -Mode Silent -MatchOption Equals -Id "{{ $app.windows.id }}"
+  winget install --id "{{ $app.windows.id }}" --exact --silent --accept-package-agreements --accept-source-agreements
 }
 
 {{- else if eq $app.windows.method "choco" }}
@@ -196,8 +106,6 @@ if ($WinGetLookupFailures.Count -gt 0) {
     Write-Host "  - $failedId" -ForegroundColor Red
   }
   Write-Host ""
-  Write-Host "This is the WinGet COM server (WindowsPackageManagerServer.exe) failing to start," -ForegroundColor Yellow
-  Write-Host "not a missing package. Sign out and back in (or reboot) so App Installer re-registers," -ForegroundColor Yellow
-  Write-Host "then run 'chezmoi apply' again." -ForegroundColor Yellow
+  Write-Host "winget.exe did not answer. Check 'winget source update' and run 'chezmoi apply' again." -ForegroundColor Yellow
   exit 1
 }
