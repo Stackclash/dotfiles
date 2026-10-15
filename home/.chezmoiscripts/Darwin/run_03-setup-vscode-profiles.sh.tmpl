@@ -34,6 +34,40 @@ get_profile_extensions() {
     esac
 }
 
+# Prints declared extensions plus their extensionPack / extensionDependencies
+# members (recursively), one lowercase id per line, so bundle members aren't
+# treated as undeclared. Uses plutil (always present on macOS) to read JSON.
+get_protected_extensions() {
+    local ext_dir="$HOME/.vscode/extensions"
+    local -a queue=("$@")
+    local seen=$'\n' id lid dir pkg key members m
+
+    while ((${#queue[@]} > 0)); do
+        id="${queue[0]}"
+        queue=("${queue[@]:1}")
+        [[ -z "$id" ]] && continue
+        lid="$(tr '[:upper:]' '[:lower:]' <<< "$id")"
+        [[ "$seen" == *$'\n'"$lid"$'\n'* ]] && continue
+        seen+="$lid"$'\n'
+
+        dir=""
+        for d in "$ext_dir"/*/; do
+            [[ "$(tr '[:upper:]' '[:lower:]' <<< "$(basename "$d")")" =~ ^"$lid"-[0-9] ]] && { dir="$d"; break; }
+        done
+        pkg="${dir}package.json"
+        [[ -n "$dir" && -f "$pkg" ]] || continue
+
+        for key in extensionPack extensionDependencies; do
+            members="$(plutil -extract "$key" json -o - "$pkg" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' || true)"
+            while IFS= read -r m; do
+                [[ -n "$m" ]] && queue+=("$m")
+            done <<< "$members"
+        done
+    done
+
+    printf '%s' "$seen" | sed '/^$/d'
+}
+
 echo "VS Code Extension Sync"
 echo "------------------------"
 
@@ -61,18 +95,11 @@ done
 
 if [[ "$REMOVE_EXTRA" == true ]]; then
     echo "Checking for extensions to remove..."
+    protected="$(get_protected_extensions "${common_extensions[@]}")"
     while IFS= read -r ext; do
         [[ -z "$ext" ]] && continue
 
-        keep=false
-        for desired in "${common_extensions[@]}"; do
-            if [[ "$desired" == "$ext" ]]; then
-                keep=true
-                break
-            fi
-        done
-
-        if [[ "$keep" == false ]]; then
+        if ! grep -Fxiq -- "$ext" <<< "$protected"; then
             echo "  - Removing: $ext"
             if ! code --uninstall-extension "$ext" >/dev/null; then
                 echo "  Failed to remove $ext"
@@ -123,18 +150,11 @@ for profile in "${profile_names[@]}"; do
     # Optionally remove extensions that are not declared for this profile
     if [[ "$REMOVE_EXTRA" == true ]]; then
         echo "Checking for extensions to remove..."
+        protected="$(get_protected_extensions "${desired_extensions[@]}")"
         while IFS= read -r ext; do
             [[ -z "$ext" ]] && continue
 
-            keep=false
-            for desired in "${desired_extensions[@]}"; do
-                if [[ "$desired" == "$ext" ]]; then
-                    keep=true
-                    break
-                fi
-            done
-
-            if [[ "$keep" == false ]]; then
+            if ! grep -Fxiq -- "$ext" <<< "$protected"; then
                 echo "  - Removing: $ext"
                 if ! code --uninstall-extension "$ext" --profile "$profile" >/dev/null; then
                     echo "  Failed to remove $ext"

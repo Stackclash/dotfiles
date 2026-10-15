@@ -37,6 +37,32 @@ $Profiles = @{
 {{- end }}
 }
 
+# Expands declared extensions with their extensionPack / extensionDependencies
+# members (recursively) so bundle members aren't treated as undeclared.
+function Get-ProtectedExtensions($declared) {
+    $extDir = Join-Path $env:USERPROFILE ".vscode\extensions"
+    $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::OrdinalIgnoreCase)
+    $queue = [System.Collections.Generic.Queue[string]]::new()
+    foreach ($d in $declared) { $queue.Enqueue($d) }
+    while ($queue.Count -gt 0) {
+        $id = $queue.Dequeue()
+        if (-not $seen.Add($id)) { continue }
+        $pattern = '^' + [regex]::Escape($id) + '-\d'
+        $dir = Get-ChildItem $extDir -Directory -ErrorAction SilentlyContinue |
+            Where-Object { $_.Name -match $pattern } | Select-Object -First 1
+        if (-not $dir) { continue }
+        $pkgPath = Join-Path $dir.FullName "package.json"
+        if (-not (Test-Path $pkgPath)) { continue }
+        try {
+            $pkg = Get-Content $pkgPath -Raw | ConvertFrom-Json
+            foreach ($m in (@($pkg.extensionPack) + @($pkg.extensionDependencies))) {
+                if ($m) { $queue.Enqueue($m) }
+            }
+        } catch {}
+    }
+    return , $seen
+}
+
 Write-Host "VS Code Extension Sync"
 Write-Host "------------------------"
 
@@ -71,8 +97,9 @@ foreach ($ext in $CommonExtensions) {
 
 if ($RemoveExtra) {
     Write-Host "Checking for extensions to remove..."
+    $protected = Get-ProtectedExtensions $CommonExtensions
     foreach ($ext in $installedExtensions) {
-        if ($CommonExtensions -notcontains $ext) {
+        if (-not $protected.Contains($ext)) {
             Write-Host "  - Removing: $ext"
             try {
                 code --uninstall-extension $ext | Out-Null
@@ -126,8 +153,9 @@ foreach ($profileName in $Profiles.Keys) {
     # Optionally remove extra extensions
     if ($RemoveExtra) {
         Write-Host "Checking for extensions to remove..."
+        $protected = Get-ProtectedExtensions $desiredExtensions
         foreach ($ext in $installedExtensions) {
-            if ($desiredExtensions -notcontains $ext) {
+            if (-not $protected.Contains($ext)) {
                 Write-Host "  - Removing: $ext"
                 try {
                     code --uninstall-extension $ext --profile "$profileName" | Out-Null

@@ -1,0 +1,341 @@
+#!/bin/bash
+# -------------------------------------------------------
+# AI Tools Sync (bash, templated)
+# Installs/updates AI tools declared in .chezmoidata/ai-tools.yaml for every
+# agent declared in .chezmoidata/ai-agents.yaml (an entry with no `agents:`
+# list targets all of them). Nothing in this script names an agent: where a
+# tool goes and how is read from the agent's registry entry.
+#   aiTools.mcp     -> registers the server per the agent's mcp.method
+#                      (claude-cli | vscode-json | codex-toml)
+#   aiTools.plugin  -> adds the marketplace + installs the plugin (plugins.supported agents)
+#   aiTools.skill   -> installs a published skill via `npx skills add --agent <skills.cliAgent>`
+#   aiTools.package -> runs any postInstall step (the package itself is handled by mise)
+#   aiTools.custom  -> copies your authored skill/agent from ~/.ai into each agent's skills.dir / skills.agentsDir
+# forPersonal-skipped tools are reported, never installed.
+# vscode-json MCP servers are provided via the managed VS Code mcp.json instead.
+#
+# Output is grouped as category -> item -> one status line per agent. Child
+# command output is captured, not echoed; failures show the last line inline
+# and a manual retry command under "Follow-ups".
+#
+# Not elevated — MCPs/skills must register for the current user.
+# Every external command is best-effort so `chezmoi apply` never fails on a
+# not-yet-installed CLI.
+# -------------------------------------------------------
+
+set -u
+# ai-tools.yaml + ai-agents.yaml hash: {{ list .aiTools .aiAgents | toString | sha256sum }}
+NOTES=()
+COUNT_OK=0; COUNT_SKIP=0; COUNT_FAIL=0
+TOML_OK=" "   # space-delimited agent keys whose managed TOML block was written
+add_note() { NOTES+=("$1"); }
+have() { command -v "$1" >/dev/null 2>&1; }
+
+if [ -t 1 ]; then
+  C_CYAN=$'\033[36m'; C_GREEN=$'\033[32m'; C_RED=$'\033[31m'; C_GRAY=$'\033[90m'; C_YELLOW=$'\033[33m'; C_OFF=$'\033[0m'
+else
+  C_CYAN=""; C_GREEN=""; C_RED=""; C_GRAY=""; C_YELLOW=""; C_OFF=""
+fi
+
+# write_category TITLE
+write_category() {
+  local underline; underline="$(printf '%*s' "${#1}" '' | tr ' ' '-')"
+  printf '\n%s%s%s\n%s%s%s\n' "$C_CYAN" "$1" "$C_OFF" "$C_CYAN" "$underline" "$C_OFF"
+}
+
+# write_item NAME [DETAIL]
+write_item() {
+  if [ -n "${2:-}" ]; then printf '  %s %s(%s)%s\n' "$1" "$C_GRAY" "$2" "$C_OFF"
+  else printf '  %s\n' "$1"; fi
+}
+
+# write_status LABEL ok|skip|fail [DETAIL]
+write_status() {
+  local label="$1" status="$2" detail="${3:-}" tag color
+  case "$status" in
+    ok)   tag="[ ok ]"; color="$C_GREEN"; COUNT_OK=$((COUNT_OK + 1)) ;;
+    skip) tag="[skip]"; color="$C_GRAY";  COUNT_SKIP=$((COUNT_SKIP + 1)) ;;
+    *)    tag="[FAIL]"; color="$C_RED";   COUNT_FAIL=$((COUNT_FAIL + 1)) ;;
+  esac
+  [ -n "$detail" ] && detail=" - $detail"
+  printf '    %s%s %s%s%s\n' "$color" "$tag" "$label" "$detail" "$C_OFF"
+}
+
+# last_line OUTPUT -> last non-blank line, trimmed to 100 chars
+last_line() {
+  printf '%s\n' "$1" | awk 'NF { sub(/^[ \t]+/, ""); sub(/[ \t]+$/, ""); l = $0 } END { print (length(l) > 100 ? substr(l, 1, 100) "..." : l) }'
+}
+
+# register_claude_mcp NAME LABEL JSON
+register_claude_mcp() {
+  local name="$1" label="$2" json="$3" out status
+  if ! have claude; then
+    write_status "$label" fail "claude CLI not found"
+    add_note "claude CLI not found - register MCP '$name' later with 'chezmoi apply'."
+    return
+  fi
+  # A template that resolved to nothing (a missing Doppler secret, most often)
+  # renders as "<no value>"; registering that would store a broken server.
+  case "$json" in
+    *"<no value>"*)
+      write_status "$label" fail "config rendered '<no value>'"
+      add_note "MCP '$name' skipped - its config rendered '<no value>', so a template (usually a Doppler secret) did not resolve. Check the secret name in .chezmoidata/ai-tools.yaml, then re-run 'chezmoi apply --force'."
+      return ;;
+  esac
+  claude mcp remove "$name" --scope user >/dev/null 2>&1 || true
+  out="$(claude mcp add-json --scope user "$name" "$json" 2>&1)"; status=$?
+  if [ $status -eq 0 ]; then
+    write_status "$label" ok "registered"
+  else
+    write_status "$label" fail "exit $status: $(last_line "$out")"
+    add_note "Failed to register Claude MCP '$name' (claude mcp add-json exited $status)."
+  fi
+}
+
+# install_plugin NAME LABEL CLI MARKETPLACEADD INSTALL
+install_plugin() {
+  local name="$1" label="$2" cli="$3" mkt="$4" install="$5" out status detail mkt_failed=0
+  if ! have "$cli"; then
+    write_status "$label" fail "$cli not found"
+    add_note "$cli not found - install plugin '$name' later: $cli plugin install $install"
+    return
+  fi
+  if [ -n "$mkt" ] && ! "$cli" plugin marketplace add "$mkt" >/dev/null 2>&1; then mkt_failed=1; fi
+  out="$("$cli" plugin install "$install" 2>&1)"; status=$?
+  if [ $status -eq 0 ]; then write_status "$label" ok "installed"; return; fi
+  detail="exit $status: $(last_line "$out")"
+  [ $mkt_failed -eq 1 ] && detail="$detail (marketplace add '$mkt' also failed)"
+  write_status "$label" fail "$detail"
+  local note="Could not install plugin '$name' for $cli (exit $status) - run manually: $cli plugin install $install"
+  case "$out" in
+    *"os error 5"*|*"Access is denied"*)
+      note="$note. The plugin folder is locked - close your editor and any running $cli session, then re-run 'chezmoi apply --force'." ;;
+  esac
+  add_note "$note"
+}
+
+# install_skill NAME LABEL REPO SKILL AGENT
+install_skill() {
+  local name="$1" label="$2" repo="$3" skill="$4" agent="$5" out status
+  local args=(skills add "$repo")
+  [ -n "$skill" ] && args+=(--skill "$skill")
+  args+=(--agent "$agent" -g -y)
+  local manual="npx --yes ${args[*]}"
+  if ! have npx; then
+    write_status "$label" fail "npx not found"
+    add_note "npx not found - install skill '$name' later: $manual"
+    return
+  fi
+  out="$(npx --yes "${args[@]}" 2>&1)"; status=$?
+  if [ $status -eq 0 ]; then
+    write_status "$label" ok "installed"
+  else
+    write_status "$label" fail "exit $status: $(last_line "$out")"
+    add_note "Could not install skill '$name' for $agent - run manually: $manual"
+  fi
+}
+
+# invoke_postinstall NAME CMD
+invoke_postinstall() {
+  local name="$1" cmd="$2" out status
+  out="$(eval "$cmd" 2>&1)"; status=$?
+  if [ $status -eq 0 ]; then
+    write_status "postInstall: $cmd" ok
+  else
+    write_status "postInstall: $cmd" fail "exit $status: $(last_line "$out")"
+    add_note "postInstall for '$name' failed - run manually: $cmd"
+  fi
+}
+
+# update_skill_manifest NAME MANIFEST   (MANIFEST is relative to $HOME)
+update_skill_manifest() {
+  local name="$1" manifest="$HOME/$2"
+  [ -f "$manifest" ] || return 0
+  if ! have jq; then add_note "jq not found - add '$name' to $manifest manually."; return 0; fi
+  local tmp; tmp="$(mktemp)"
+  if jq --arg s "$name" '.skills = ((.skills // []) + [$s] | unique)' "$manifest" > "$tmp" 2>/dev/null; then
+    mv "$tmp" "$manifest"
+  else
+    rm -f "$tmp"; add_note "Could not update $manifest for '$name'."
+  fi
+}
+
+# copy_custom NAME LABEL KIND DESTDIR MANIFEST
+#   DESTDIR is relative to $HOME and empty when the agent has no such directory.
+copy_custom() {
+  local name="$1" label="$2" kind="$3" destdir="$4" manifest="$5"
+  local sub="skills"; [ "$kind" = "agent" ] && sub="agents"
+  if [ -z "$destdir" ]; then write_status "$label" skip "no user-level $sub directory"; return; fi
+  local src="$HOME/.ai/$sub/$name"
+  if [ ! -d "$src" ]; then
+    write_status "$label" fail "no source at $src"
+    add_note "custom $kind '$name' has no source at $src - author it under home/dot_ai/$sub/$name/."
+    return
+  fi
+  local dest="$HOME/$destdir/$name"
+  if ! { mkdir -p "$(dirname "$dest")" && rm -rf "$dest" && cp -R "$src" "$dest"; } 2>/dev/null; then
+    write_status "$label" fail "could not copy to $dest"
+    add_note "Could not copy custom $kind '$name' to $dest."
+    return
+  fi
+  if [ "$kind" = "skill" ] && [ -n "$manifest" ]; then update_skill_manifest "$name" "$manifest"; fi
+  write_status "$label" ok "copied to ~/$destdir/$name"
+}
+
+# sync_toml_mcp AGENT FILE   (FILE relative to $HOME; TOML table text on stdin)
+# Owns one marker-delimited block in the agent's config file and leaves the rest
+# of the file (Codex keeps trust levels and other state there) untouched.
+# Returns 0 on success.
+sync_toml_mcp() {
+  local agent="$1" file="$HOME/$2" body begin end tmp
+  body="$(cat)"; body="${body#"${body%%[![:space:]]*}"}"
+  begin="# BEGIN chezmoi ai-tools mcp"; end="# END chezmoi ai-tools mcp"
+  case "$body" in
+    *"<no value>"*)
+      add_note "$agent MCP block skipped - a config rendered '<no value>', so a template (usually a Doppler secret) did not resolve. Check the secret names in .chezmoidata/ai-tools.yaml, then re-run 'chezmoi apply --force'."
+      return 1 ;;
+  esac
+  if ! { mkdir -p "$(dirname "$file")" && { [ -f "$file" ] || : > "$file"; }; } 2>/dev/null; then
+    add_note "Could not create $file for the $agent MCP block."
+    return 1
+  fi
+  tmp="$(mktemp)"
+  # Drop any previous managed block, then append the fresh one.
+  # Trailing blank lines are trimmed so repeated runs do not accumulate them.
+  awk -v b="$begin" -v e="$end" '$0==b{skip=1} !skip{print} $0==e{skip=0}' "$file" \
+    | awk '{ if ($0=="") n++; else { for (; n>0; n--) print ""; print } }' > "$tmp"
+  if [ -n "$body" ]; then
+    { [ -s "$tmp" ] && echo ""; echo "$begin"; echo "$body"; echo "$end"; } >> "$tmp"
+  fi
+  if ! mv "$tmp" "$file" 2>/dev/null; then
+    rm -f "$tmp"; add_note "Could not write $agent MCP block to $file."
+    return 1
+  fi
+  return 0
+}
+
+# write_toml_status AGENT LABEL FILE
+write_toml_status() {
+  case "$TOML_OK" in
+    *" $1 "*) write_status "$2" ok "written to ~/$3" ;;
+    *)        write_status "$2" fail "could not write ~/$3" ;;
+  esac
+}
+
+echo "Syncing AI tools"
+{{- $agentNames := keys .aiAgents | sortAlpha }}
+
+# -- MCP servers ----------------------------------------
+write_category "MCP servers"
+{{- range $agentName := $agentNames }}
+{{- $agent := index $.aiAgents $agentName }}
+{{- if eq $agent.mcp.method "codex-toml" }}
+if sync_toml_mcp '{{ $agentName }}' '{{ $agent.mcp.file }}' <<'__AI_TOOLS_MCP_EOF__'
+{{- range $name, $tool := $.aiTools.mcp }}
+{{- if not (and $tool.forPersonal $.workComputer) }}
+{{- if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents) }}
+
+{{ includeTemplate "mcp-server-toml" (dict "name" $name "config" $tool.config) | trim }}
+{{- end }}
+{{- end }}
+{{- end }}
+__AI_TOOLS_MCP_EOF__
+then TOML_OK="${TOML_OK}{{ $agentName }} "; fi
+{{- end }}
+{{- end }}
+{{- range $name, $tool := .aiTools.mcp }}
+{{- if and $tool.forPersonal $.workComputer }}
+write_item '{{ $name }}' 'skipped: personal tool on a work computer'
+{{- else }}
+write_item '{{ $name }}'
+{{- range $agentName := $agentNames }}
+{{- $agent := index $.aiAgents $agentName }}
+{{- if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents) }}
+{{- if eq $agent.mcp.method "claude-cli" }}
+register_claude_mcp '{{ $name }}' '{{ $agent.displayName }}' '{{ includeTemplate "mcp-server-json" $tool.config | replace "'" "'\\''" }}'
+{{- else if eq $agent.mcp.method "vscode-json" }}
+write_status '{{ $agent.displayName }}' ok 'managed VS Code mcp.json'
+{{- else if eq $agent.mcp.method "codex-toml" }}
+write_toml_status '{{ $agentName }}' '{{ $agent.displayName }}' '{{ $agent.mcp.file }}'
+{{- else if ne $agent.mcp.method "none" }}
+write_status '{{ $agent.displayName }}' fail "unknown mcp.method '{{ $agent.mcp.method }}'"
+add_note "{{ $name }}: unknown mcp.method '{{ $agent.mcp.method }}' for {{ $agentName }} - see docs/pages/ai-tools.md."
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+# -- Plugins --------------------------------------------
+write_category "Plugins"
+{{- range $name, $tool := .aiTools.plugin }}
+{{- if and $tool.forPersonal $.workComputer }}
+write_item '{{ $name }}' 'skipped: personal tool on a work computer'
+{{- else }}
+write_item '{{ $name }}'
+{{- range $agentName := $agentNames }}
+{{- $agent := index $.aiAgents $agentName }}
+{{- $entry := get $tool $agentName }}
+{{- if and $agent.plugins.supported $entry }}
+install_plugin '{{ $name }}' '{{ $agent.displayName }}' '{{ $agent.cli }}' '{{ $entry.marketplaceAdd }}' '{{ $entry.install }}'
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+# -- Skills ---------------------------------------------
+write_category "Skills"
+{{- range $name, $tool := .aiTools.skill }}
+{{- if and $tool.forPersonal $.workComputer }}
+write_item '{{ $name }}' 'skipped: personal tool on a work computer'
+{{- else }}
+write_item '{{ $name }}'
+{{- range $agentName := $agentNames }}
+{{- $agent := index $.aiAgents $agentName }}
+{{- if and $agent.skills.cliAgent (includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents)) }}
+install_skill '{{ $name }}' '{{ $agent.displayName }}' '{{ $tool.repo }}' '{{ $tool.skill | default "" }}' '{{ $agent.skills.cliAgent }}'
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+# -- Packages -------------------------------------------
+write_category "Packages"
+{{- range $name, $tool := .aiTools.package }}
+{{- if and $tool.forPersonal $.workComputer }}
+write_item '{{ $name }}' 'skipped: personal tool on a work computer'
+{{- else }}
+write_item '{{ $name }}' 'installed by mise'
+{{- if $tool.postInstall }}
+invoke_postinstall '{{ $name }}' '{{ $tool.postInstall | replace "'" "'\\''" }}'
+{{- end }}
+{{- if $tool.projectNote }}
+add_note '{{ $name }}: {{ $tool.projectNote | replace "'" "'\\''" }}'
+{{- end }}
+{{- end }}
+{{- end }}
+
+# -- Custom skills and agents ---------------------------
+write_category "Custom skills and agents"
+{{- range $name, $tool := .aiTools.custom }}
+{{- if and $tool.forPersonal $.workComputer }}
+write_item '{{ $name }}' 'skipped: personal tool on a work computer'
+{{- else }}
+write_item '{{ $name }}' '{{ $tool.kind }}'
+{{- range $agentName := $agentNames }}
+{{- $agent := index $.aiAgents $agentName }}
+{{- if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents) }}
+copy_custom '{{ $name }}' '{{ $agent.displayName }}' '{{ $tool.kind }}' '{{ if eq $tool.kind "agent" }}{{ $agent.skills.agentsDir }}{{ else }}{{ $agent.skills.dir }}{{ end }}' '{{ $agent.skills.manifest }}'
+{{- end }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+echo ""
+if [ ${#NOTES[@]} -gt 0 ]; then
+  printf '%sFollow-ups%s\n' "$C_YELLOW" "$C_OFF"
+  for n in "${NOTES[@]}"; do echo "  - $n"; done
+  echo ""
+fi
+if [ $COUNT_FAIL -gt 0 ]; then summary_color="$C_RED"; else summary_color="$C_GREEN"; fi
+printf '%sAI tools sync complete: %s ok, %s skipped, %s failed%s\n' "$summary_color" "$COUNT_OK" "$COUNT_SKIP" "$COUNT_FAIL" "$C_OFF"

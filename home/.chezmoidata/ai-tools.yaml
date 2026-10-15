@@ -63,7 +63,7 @@ aiTools:
     superpowers:
       claude:
         marketplaceAdd: "obra/superpowers-marketplace"
-        install: "superpowers@claude-plugins-official"
+        install: "superpowers@superpowers-marketplace"
       copilot:
         marketplaceAdd: "obra/superpowers-marketplace"
         install: "superpowers@superpowers-marketplace"
@@ -96,6 +96,7 @@ aiTools:
         backend: pipx
         package: graphifyy
       postInstall: "graphify install"
+      projectNote: "Run `/graphify .` inside an AI session in each repo to generate graph visualizations of the project's structure." 
 
     openspec:
       mise:
