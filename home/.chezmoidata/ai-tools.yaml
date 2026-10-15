@@ -1,5 +1,6 @@
 # AI developer tools, managed by the AI-tools sync workflow.
-# Mirrors apps.yaml: edit this file and run `chezmoi apply` to add/update tools.
+# Mirrors apps.yaml: edit this file and run `chezmoi apply` to add/update/remove tools
+# (removal covers mcp, plugin, skill and custom -- not package).
 # The run_onchange_after_04-sync-ai-tools script does the work. See
 # docs/pages/ai-tools.md for details.
 #

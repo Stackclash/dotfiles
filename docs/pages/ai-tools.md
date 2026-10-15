@@ -235,6 +235,26 @@ codex mcp list           # Codex servers from the managed block
 ls ~/.claude/skills ~/.agents/skills ~/.codex/skills  # installed + custom skills present
 ```
 
+## Removing tools
+
+Delete an entry from `ai-tools.yaml` and run `chezmoi apply`: the sync script
+uninstalls what it previously installed and no longer finds in the data. It covers
+Claude MCP servers, plugins, skills and custom skills/agents; `package` entries are
+not removed (use `mise uninstall`).
+
+How it works: each run records every tool it targets as a `type|agent-or-method|name|extra` line in
+`~/.local/state/chezmoi-ai-tools.state`. Lines missing from the next run are
+removed (`claude mcp remove`, `<cli> plugin uninstall`, `npx skills remove`, or deleting
+the copied custom directory). A removal that fails stays in the file and is retried on
+the next apply.
+
+- Only tools this script installed are touched. Anything you added by hand is left alone.
+- The first run after upgrading has no state file, so it removes nothing and just starts tracking.
+- Narrowing an entry's `agents:` list also removes it from the dropped agents.
+- Skills with no `skill:` field (whole-repo installs) are not tracked, because their names are unknown.
+- Plugin marketplaces are not removed; run `<cli> plugin marketplace remove <name>` yourself.
+- Codex and Copilot MCP servers need no tracking: their config is regenerated on every apply.
+
 ## Starter tools
 
 | Tool | Type | Agents | Notes |

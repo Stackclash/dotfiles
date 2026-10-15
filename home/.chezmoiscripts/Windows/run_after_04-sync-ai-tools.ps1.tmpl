@@ -26,7 +26,9 @@
 $script:Notes = @()
 $script:Counts = @{ ok = 0; skip = 0; fail = 0 }
 $script:TomlResult = @{}
+$script:Tracked = New-Object System.Collections.Generic.List[string]
 function Add-Note { param([string]$Text) $script:Notes += $Text }
+function Add-Tracked { param([string]$Key) [void]$script:Tracked.Add($Key) }
 function Test-Cmd { param([string]$Name) [bool](Get-Command $Name -ErrorAction SilentlyContinue) }
 
 function Write-Category {
@@ -200,6 +202,20 @@ function Update-SkillManifest {
     } catch { Add-Note "Could not update $path for '$Name'." }
 }
 
+function Remove-SkillManifestEntry {
+    param([string]$Name, [string]$Manifest)   # Manifest is relative to $HOME
+    $path = Join-Path $HOME $Manifest
+    if (-not (Test-Path $path)) { return }
+    try {
+        $json = Get-Content $path -Raw | ConvertFrom-Json
+        $skills = @($json.skills)
+        if ($skills -contains $Name) {
+            $json.skills = @($skills | Where-Object { $_ -ne $Name })
+            $json | ConvertTo-Json -Depth 20 | Set-Content $path
+        }
+    } catch { Add-Note "Could not update $path to drop '$Name'." }
+}
+
 # DestDir is relative to $HOME and empty when the agent has no such directory.
 function Copy-Custom {
     param([string]$Name, [string]$Label, [string]$Kind, [string]$DestDir, [string]$Manifest)
@@ -261,6 +277,78 @@ function Write-TomlStatus {
     else { Write-Status -Label $Label -Status fail -Detail "could not write ~/$File" }
 }
 
+# Removes tools a previous run installed that ai-tools.yaml no longer declares.
+# Every installed item is tracked as a `type|a|b|c` line in a per-machine state
+# file; lines absent from this run are uninstalled. A failed removal stays in
+# the file and is retried next run. No state file (first run) removes nothing.
+function Invoke-Prune {
+    $stateFile = Join-Path $HOME ".local/state/chezmoi-ai-tools.state"
+    $tracked = @($script:Tracked | Sort-Object -Unique)
+    $previous = if (Test-Path $stateFile) { @(Get-Content $stateFile) } else { @() }
+    $gone = 'not found|not installed|no such|does not exist|no mcp server'
+    $kept = @()
+    $shown = $false
+    foreach ($line in $previous) {
+        if (-not "$line".Trim() -or $tracked -contains $line) { continue }
+        $f = "$line".Split('|')
+        if ($f.Count -lt 4) { continue }
+        if (-not $shown) { Write-Category "Cleanup"; $shown = $true }
+        $ok = $false
+        $detail = ""
+        switch ($f[0]) {
+            'mcp' {
+                # f[1] is the agent's mcp.method; only methods that register
+                # per-server through a CLI are tracked (the rest are regenerated).
+                switch ($f[1]) {
+                    'claude-cli' {
+                        if (-not (Test-Cmd "claude")) { $detail = "claude CLI not found"; break }
+                        $r = Invoke-NativeExact -Command "claude" -ArgLine "mcp remove $(ConvertTo-ArgvQuoted $f[2]) --scope user"
+                        $ok = ($r.Code -eq 0) -or ($r.Output -match $gone)
+                        $detail = Get-LastLine $r.Output
+                    }
+                    default { $ok = $true; $detail = "no removal for mcp.method '$($f[1])'" }
+                }
+            }
+            'plugin' {
+                if (-not (Test-Cmd $f[1])) { $detail = "$($f[1]) not found"; break }
+                $out = & $f[1] plugin uninstall $f[2] 2>&1
+                $ok = ($LASTEXITCODE -eq 0) -or (($out | Out-String) -match $gone)
+                $detail = Get-LastLine $out
+            }
+            'skill' {
+                if (-not (Test-Cmd "npx")) { $detail = "npx not found"; break }
+                $out = & npx --yes skills remove $f[2] --agent $f[1] -g -y 2>&1
+                $ok = ($LASTEXITCODE -eq 0) -or (($out | Out-String) -match $gone)
+                $detail = Get-LastLine $out
+            }
+            'custom' {
+                if (-not $f[1] -or -not $f[2] -or $f[1] -match '\.\.' -or $f[2] -match '\.\.|[\\/]') {
+                    $ok = $true; $detail = "ignored unsafe state entry"; break
+                }
+                try {
+                    $target = Join-Path $HOME "$($f[1])/$($f[2])"
+                    if (Test-Path $target) { Remove-Item -Recurse -Force $target }
+                    if ($f[3]) { Remove-SkillManifestEntry -Name $f[2] -Manifest $f[3] }
+                    $ok = $true
+                } catch { $detail = $_.Exception.Message }
+            }
+            default { $ok = $true; $detail = "ignored unknown state entry" }
+        }
+        $label = "$($f[0]) $($f[2]) ($($f[1]))"
+        if ($ok) { Write-Status -Label $label -Status ok -Detail "removed" }
+        else {
+            Write-Status -Label $label -Status fail -Detail $detail
+            Add-Note "Could not remove '$($f[2])' ($($f[0])) - it is no longer in ai-tools.yaml; remove it manually. Retrying next run."
+            $kept += $line
+        }
+    }
+    try {
+        New-Item -ItemType Directory -Force -Path (Split-Path $stateFile -Parent) | Out-Null
+        $all = [string[]]@(@($tracked) + @($kept) | Sort-Object -Unique)
+        [System.IO.File]::WriteAllLines($stateFile, $all, (New-Object System.Text.UTF8Encoding($false)))
+    } catch { Add-Note "Could not write $stateFile - tools removed from ai-tools.yaml will not be cleaned up." }
+}
+
 Write-Host "Syncing AI tools"
 {{- $agentNames := keys .aiAgents | sortAlpha }}
 
@@ -290,6 +378,7 @@ Write-Item -Name '{{ $name }}'
 {{- $agent := index $.aiAgents $agentName }}
 {{- if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents) }}
 {{- if eq $agent.mcp.method "claude-cli" }}
+Add-Tracked 'mcp|{{ $agent.mcp.method }}|{{ $name }}|'
 Register-ClaudeMcp -Name '{{ $name }}' -Label '{{ $agent.displayName }}' -Json '{{ includeTemplate "mcp-server-json" $tool.config | replace "'" "''" }}'
 {{- else if eq $agent.mcp.method "vscode-json" }}
 Write-Status -Label '{{ $agent.displayName }}' -Status ok -Detail 'managed VS Code mcp.json'
@@ -315,6 +404,7 @@ Write-Item -Name '{{ $name }}'
 {{- $agent := index $.aiAgents $agentName }}
 {{- $entry := get $tool $agentName }}
 {{- if and $agent.plugins.supported $entry }}
+Add-Tracked 'plugin|{{ $agent.cli }}|{{ $entry.install }}|'
 Install-Plugin -Name '{{ $name }}' -Label '{{ $agent.displayName }}' -Cli '{{ $agent.cli }}' -MarketplaceAdd '{{ $entry.marketplaceAdd }}' -Install '{{ $entry.install }}'
 {{- end }}
 {{- end }}
@@ -331,6 +421,9 @@ Write-Item -Name '{{ $name }}'
 {{- range $agentName := $agentNames }}
 {{- $agent := index $.aiAgents $agentName }}
 {{- if and $agent.skills.cliAgent (includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents)) }}
+{{- if $tool.skill }}
+Add-Tracked 'skill|{{ $agent.skills.cliAgent }}|{{ $tool.skill }}|'
+{{- end }}
 Install-Skill -Name '{{ $name }}' -Label '{{ $agent.displayName }}' -Repo '{{ $tool.repo }}' -Skill '{{ $tool.skill | default "" }}' -Agent '{{ $agent.skills.cliAgent }}'
 {{- end }}
 {{- end }}
@@ -363,11 +456,17 @@ Write-Item -Name '{{ $name }}' -Detail '{{ $tool.kind }}'
 {{- range $agentName := $agentNames }}
 {{- $agent := index $.aiAgents $agentName }}
 {{- if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents) }}
-Copy-Custom -Name '{{ $name }}' -Label '{{ $agent.displayName }}' -Kind '{{ $tool.kind }}' -DestDir '{{ if eq $tool.kind "agent" }}{{ $agent.skills.agentsDir }}{{ else }}{{ $agent.skills.dir }}{{ end }}' -Manifest '{{ $agent.skills.manifest }}'
+{{- $destDir := ternary $agent.skills.agentsDir $agent.skills.dir (eq $tool.kind "agent") }}
+{{- if $destDir }}
+Add-Tracked 'custom|{{ $destDir }}|{{ $name }}|{{ if eq $tool.kind "skill" }}{{ $agent.skills.manifest }}{{ end }}'
+{{- end }}
+Copy-Custom -Name '{{ $name }}' -Label '{{ $agent.displayName }}' -Kind '{{ $tool.kind }}' -DestDir '{{ $destDir }}' -Manifest '{{ $agent.skills.manifest }}'
 {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
+
+Invoke-Prune
 
 Write-Host ""
 if ($script:Notes.Count -gt 0) {

@@ -28,7 +28,9 @@ set -u
 NOTES=()
 COUNT_OK=0; COUNT_SKIP=0; COUNT_FAIL=0
 TOML_OK=" "   # space-delimited agent keys whose managed TOML block was written
+TRACKED=()
 add_note() { NOTES+=("$1"); }
+track() { TRACKED+=("$1"); }
 have() { command -v "$1" >/dev/null 2>&1; }
 
 if [ -t 1 ]; then
@@ -160,6 +162,19 @@ update_skill_manifest() {
   fi
 }
 
+# remove_skill_manifest_entry NAME MANIFEST   (MANIFEST is relative to $HOME)
+remove_skill_manifest_entry() {
+  local name="$1" manifest="$HOME/$2"
+  [ -f "$manifest" ] || return 0
+  if ! have jq; then add_note "jq not found - remove '$name' from $manifest manually."; return 0; fi
+  local tmp; tmp="$(mktemp)"
+  if jq --arg s "$name" '.skills = ((.skills // []) - [$s])' "$manifest" > "$tmp" 2>/dev/null; then
+    mv "$tmp" "$manifest"
+  else
+    rm -f "$tmp"; add_note "Could not update $manifest to drop '$name'."
+  fi
+}
+
 # copy_custom NAME LABEL KIND DESTDIR MANIFEST
 #   DESTDIR is relative to $HOME and empty when the agent has no such directory.
 copy_custom() {
@@ -222,6 +237,77 @@ write_toml_status() {
   esac
 }
 
+# prune_removed
+# Removes tools a previous run installed that ai-tools.yaml no longer declares.
+# Every installed item is tracked as a `type|a|b|c` line in a per-machine state
+# file; lines absent from this run are uninstalled. A failed removal stays in
+# the file and is retried next run. No state file (first run) removes nothing.
+prune_removed() {
+  local state_file="$HOME/.local/state/chezmoi-ai-tools.state"
+  local gone='not found|not installed|no such|does not exist|no mcp server'
+  local tracked kept=() shown=0 line type a b c out status ok detail label
+  tracked="$(printf '%s\n' ${TRACKED[@]+"${TRACKED[@]}"} | sort -u)"
+  if [ -f "$state_file" ]; then
+    while IFS= read -r line <&3; do
+      [ -n "$line" ] || continue
+      grep -qxF -- "$line" <<<"$tracked" && continue
+      IFS='|' read -r type a b c <<<"$line"
+      if [ $shown -eq 0 ]; then write_category "Cleanup"; shown=1; fi
+      ok=0; detail=""
+      case "$type" in
+        mcp)
+          # $a is the agent's mcp.method; only methods that register per-server
+          # through a CLI are tracked (the rest are regenerated each run).
+          case "$a" in
+            claude-cli)
+              if ! have claude; then detail="claude CLI not found"
+              else
+                out="$(claude mcp remove "$b" --scope user 2>&1 </dev/null)"; status=$?
+                if [ $status -eq 0 ] || grep -qiE "$gone" <<<"$out"; then ok=1; else detail="$(last_line "$out")"; fi
+              fi ;;
+            *) ok=1; detail="no removal for mcp.method '$a'" ;;
+          esac ;;
+        plugin)
+          if ! have "$a"; then detail="$a not found"
+          else
+            out="$("$a" plugin uninstall "$b" 2>&1 </dev/null)"; status=$?
+            if [ $status -eq 0 ] || grep -qiE "$gone" <<<"$out"; then ok=1; else detail="$(last_line "$out")"; fi
+          fi ;;
+        skill)
+          if ! have npx; then detail="npx not found"
+          else
+            out="$(npx --yes skills remove "$b" --agent "$a" -g -y 2>&1 </dev/null)"; status=$?
+            if [ $status -eq 0 ] || grep -qiE "$gone" <<<"$out"; then ok=1; else detail="$(last_line "$out")"; fi
+          fi ;;
+        custom)
+          case "$a$b" in
+            ""|*..*|*/) ok=1; detail="ignored unsafe state entry" ;;
+            *)
+              if [ -z "$a" ] || [ -z "$b" ] || [[ "$b" == */* ]]; then ok=1; detail="ignored unsafe state entry"
+              elif rm -rf "$HOME/$a/$b" 2>/dev/null; then
+                [ -n "$c" ] && remove_skill_manifest_entry "$b" "$c"
+                ok=1
+              else detail="could not delete ~/$a/$b"; fi ;;
+          esac ;;
+        *) ok=1; detail="ignored unknown state entry" ;;
+      esac
+      label="$type $b ($a)"
+      if [ $ok -eq 1 ]; then
+        write_status "$label" ok "${detail:-removed}"
+      else
+        write_status "$label" fail "$detail"
+        add_note "Could not remove '$b' ($type) - it is no longer in ai-tools.yaml; remove it manually. Retrying next run."
+        kept+=("$line")
+      fi
+    done 3< "$state_file"
+  fi
+  if mkdir -p "$(dirname "$state_file")" 2>/dev/null; then
+    { printf '%s\n' "$tracked"; printf '%s\n' ${kept[@]+"${kept[@]}"}; } | awk 'NF' | sort -u > "$state_file"
+  else
+    add_note "Could not write $state_file - tools removed from ai-tools.yaml will not be cleaned up."
+  fi
+}
+
 echo "Syncing AI tools"
 {{- $agentNames := keys .aiAgents | sortAlpha }}
 
@@ -252,6 +338,7 @@ write_item '{{ $name }}'
 {{- $agent := index $.aiAgents $agentName }}
 {{- if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents) }}
 {{- if eq $agent.mcp.method "claude-cli" }}
+track 'mcp|{{ $agent.mcp.method }}|{{ $name }}|'
 register_claude_mcp '{{ $name }}' '{{ $agent.displayName }}' '{{ includeTemplate "mcp-server-json" $tool.config | replace "'" "'\\''" }}'
 {{- else if eq $agent.mcp.method "vscode-json" }}
 write_status '{{ $agent.displayName }}' ok 'managed VS Code mcp.json'
@@ -277,6 +364,7 @@ write_item '{{ $name }}'
 {{- $agent := index $.aiAgents $agentName }}
 {{- $entry := get $tool $agentName }}
 {{- if and $agent.plugins.supported $entry }}
+track 'plugin|{{ $agent.cli }}|{{ $entry.install }}|'
 install_plugin '{{ $name }}' '{{ $agent.displayName }}' '{{ $agent.cli }}' '{{ $entry.marketplaceAdd }}' '{{ $entry.install }}'
 {{- end }}
 {{- end }}
@@ -293,6 +381,9 @@ write_item '{{ $name }}'
 {{- range $agentName := $agentNames }}
 {{- $agent := index $.aiAgents $agentName }}
 {{- if and $agent.skills.cliAgent (includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents)) }}
+{{- if $tool.skill }}
+track 'skill|{{ $agent.skills.cliAgent }}|{{ $tool.skill }}|'
+{{- end }}
 install_skill '{{ $name }}' '{{ $agent.displayName }}' '{{ $tool.repo }}' '{{ $tool.skill | default "" }}' '{{ $agent.skills.cliAgent }}'
 {{- end }}
 {{- end }}
@@ -325,11 +416,17 @@ write_item '{{ $name }}' '{{ $tool.kind }}'
 {{- range $agentName := $agentNames }}
 {{- $agent := index $.aiAgents $agentName }}
 {{- if includeTemplate "ai-targets" (dict "tool" $tool "agent" $agentName "agents" $.aiAgents) }}
-copy_custom '{{ $name }}' '{{ $agent.displayName }}' '{{ $tool.kind }}' '{{ if eq $tool.kind "agent" }}{{ $agent.skills.agentsDir }}{{ else }}{{ $agent.skills.dir }}{{ end }}' '{{ $agent.skills.manifest }}'
+{{- $destDir := ternary $agent.skills.agentsDir $agent.skills.dir (eq $tool.kind "agent") }}
+{{- if $destDir }}
+track 'custom|{{ $destDir }}|{{ $name }}|{{ if eq $tool.kind "skill" }}{{ $agent.skills.manifest }}{{ end }}'
+{{- end }}
+copy_custom '{{ $name }}' '{{ $agent.displayName }}' '{{ $tool.kind }}' '{{ $destDir }}' '{{ $agent.skills.manifest }}'
 {{- end }}
 {{- end }}
 {{- end }}
 {{- end }}
+
+prune_removed
 
 echo ""
 if [ ${#NOTES[@]} -gt 0 ]; then
