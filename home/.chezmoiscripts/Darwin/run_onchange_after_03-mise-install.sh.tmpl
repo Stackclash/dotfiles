@@ -1,0 +1,16 @@
+#!/bin/bash
+# -------------------------------------------------------
+# Installs the tools declared in ~/.config/mise/config.toml. Runs after files
+# are applied so the rendered config.toml is in place. Shims for login shells
+# and editors come from ~/.profile.
+# -------------------------------------------------------
+# mise config hash: {{ list (include "dot_config/mise/config.toml.tmpl") .aiAgents .aiTools.package | toString | sha256sum }}
+
+{{ template "mise-path" . }}
+
+if ! command -v mise >/dev/null 2>&1; then
+    echo "mise not found - install it (apps.yaml) and re-run 'chezmoi apply'." >&2
+    exit 1
+fi
+
+mise install

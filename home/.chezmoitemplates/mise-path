@@ -1,0 +1,13 @@
+{{- if eq .chezmoi.os "windows" -}}
+# chezmoi's environment predates PATH changes made earlier in this apply (a
+# fresh mise install, the shims directory), so re-read PATH from the registry.
+$env:Path = @($env:Path, [Environment]::GetEnvironmentVariable('Path', 'Machine'), [Environment]::GetEnvironmentVariable('Path', 'User')) -join ';'
+{{- else -}}
+# Non-interactive: no rc file ran, so reach mise tools through its shims.
+if ! command -v mise >/dev/null 2>&1; then
+    for brew in /opt/homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+        if [ -x "$brew" ]; then eval "$("$brew" shellenv)"; break; fi
+    done
+fi
+export PATH="${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims:$PATH"
+{{- end -}}

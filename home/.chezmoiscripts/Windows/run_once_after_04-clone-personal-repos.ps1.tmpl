@@ -2,7 +2,7 @@
 
 {{- $projectPath := .projectPath }}
 
-mise use ubi:cli/cli[exe=gh]
+{{ template "mise-path" . }}
 
 gh auth status >$null 2>&1
 if ($LASTEXITCODE -ne 0) {

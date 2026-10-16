@@ -1,0 +1,17 @@
+#### INITIALIZE HOMEBREW
+for brew in /opt/homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
+  if [ -x "$brew" ]; then eval "$("$brew" shellenv)"; break; fi
+done
+
+#### USER BIN
+[ -d "$HOME/.local/bin" ] && PATH="$HOME/.local/bin:$PATH"
+
+#### MISE SHIMS
+# Login shells, desktop sessions and editors get mise tools through shims;
+# interactive shells still run `mise activate` from their rc file.
+export PATH="${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims:$PATH"
+
+#### BASH: login shells skip .bashrc unless it is sourced here
+if [ -n "$BASH_VERSION" ] && [ -f "$HOME/.bashrc" ]; then
+  . "$HOME/.bashrc"
+fi
