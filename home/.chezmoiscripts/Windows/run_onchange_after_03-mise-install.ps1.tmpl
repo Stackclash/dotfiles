@@ -1,0 +1,28 @@
+# -------------------------------------------------------
+# Installs the tools declared in ~/.config/mise/config.toml and keeps the mise
+# shims directory on the user PATH, so non-interactive processes (chezmoi
+# scripts, GUI apps, AI agents, git) resolve mise tools without `mise activate`.
+# Runs after files are applied so the rendered config.toml is in place.
+# NOT elevated — tools install for the current user.
+# -------------------------------------------------------
+# mise config hash: {{ list (include "dot_config/mise/config.toml.tmpl") .aiAgents .aiTools.package | toString | sha256sum }}
+
+{{ template "mise-path" . }}
+
+if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+    Write-Host "mise not found - install it (apps.yaml) and re-run 'chezmoi apply'." -ForegroundColor Red
+    exit 1
+}
+
+# Read the raw value so %VAR% entries are not expanded when written back.
+$shims = Join-Path $env:LOCALAPPDATA 'mise\shims'
+$envKey = Get-Item 'HKCU:\Environment'
+$userPath = $envKey.GetValue('Path', '', 'DoNotExpandEnvironmentNames')
+$entries = $userPath -split ';' | ForEach-Object { [Environment]::ExpandEnvironmentVariables($_).TrimEnd('\') }
+if ($entries -notcontains $shims) {
+    Set-ItemProperty -Path 'HKCU:\Environment' -Name Path -Type ExpandString -Value (($userPath.TrimEnd(';'), $shims) -join ';')
+    Write-Host "Added $shims to the user PATH (apps started from Explorer see it after the next sign-in)" -ForegroundColor Green
+}
+
+mise install
+exit $LASTEXITCODE
