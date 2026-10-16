@@ -19,6 +19,9 @@ In this order, stopping for each check once you find it:
 
 ## Rules
 
+- Look only inside this repository. Never search the whole filesystem, your
+  home directory, or a drive root (`find /`, `find ~`, and similar): such
+  searches can run for hours and hang this run.
 - Each command must be runnable from the repository root as-is.
 - Prefer the repository's wrapper (`npm test`, `make test`, `just lint`) over the
   underlying tool, so its configuration applies.

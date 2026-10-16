@@ -57,6 +57,7 @@ with `archon workflow approve`.
 |---|---|---|
 | `work_item` | `""` | ADO work item ID (`1234`) or URL. Overrides any reference in the message. |
 | `ado_project` | Doppler `AZURE_PROJECT` | ADO project for bare IDs and `AB#` references. |
+| `projects_dir` | chezmoi `projectPath` | Folder holding your local projects. Agents look for other repos here, and are told never to search the whole filesystem, which can hang a run. |
 
 ### Work item references
 
