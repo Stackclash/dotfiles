@@ -1,0 +1,25 @@
+# baseline executes for real with one passing and one failing command: a red
+# baseline is recorded, not fatal. The run then reaches check-plan, which
+# fails because the stubbed planner wrote no plan.md.
+fixture:
+  expect: failed
+  fail-node: [check-plan, planning]
+intake:
+  source: interview
+  work_item_id: ""
+  project: ""
+  request: "add retry to the uploader"
+  fallback_reason: ""
+interview-round: "Q1 - stub round"
+write-proposal: "stub"
+check-proposal:
+  acceptance_criteria: ["AC-1"]
+  unresolved: []
+discover-toolchain:
+  has_tests: true
+  test: "git --version"
+  lint: "git definitely-not-a-command"
+  build: ""
+  typecheck: ""
+plan: "stub"
+exec-code: true

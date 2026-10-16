@@ -1,0 +1,835 @@
+name: code-task
+description: |
+  Use when: a general coding task (feature, bug fix, refactor) should go from
+  requirements to a validated change: gather requirements, plan, review the plan,
+  write failing tests, implement, validate.
+
+  Requirements come from an Azure DevOps work item when one is referenced and the
+  azure-ado MCP is connected; otherwise the workflow interviews you.
+
+  Work item reference formats (first match wins):
+    1. --input work_item=1234   or   --input work_item=<work item URL>
+    2. A work item URL in the message:
+         https://dev.azure.com/{org}/{project}/_workitems/edit/1234
+         https://{org}.visualstudio.com/{project}/_workitems/edit/1234
+    3. AB#1234 in the message (Azure Boards mention syntax)
+  A bare "#1234" is NOT treated as a work item.
+
+  ADO project: taken from the URL, else --input ado_project=<name>, else the
+  AZURE_PROJECT Doppler secret (applied by chezmoi). If the azure-ado MCP is missing/disconnected or no
+  project resolves, the workflow falls back to the interview and says why. Once the
+  MCP is confirmed, a failed fetch (not found, auth, wrong org) fails the run. A
+  fetched work item is checked against the code, glossary and ADRs; one with gaps
+  (e.g. no acceptance criteria) or conflicts goes to the interview to resolve
+  them. The workflow never writes to the board.
+
+  Every path produces one proposal.md (problem, outcome, acceptance criteria as
+  GIVEN/WHEN/THEN scenarios with AC-n IDs, invariants, decisions) that the rest
+  of the run works from.
+
+  Planning discovers the repo's own test/lint/build/typecheck commands and runs
+  them once as a baseline (pre-existing failures are recorded, and only new ones
+  count later). It then loops: plan (one task per test-first cycle, traced to
+  AC IDs; verification steps instead of tests in repos without tests), an
+  independent review (up to 3 rounds), and your approval: Approve plan, Revise
+  plan, or Back to interview. Proposal issues the planner finds also reopen the
+  interview.
+
+  Before building, you choose: commit after each task, once at the end, or not
+  at all. Each task then runs test-first: its tests are written and proven to
+  fail, it is implemented (up to 3 attempts) until they pass unchanged, and the
+  repo's checks must show no failures beyond the baseline's. Repos without
+  tests skip the test steps; lint/build/typecheck still run. A task that cannot
+  be completed stops at a gate: retry with your guidance, re-check after your
+  own fix, or abort.
+
+  Validation reruns every check against the baseline and runs four separate
+  reviews: acceptance (each AC traced to evidence, plus behavior no test
+  covers), quality, security, and error handling. Behavior tests do not cover
+  becomes verification steps: manual instructions, plus an explained script you
+  can choose to have run. Findings stop at a gate: Fix, Accept as-is, or Abort.
+
+  Finally, glossary terms and ADRs (the AI decides what qualifies) are written
+  to $DOCS_DIR, uncommitted; report.md records what was delivered, with each AC
+  and its evidence; and if the branch has commits, you are offered a draft PR
+  (GitHub or Azure DevOps), which pushes the branch only on your approval.
+
+  Interactive: the run pauses at gates for your answers, so launch it in the
+  foreground. Requirements and planning are read-only.
+
+interactive: true
+
+# The run commits and may push, so it always works on its own branch.
+worktree:
+  enabled: true
+
+inputs:
+  work_item:
+    default: ""
+    description: ADO work item ID (1234) or work item URL. Overrides any reference in the message.
+  ado_project:
+    default: {{ (dopplerProjectJson).AZURE_PROJECT | default "" | quote }}
+    description: ADO project for bare IDs and AB# references. Defaults to the AZURE_PROJECT Doppler secret.
+
+returns: write-report
+
+nodes:
+  - id: intake
+    script: intake
+    runtime: bun
+    timeout: 60000
+    output_format:
+      type: object
+      properties:
+        source:          { type: string, enum: [ado, interview] }
+        work_item_id:    { type: string }
+        project:         { type: string }
+        request:         { type: string }
+        fallback_reason: { type: string }
+      required: [source, work_item_id, project, request, fallback_reason]
+
+  - id: fetch-ado
+    command: fetch-ado
+    depends_on: [intake]
+    when: "$intake.output.source == 'ado'"
+    provider: claude
+    model: small
+    allowed_tools:
+      - mcp__azure-ado__wit_get_work_item
+      - mcp__azure-ado__wit_get_work_items_batch_by_ids
+      - mcp__azure-ado__wit_list_work_item_comments
+      - Write
+    output_format:
+      type: object
+      properties:
+        fetched:                 { type: boolean }
+        error:                   { type: string }
+        has_acceptance_criteria: { type: boolean }
+        gaps:                    { type: array, items: { type: string } }
+      required: [fetched, error, has_acceptance_criteria, gaps]
+
+  # Fails the run when the fetch failed or the artifact is missing; otherwise
+  # records the ticket's gaps (ticket-gaps.md) for the interview.
+  - id: check-fetch
+    script: check-fetch
+    runtime: bun
+    depends_on: [fetch-ado]
+    with:
+      fetched: "$fetch-ado.output.fetched"
+      error: "$fetch-ado.output.error"
+      has_acceptance_criteria: "$fetch-ado.output.has_acceptance_criteria"
+      gaps: "$fetch-ado.output.gaps"
+    output_format:
+      type: object
+      properties:
+        gaps: { type: array, items: { type: string } }
+      required: [gaps]
+
+  # Checks the ticket against the code, context files, glossary and ADRs.
+  # Read-only; writes ticket-conflicts.md when it finds any.
+  - id: reconcile-ticket
+    command: reconcile-ticket
+    depends_on: [check-fetch]
+    model: medium
+    context: fresh
+    output_format:
+      type: object
+      properties:
+        conflicts: { type: array, items: { type: string } }
+      required: [conflicts]
+
+  - id: ticket-ready
+    script: ticket-ready
+    runtime: bun
+    depends_on: [check-fetch, reconcile-ticket]
+    with:
+      gaps: "$check-fetch.output.gaps"
+      conflicts: "$reconcile-ticket.output.conflicts"
+    output_format:
+      type: object
+      properties:
+        complete: { type: boolean }
+      required: [complete]
+
+  # Runs for interview-sourced work and for tickets with gaps or conflicts;
+  # complete tickets skip it. Read-only: writes only $ARTIFACTS_DIR files. Each
+  # round pauses at the gate; choosing Ready ends the loop.
+  - id: interview
+    depends_on: [intake, ticket-ready]
+    trigger_rule: none_failed_min_one_success
+    when: "$intake.output.source == 'interview' || $ticket-ready.output.complete == false"
+    loop_group:
+      nodes:
+        - id: interview-round
+          command: interview
+        - id: interview-gate
+          depends_on: [interview-round]
+          approval:
+            message: "$interview-round.output"
+            decisions:
+              - { id: approve, label: "Send answers" }
+              - { id: ready, label: "Ready: write proposal" }
+      until_bash: test $interview-gate.output.decision = ready
+      max_iterations: 20
+
+  - id: write-proposal
+    command: write-proposal
+    depends_on: [interview]
+    context: fresh
+
+  - id: proposal-from-ticket
+    command: proposal-from-ticket
+    depends_on: [ticket-ready]
+    when: "$ticket-ready.output.complete == true"
+    context: fresh
+
+  # Join point for every path. proposal.md is the single brief all later
+  # nodes read; everything up to here is read-only.
+  - id: check-proposal
+    script: check-proposal
+    runtime: bun
+    depends_on: [write-proposal, proposal-from-ticket]
+    trigger_rule: none_failed_min_one_success
+    output_format:
+      type: object
+      properties:
+        acceptance_criteria: { type: array, items: { type: string } }
+        unresolved:          { type: array, items: { type: string } }
+      required: [acceptance_criteria, unresolved]
+
+  # ── Planning ──────────────────────────────────────────────────────────────
+  # Finds the repo's own commands; "" means none found. has_tests false means
+  # tasks carry verification steps instead of tests.
+  - id: discover-toolchain
+    command: discover-toolchain
+    depends_on: [check-proposal]
+    model: small
+    context: fresh
+    allowed_tools: [Read, Glob, Grep]
+    output_format:
+      type: object
+      properties:
+        has_tests: { type: boolean }
+        test:      { type: string }
+        lint:      { type: string }
+        build:     { type: string }
+        typecheck: { type: string }
+      required: [has_tests, test, lint, build, typecheck]
+
+  # Runs the commands on the untouched branch. Pre-existing failures are
+  # recorded (baseline.md + logs), not fatal: validation judges only new ones.
+  - id: baseline
+    script: baseline
+    runtime: bun
+    depends_on: [discover-toolchain]
+    timeout: 1800000
+    with:
+      test: "$discover-toolchain.output.test"
+      lint: "$discover-toolchain.output.lint"
+      build: "$discover-toolchain.output.build"
+      typecheck: "$discover-toolchain.output.typecheck"
+    output_format:
+      type: object
+      properties:
+        red: { type: array, items: { type: string } }
+      required: [red]
+
+  # One pass: clarify with the requester if needed, plan, check, review, and
+  # your approval. Repeats until you approve. "Back to interview" or proposal
+  # issues raised by the planner reopen the interview on the next pass.
+  - id: planning
+    depends_on: [baseline]
+    loop_group:
+      nodes:
+        - id: prepare-clarify
+          script: prepare-clarify
+          runtime: bun
+          when: "$LOOP_PREV.check-plan.output.has_issues == true || $LOOP_PREV.plan-approval.output.decision == 'revise-requirements'"
+          with:
+            feedback: "$LOOP_PREV.plan-approval.output.text"
+
+        - id: clarify
+          depends_on: [prepare-clarify]
+          loop_group:
+            nodes:
+              - id: clarify-round
+                command: clarify
+              - id: clarify-gate
+                depends_on: [clarify-round]
+                approval:
+                  message: "$clarify-round.output"
+                  decisions:
+                    - { id: approve, label: "Send answers" }
+                    - { id: ready, label: "Ready: update proposal" }
+            until_bash: test $clarify-gate.output.decision = ready
+            max_iterations: 20
+
+        - id: revise-proposal
+          command: revise-proposal
+          depends_on: [clarify]
+          context: fresh
+
+        - id: recheck-proposal
+          script: check-proposal
+          runtime: bun
+          depends_on: [revise-proposal]
+          output_format:
+            type: object
+            properties:
+              acceptance_criteria: { type: array, items: { type: string } }
+              unresolved:          { type: array, items: { type: string } }
+            required: [acceptance_criteria, unresolved]
+
+        - id: plan
+          command: plan
+          depends_on: [recheck-proposal]
+          trigger_rule: all_done
+          model: large
+          context: fresh
+
+        - id: check-plan
+          script: check-plan
+          runtime: bun
+          depends_on: [plan]
+          with:
+            has_tests: "$discover-toolchain.output.has_tests"
+          output_format:
+            type: object
+            properties:
+              has_issues: { type: boolean }
+            required: [has_issues]
+
+        # Independent review; stops when approved or after 3 rounds, so open
+        # findings reach your gate instead of failing the run.
+        - id: plan-review
+          depends_on: [check-plan]
+          when: "$check-plan.output.has_issues == false"
+          loop_group:
+            nodes:
+              - id: review-plan
+                command: review-plan
+                model: large
+                context: fresh
+                output_format:
+                  type: object
+                  properties:
+                    approved: { type: boolean }
+                    findings: { type: array, items: { type: string } }
+                  required: [approved, findings]
+              - id: revise-plan
+                command: revise-plan
+                depends_on: [review-plan]
+                when: "$review-plan.output.approved == false"
+              - id: review-round
+                script: review-round
+                runtime: bun
+                depends_on: [revise-plan]
+                trigger_rule: all_done
+                output_format:
+                  type: object
+                  properties:
+                    round: { type: number }
+                  required: [round]
+            until_bash: test $review-plan.output.approved = true || test $review-round.output.round -ge 3
+            max_iterations: 4
+
+        - id: final-check-plan
+          script: check-plan
+          runtime: bun
+          depends_on: [plan-review]
+          with:
+            has_tests: "$discover-toolchain.output.has_tests"
+          output_format:
+            type: object
+            properties:
+              has_issues: { type: boolean }
+            required: [has_issues]
+
+        - id: gate-summary
+          script: gate-summary
+          runtime: bun
+          depends_on: [final-check-plan]
+
+        - id: plan-approval
+          depends_on: [gate-summary]
+          approval:
+            message: "$gate-summary.output"
+            decisions:
+              - { id: approve, label: "Approve plan" }
+              - { id: revise-plan, label: "Revise plan" }
+              - { id: revise-requirements, label: "Back to interview" }
+      # Whole output, not .decision: the gate is skipped on passes where the
+      # planner raised proposal issues, and a field read on a skipped node fails.
+      until_bash: >-
+        printf '%s' $plan-approval.output | grep -Eq '"decision": *"approve"'
+      max_iterations: 5
+
+  # ── Build ─────────────────────────────────────────────────────────────────
+  # Asked once, before any code is written. Commits never include $DOCS_DIR
+  # or files the baseline left behind.
+  - id: commit-mode
+    depends_on: [planning]
+    approval:
+      message: "How should the workflow commit the change?"
+      decisions:
+        - { id: approve, label: "Commit after each task" }
+        - { id: end, label: "Commit once at the end" }
+        - { id: none, label: "Don't commit" }
+
+  # One pass per task attempt. Repos with tests: write the task's tests, prove
+  # they fail, implement until they pass (up to 3 attempts) with baseline-
+  # relative regression checks. Repos without tests: implement, then lint/
+  # build/typecheck. A task that cannot be completed goes to the stuck gate.
+  - id: build
+    depends_on: [commit-mode]
+    loop_group:
+      nodes:
+        - id: next-task
+          script: next-task
+          runtime: bun
+          with:
+            has_tests: "$discover-toolchain.output.has_tests"
+            stuck_gate: "$LOOP_PREV.stuck-gate.output"
+          output_format:
+            type: object
+            properties:
+              done_all: { type: boolean }
+              task_id:  { type: string }
+              phase:    { type: string }
+            required: [done_all, task_id, phase]
+
+        - id: write-tests
+          command: write-tests
+          depends_on: [next-task]
+          when: "$next-task.output.phase == 'tests'"
+          context: fresh
+          output_format:
+            type: object
+            properties:
+              test_command: { type: string }
+              test_files:   { type: array, items: { type: string } }
+            required: [test_command, test_files]
+
+        # Runs every pass (red is "ready to implement"), so nothing downstream
+        # reads a skipped producer.
+        - id: red-check
+          script: red-check
+          runtime: bun
+          depends_on: [write-tests]
+          trigger_rule: all_done
+          timeout: 1800000
+          with:
+            test_command: { from: "$write-tests.output.test_command", if_skipped: "" }
+            test_files: { from: "$write-tests.output.test_files", if_skipped: "[]" }
+          output_format:
+            type: object
+            properties:
+              red: { type: boolean }
+            required: [red]
+
+        - id: implement-task
+          depends_on: [red-check]
+          when: "$red-check.output.red == true"
+          loop_group:
+            nodes:
+              - id: implement
+                command: implement
+                context: fresh
+              - id: green-check
+                script: green-check
+                runtime: bun
+                depends_on: [implement]
+                timeout: 3600000
+                with:
+                  has_tests: "$discover-toolchain.output.has_tests"
+                  baseline_red: "$baseline.output.red"
+                  test: "$discover-toolchain.output.test"
+                  lint: "$discover-toolchain.output.lint"
+                  build: "$discover-toolchain.output.build"
+                  typecheck: "$discover-toolchain.output.typecheck"
+                output_format:
+                  type: object
+                  properties:
+                    green:       { type: boolean }
+                    needs_judge: { type: boolean }
+                    judge:       { type: array, items: { type: string } }
+                  required: [green, needs_judge, judge]
+              - id: regression-judge
+                command: regression-judge
+                depends_on: [green-check]
+                when: "$green-check.output.needs_judge == true"
+                context: fresh
+                output_format:
+                  type: object
+                  properties:
+                    new_failures: { type: array, items: { type: string } }
+                  required: [new_failures]
+              - id: green-verdict
+                script: green-verdict
+                runtime: bun
+                depends_on: [regression-judge]
+                trigger_rule: all_done
+                with:
+                  green: "$green-check.output.green"
+                  needs_judge: "$green-check.output.needs_judge"
+                  new_failures: { from: "$regression-judge.output.new_failures", if_skipped: "[]" }
+                output_format:
+                  type: object
+                  properties:
+                    green:    { type: boolean }
+                    attempts: { type: number }
+                  required: [green, attempts]
+            until_bash: test $green-verdict.output.green = true || test $green-verdict.output.attempts -ge 3
+            max_iterations: 4
+
+        - id: finish-task
+          script: finish-task
+          runtime: bun
+          depends_on: [implement-task]
+          trigger_rule: all_done
+          when: "$next-task.output.done_all == false"
+          with:
+            commit_mode: "$commit-mode.output"
+            docs_dir: "$DOCS_DIR"
+          output_format:
+            type: object
+            properties:
+              done:      { type: boolean }
+              committed: { type: boolean }
+            required: [done, committed]
+
+        - id: stuck-summary
+          script: stuck-summary
+          runtime: bun
+          depends_on: [finish-task]
+          when: "$finish-task.output.done == false"
+
+        # Must stay the body's only terminal node to pause the loop. Abort is
+        # acted on by next-task at the start of the following pass.
+        - id: stuck-gate
+          depends_on: [stuck-summary]
+          approval:
+            message: "$stuck-summary.output"
+            decisions:
+              - { id: approve, label: "Retry with guidance" }
+              - { id: recheck, label: "I fixed it, re-check" }
+              - { id: abort, label: "Abort run" }
+      until_bash: test $next-task.output.done_all = true
+      max_iterations: 60
+
+  # ── Validation ────────────────────────────────────────────────────────────
+  # One pass per round of fixes: apply the fixes you asked for, rerun every
+  # check against the baseline, four independent reviews (separate command
+  # files so each can be tuned on its own), verification steps for what tests
+  # do not cover, then the findings gate. Ends when a pass finds nothing or
+  # you choose Accept as-is.
+  - id: validation
+    depends_on: [build]
+    loop_group:
+      nodes:
+        - id: validation-start
+          script: validation-start
+          runtime: bun
+          with:
+            findings_gate: "$LOOP_PREV.findings-gate.output"
+          output_format:
+            type: object
+            properties:
+              fix: { type: boolean }
+            required: [fix]
+
+        - id: apply-fixes
+          command: apply-fixes
+          depends_on: [validation-start]
+          when: "$validation-start.output.fix == true"
+          context: fresh
+
+        - id: commit-fixes
+          script: commit-fixes
+          runtime: bun
+          depends_on: [apply-fixes]
+          with:
+            commit_mode: "$commit-mode.output"
+            docs_dir: "$DOCS_DIR"
+          output_format:
+            type: object
+            properties:
+              committed: { type: boolean }
+            required: [committed]
+
+        - id: final-checks
+          script: final-checks
+          runtime: bun
+          depends_on: [validation-start, commit-fixes]
+          trigger_rule: all_done
+          timeout: 3600000
+          with:
+            has_tests: "$discover-toolchain.output.has_tests"
+            baseline_red: "$baseline.output.red"
+            test: "$discover-toolchain.output.test"
+            lint: "$discover-toolchain.output.lint"
+            build: "$discover-toolchain.output.build"
+            typecheck: "$discover-toolchain.output.typecheck"
+          output_format:
+            type: object
+            properties:
+              failures:    { type: array, items: { type: string } }
+              needs_judge: { type: boolean }
+              judge:       { type: array, items: { type: string } }
+            required: [failures, needs_judge, judge]
+
+        - id: final-judge
+          command: regression-judge
+          depends_on: [final-checks]
+          when: "$final-checks.output.needs_judge == true"
+          context: fresh
+          output_format:
+            type: object
+            properties:
+              new_failures: { type: array, items: { type: string } }
+            required: [new_failures]
+
+        - id: review-acceptance
+          command: review-acceptance
+          depends_on: [final-judge]
+          trigger_rule: all_done
+          model: large
+          context: fresh
+          output_format:
+            type: object
+            properties:
+              findings: &findings
+                type: array
+                items:
+                  type: object
+                  properties:
+                    severity: { type: string, enum: [high, medium, low] }
+                    summary:  { type: string }
+                    evidence: { type: string }
+                  required: [severity, summary, evidence]
+              uncovered: { type: array, items: { type: string } }
+            required: [findings, uncovered]
+
+        - id: review-quality
+          command: review-quality
+          depends_on: [final-judge]
+          trigger_rule: all_done
+          context: fresh
+          output_format:
+            type: object
+            properties:
+              findings: *findings
+            required: [findings]
+
+        - id: review-security
+          command: review-security
+          depends_on: [final-judge]
+          trigger_rule: all_done
+          model: large
+          context: fresh
+          output_format:
+            type: object
+            properties:
+              findings: *findings
+            required: [findings]
+
+        - id: review-errors
+          command: review-errors
+          depends_on: [final-judge]
+          trigger_rule: all_done
+          context: fresh
+          output_format:
+            type: object
+            properties:
+              findings: *findings
+            required: [findings]
+
+        - id: verification-setup
+          script: verification-setup
+          runtime: bun
+          depends_on: [review-acceptance]
+          with:
+            has_tests: "$discover-toolchain.output.has_tests"
+            uncovered: "$review-acceptance.output.uncovered"
+          output_format:
+            type: object
+            properties:
+              needed: { type: boolean }
+            required: [needed]
+
+        - id: prepare-verification
+          command: prepare-verification
+          depends_on: [verification-setup]
+          when: "$verification-setup.output.needed == true"
+          context: fresh
+
+        # Rounds until every step has a result. Passed results are kept across
+        # validation passes; nothing scripted runs without your say-so.
+        - id: verification
+          depends_on: [prepare-verification]
+          loop_group:
+            nodes:
+              - id: record-verification
+                command: record-verification
+                when: "$LOOP_PREV.verify-gate.output.decision == 'approve' || $LOOP_PREV.verify-gate.output.decision == 'results'"
+                context: fresh
+              - id: verification-status
+                script: verification-status
+                runtime: bun
+                depends_on: [record-verification]
+                trigger_rule: all_done
+                output_format:
+                  type: object
+                  properties:
+                    pending: { type: number }
+                    message: { type: string }
+                  required: [pending, message]
+              - id: verify-gate
+                depends_on: [verification-status]
+                when: "$verification-status.output.pending > 0"
+                approval:
+                  message: "$verification-status.output.message"
+                  decisions:
+                    - { id: approve, label: "Run these scripts" }
+                    - { id: results, label: "Here are my manual results" }
+            until_bash: test $verification-status.output.pending -eq 0
+            max_iterations: 20
+
+        - id: findings-summary
+          script: findings-summary
+          runtime: bun
+          depends_on: [verification, review-quality, review-security, review-errors]
+          trigger_rule: all_done
+          with:
+            check_failures: "$final-checks.output.failures"
+            new_failures: { from: "$final-judge.output.new_failures", if_skipped: "[]" }
+            acceptance: "$review-acceptance.output.findings"
+            uncovered: "$review-acceptance.output.uncovered"
+            quality: "$review-quality.output.findings"
+            security: "$review-security.output.findings"
+            errors: "$review-errors.output.findings"
+          output_format:
+            type: object
+            properties:
+              clean:   { type: boolean }
+              count:   { type: number }
+              message: { type: string }
+            required: [clean, count, message]
+
+        # Must stay the body's only terminal node. Fix and Abort are acted on
+        # by validation-start at the start of the next pass.
+        - id: findings-gate
+          depends_on: [findings-summary]
+          when: "$findings-summary.output.clean == false"
+          approval:
+            message: "$findings-summary.output.message"
+            decisions:
+              - { id: approve, label: "Fix" }
+              - { id: accept, label: "Accept as-is" }
+              - { id: abort, label: "Abort run" }
+      until_bash: >-
+        test $findings-summary.output.clean = true ||
+        printf '%s' $findings-gate.output | grep -Eq '"decision": *"accept"'
+      max_iterations: 6
+
+  # No-op unless "Commit once at the end" was chosen; runs after validation so
+  # the commit includes any fixes.
+  - id: commit-end
+    script: commit-end
+    runtime: bun
+    depends_on: [validation]
+    with:
+      commit_mode: "$commit-mode.output"
+      docs_dir: "$DOCS_DIR"
+    output_format:
+      type: object
+      properties:
+        committed: { type: boolean }
+      required: [committed]
+
+  # ── Close-out ─────────────────────────────────────────────────────────────
+  # Glossary and ADRs go to $DOCS_DIR after the change is settled; the AI
+  # decides what qualifies as an ADR. Never committed by the workflow.
+  - id: docs-start
+    script: docs-start
+    runtime: bun
+    depends_on: [commit-end]
+
+  - id: write-docs
+    command: write-docs
+    depends_on: [docs-start]
+    model: large
+    context: fresh
+    output_format:
+      type: object
+      properties:
+        glossary_terms: { type: array, items: { type: string } }
+        adrs:           { type: array, items: { type: string } }
+      required: [glossary_terms, adrs]
+
+  - id: check-docs
+    script: check-docs
+    runtime: bun
+    depends_on: [write-docs]
+    with:
+      docs_dir: "$DOCS_DIR"
+
+  - id: write-report
+    command: write-report
+    depends_on: [check-docs]
+    context: fresh
+
+  - id: check-report
+    script: check-report
+    runtime: bun
+    depends_on: [write-report]
+
+  # A draft PR is offered only when the branch has commits. Opening one pushes
+  # the branch, so it sits behind your approval.
+  - id: pr-check
+    script: pr-check
+    runtime: bun
+    depends_on: [check-report]
+    output_format:
+      type: object
+      properties:
+        commits: { type: number }
+        forge:   { type: string }
+        branch:  { type: string }
+      required: [commits, forge, branch]
+
+  - id: pr-gate
+    depends_on: [pr-check]
+    when: "$pr-check.output.commits > 0"
+    approval:
+      message: |
+        This branch has $pr-check.output.commits commit(s) on $pr-check.output.branch ($pr-check.output.forge).
+        Open a draft pull request? This pushes the branch. The report becomes the PR description.
+      decisions:
+        - { id: approve, label: "Open a draft PR" }
+        - { id: skip, label: "Don't open a PR" }
+
+  - id: pr-decision
+    script: pr-decision
+    runtime: bun
+    depends_on: [pr-gate]
+    with:
+      pr_gate: "$pr-gate.output"
+    output_format:
+      type: object
+      properties:
+        open: { type: boolean }
+      required: [open]
+
+  - id: open-pr
+    command: open-pr
+    depends_on: [pr-decision]
+    when: "$pr-decision.output.open == true"
+    provider: claude
+    context: fresh
+    output_format:
+      type: object
+      properties:
+        url:   { type: string }
+        error: { type: string }
+      required: [url, error]

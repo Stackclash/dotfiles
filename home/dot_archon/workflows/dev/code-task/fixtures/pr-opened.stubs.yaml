@@ -1,0 +1,53 @@
+# Commits exist and the requester approves: open-pr runs.
+fixture:
+  expect: completed
+intake:
+  source: interview
+  work_item_id: ""
+  project: ""
+  request: "add retry to the uploader"
+  fallback_reason: ""
+interview-round: "Q1 - stub round"
+write-proposal: "stub"
+check-proposal:
+  acceptance_criteria: ["AC-1"]
+  unresolved: []
+baseline:
+  red: []
+plan: "1 task, 0 issues"
+check-plan:
+  has_issues: false
+review-plan:
+  approved: true
+  findings: []
+review-round:
+  round: 1
+final-check-plan:
+  has_issues: false
+gate-summary: "# Plan ready for approval"
+discover-toolchain:
+  has_tests: true
+  test: "npm test"
+  lint: ""
+  build: ""
+  typecheck: ""
+next-task: { done_all: true, task_id: "", phase: "" }
+red-check: { red: false }
+commit-end: { committed: false }
+validation-start: { fix: false }
+final-checks: { failures: [], needs_judge: true, judge: [lint] }
+final-judge: { new_failures: [] }
+review-acceptance: { findings: [], uncovered: [] }
+review-quality: { findings: [] }
+review-security: { findings: [] }
+review-errors: { findings: [] }
+verification-setup: { needed: false }
+findings-summary: { clean: true, count: 0, message: "No findings." }
+docs-start: "snapshot saved"
+write-docs: { glossary_terms: [], adrs: [] }
+check-docs: "docs confined to the docs directory"
+write-report: "# Report"
+check-report: "report accounts for 1 acceptance criteria"
+pr-check: { commits: 2, forge: github, branch: task-1 }
+pr-decision: { open: true }
+open-pr: { url: "https://github.com/o/r/pull/1", error: "" }
