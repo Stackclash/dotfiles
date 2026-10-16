@@ -56,6 +56,19 @@ approve it; do not invent findings.
 
 Do not modify any other file.
 
+## Where to look
+
+Search only inside this repository and the projects folder
+`$INPUTS.projects_dir`, where the requester's other local projects live (a
+project the task names, such as a sibling repo, is a folder in it; check its
+immediate subfolders before going deeper). If the projects folder is empty,
+search only this repository.
+
+Never search the whole filesystem, your home directory, or a drive root: no
+`find /`, `find ~`, `find /c`, `ls -R /`, `dir /s` on a drive, or similar. Such
+searches can run for hours and hang this run. If what you need is in neither
+place, say so in your output instead of searching further.
+
 ## Output
 
 `approved` (true only when there are no findings) and `findings` (the same
