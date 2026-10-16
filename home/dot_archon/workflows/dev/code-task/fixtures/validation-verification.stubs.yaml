@@ -1,0 +1,53 @@
+# Uncovered behavior: verification steps are prepared and the verify gate is
+# reached; record-verification (unstubbed) does not run on the first round.
+fixture:
+  expect: completed
+intake:
+  source: interview
+  work_item_id: ""
+  project: ""
+  request: "add retry to the uploader"
+  fallback_reason: ""
+interview-round: "Q1 - stub round"
+write-proposal: "stub"
+check-proposal:
+  acceptance_criteria: ["AC-1"]
+  unresolved: []
+baseline:
+  red: []
+plan: "1 task, 0 issues"
+check-plan:
+  has_issues: false
+review-plan:
+  approved: true
+  findings: []
+review-round:
+  round: 1
+final-check-plan:
+  has_issues: false
+gate-summary: "# Plan ready for approval"
+discover-toolchain:
+  has_tests: true
+  test: "npm test"
+  lint: ""
+  build: ""
+  typecheck: ""
+next-task: { done_all: true, task_id: "", phase: "" }
+red-check: { red: false }
+commit-end: { committed: false }
+validation-start: { fix: false }
+final-checks: { failures: [], needs_judge: false, judge: [] }
+review-acceptance: { findings: [], uncovered: ["AC-3 dialog behavior has no UI test (src/ui/dialog.tsx)"] }
+review-quality: { findings: [] }
+review-security: { findings: [] }
+review-errors: { findings: [] }
+verification-setup: { needed: true }
+prepare-verification: "kept 0, added 1, reset 0"
+verification-status: { pending: 1, message: "# Verification: 1 step(s) need a result" }
+findings-summary: { clean: true, count: 0, message: "No findings." }
+docs-start: "snapshot saved"
+write-docs: { glossary_terms: [], adrs: [] }
+check-docs: "docs confined to the docs directory"
+write-report: "# Report"
+check-report: "report accounts for 1 acceptance criteria"
+pr-check: { commits: 0, forge: github, branch: task-1 }

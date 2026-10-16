@@ -1,0 +1,23 @@
+# Fetched ticket with gaps: ticket-ready is incomplete, the ticket-review
+# interview runs, and the path reaches check-proposal.
+fixture:
+  expect: failed
+  fail-node: check-proposal
+intake:
+  source: ado
+  work_item_id: "4521"
+  project: DemoProj
+  request: "AB#4521"
+  fallback_reason: ""
+fetch-ado:
+  fetched: true
+  error: ""
+  has_acceptance_criteria: false
+  gaps: ["The work item has no acceptance criteria."]
+check-fetch:
+  gaps: ["The work item has no acceptance criteria."]
+reconcile-ticket:
+  conflicts: []
+interview-round: "Q1 - stub round"
+write-proposal: "stub"
+exec-code: true

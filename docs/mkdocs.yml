@@ -1,25 +1,26 @@
 site_name: My Cross-Platform Dotfiles
 site_url: https://stackclash.github.io/dotfiles
 repo_url: https://github.com/Stackclash/dotfiles
-edit_uri: blob/main/docs/
+edit_uri: blob/master/docs/pages/
 remote_branch: gh-pages
 docs_dir: ./pages
 nav:
-  - Home: pages/index.md
+  - Home: index.md
 
   - Guides:
-      - Introduction: pages/index.md
-      - Scripts: pages/scripts.md
-      - Templates: pages/templates.md
-      - Configuration: pages/configuration.md
-      - AI Tools: pages/ai-tools.md
-      - Themes: pages/themes.md
+      - Introduction: index.md
+      - Scripts: scripts.md
+      - Templates: templates.md
+      - Configuration: configuration.md
+      - AI Tools: ai-tools.md
+      - Archon code-task Workflow: archon-code-task.md
+      - Themes: themes.md
 
   - Applications:
-      - Visual Studio Code: pages/applications/vscode.md
+      - Visual Studio Code: applications/vscode.md
       # Add additional applications here, e.g.:
-      # - Terminal: pages/applications/terminal.md
-      # - Git: pages/applications/git.md
+      # - Terminal: applications/terminal.md
+      # - Git: applications/git.md
 
   - About:
       - Repository: https://github.com/Stackclash/dotfiles
@@ -27,3 +28,8 @@ theme:
   name: material
 markdown_extensions:
   - github-callouts
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format

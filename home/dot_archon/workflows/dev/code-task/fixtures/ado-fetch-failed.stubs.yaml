@@ -1,0 +1,16 @@
+# Intake found a work item and the MCP was up, but the fetch failed: the run must fail at check-fetch.
+fixture:
+  expect: failed
+  fail-node: check-fetch
+intake:
+  source: ado
+  work_item_id: "4521"
+  project: DemoProj
+  request: "implement AB#4521"
+  fallback_reason: ""
+fetch-ado:
+  fetched: false
+  error: "TF401232: Work item 4521 does not exist"
+  has_acceptance_criteria: false
+  gaps: []
+exec-code: true

@@ -1,0 +1,22 @@
+# Clean, complete ticket: ticket-ready (executed for real) says complete, the
+# interview is skipped, and proposal-from-ticket reaches check-proposal.
+fixture:
+  expect: failed
+  fail-node: check-proposal
+intake:
+  source: ado
+  work_item_id: "4521"
+  project: DemoProj
+  request: "AB#4521"
+  fallback_reason: ""
+fetch-ado:
+  fetched: true
+  error: ""
+  has_acceptance_criteria: true
+  gaps: []
+check-fetch:
+  gaps: []
+reconcile-ticket:
+  conflicts: []
+proposal-from-ticket: "stub"
+exec-code: true

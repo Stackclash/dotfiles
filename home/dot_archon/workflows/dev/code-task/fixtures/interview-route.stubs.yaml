@@ -1,0 +1,16 @@
+# No work item referenced: ADO nodes skip, the interview runs, and
+# write-proposal joins at check-proposal. check-proposal executes for real and
+# fails because the stubbed writer produced no proposal.md -- which proves the
+# interview path reaches the join.
+fixture:
+  expect: failed
+  fail-node: check-proposal
+intake:
+  source: interview
+  work_item_id: ""
+  project: ""
+  request: "add retry to the uploader"
+  fallback_reason: ""
+interview-round: "Q1 - stub round"
+write-proposal: "stub"
+exec-code: true

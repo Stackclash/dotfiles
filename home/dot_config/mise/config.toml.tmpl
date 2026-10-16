@@ -18,6 +18,8 @@ node = "22"
 "aqua:yarnpkg/berry" = "latest"
 "aqua:nektos/act" = "latest"
 "github:ebullient/ttrpg-convert-cli" = "latest"
+"aqua:astral-sh/uv" = "latest"
+"core:bun" = "latest"
 # Azure Tools
 "vfox:mise-plugins/vfox-azure-functions-core-tools" = "latest"
 # AI agent CLIs (generated from .chezmoidata/ai-agents.yaml -- edit that file, not here)
@@ -28,7 +30,12 @@ node = "22"
 {{- end }}
 # AI Tools (generated from .chezmoidata/ai-tools.yaml -- edit that file, not here)
 {{- range $name, $tool := .aiTools.package }}
+{{- if and (not (hasPrefix "@" $tool.mise.package)) (contains "@" $tool.mise.package) }}
+{{- $parts := splitList "@" $tool.mise.package }}
+"{{ $tool.mise.backend }}:{{ index $parts 0 }}" = "{{ index $parts 1 }}" # {{ $name }}
+{{- else }}
 "{{ $tool.mise.backend }}:{{ $tool.mise.package }}" = "latest" # {{ $name }}
+{{- end }}
 {{- end }}
 
 [env]
