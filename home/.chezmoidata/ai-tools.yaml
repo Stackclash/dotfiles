@@ -21,7 +21,9 @@
 #            String values inside config may contain a chezmoi template
 #            expression (e.g. Doppler's dopplerProjectJson) -- resolved via
 #            `chezmoi execute-template` at apply time. See docs/pages/ai-tools.md.
-#   package: { mise: { backend: npm|pipx, package }, postInstall, projectNote }
+#   package: { mise: { backend: npm|pipx|github|<any mise backend>, package }, postInstall, projectNote }
+#            package may end in `@<version>` to pin (e.g. coleam00/Archon@v0.11.1);
+#            omit it for "latest". A leading `@` (npm scope) is not a version.
 #   plugin:  { <agent>: { marketplaceAdd, install } } -- agents with plugins.supported
 #   skill:   { repo: owner/repo, skill } -- installed from a GitHub repo with
 #            the skills CLI (`npx skills add`); omit `skill` to take the whole
@@ -98,6 +100,12 @@ aiTools:
         package: graphifyy
       postInstall: "graphify install"
       projectNote: "Run `/graphify .` inside an AI session in each repo to generate graph visualizations of the project's structure." 
+
+    archon:
+      mise:
+        backend: github
+        package: "coleam00/Archon@v0.11.1"
+      projectNote: "Global Archon workflows live in ~/.archon/ (managed here)."
 
     openspec:
       mise:
