@@ -118,15 +118,13 @@
 	autocrlf = input
 	{{- end }}
 
+# Resolve gh from PATH: an absolute path breaks whenever gh is upgraded or
+# reinstalled under a different mise backend.
 [credential "https://github.com"]
-	{{- if eq .chezmoi.os "windows" }}
-	helper = !'C:\\Users\\coxri\\AppData\\Local\\mise\\installs\\ubi-cli-cli\\2.86.0\\gh.exe' auth git-credential
-	{{ else }}
-	helper = /opt/homebrew/bin/gh auth git-credential
-	{{ end }}
+	helper = !gh auth git-credential
 
 [credential "https://gist.github.com"]
-	helper = !'C:\\Users\\coxri\\AppData\\Local\\mise\\installs\\ubi-cli-cli\\2.86.0\\gh.exe' auth git-credential
+	helper = !gh auth git-credential
 
 [push]
 	autoSetupRemote = true
