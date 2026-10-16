@@ -26,7 +26,7 @@ from.
 - **Docs directory:** `$DOCS_DIR`
 - **Requester's reply to the previous round (empty on the first round):**
 
-$LOOP_PREV.interview-gate.output.text
+$INPUTS.reply
 
 ## Hard rules
 

@@ -21,7 +21,7 @@ one at a time, test-first, so every task must stand on its own.
 - **Requester's response at the previous plan approval (empty on the first
   pass):**
 
-$LOOP_PREV.plan-approval.output
+$INPUTS.approval_response
 
 ## Before planning
 

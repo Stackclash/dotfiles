@@ -7,7 +7,7 @@ The requester answered the verification gate. Act on exactly what they asked.
 - **Steps:** `$ARTIFACTS_DIR/verification.md`
 - **The requester's answer** (decision and text):
 
-$LOOP_PREV.verify-gate.output
+$INPUTS.gate_response
 
 ## If they chose "Run these scripts"
 

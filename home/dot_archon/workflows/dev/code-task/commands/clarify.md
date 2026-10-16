@@ -21,7 +21,7 @@ proposal from your notes.
 - **Docs directory:** `$DOCS_DIR`
 - **Requester's reply to the previous round (empty on the first round):**
 
-$LOOP_PREV.clarify-gate.output.text
+$INPUTS.reply
 
 ## Hard rules
 

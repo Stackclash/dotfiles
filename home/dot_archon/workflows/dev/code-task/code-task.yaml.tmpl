@@ -165,8 +165,12 @@ nodes:
     when: "$intake.output.source == 'interview' || $ticket-ready.output.complete == false"
     loop_group:
       nodes:
+        # $LOOP_PREV is not substituted inside command files, so the previous
+        # gate's answer is passed in as a binding ($INPUTS.reply).
         - id: interview-round
           command: interview
+          with:
+            reply: "$LOOP_PREV.interview-gate.output.text"
         - id: interview-gate
           depends_on: [interview-round]
           approval:
@@ -259,6 +263,8 @@ nodes:
             nodes:
               - id: clarify-round
                 command: clarify
+                with:
+                  reply: "$LOOP_PREV.clarify-gate.output.text"
               - id: clarify-gate
                 depends_on: [clarify-round]
                 approval:
@@ -288,6 +294,8 @@ nodes:
         - id: plan
           command: plan
           depends_on: [recheck-proposal]
+          with:
+            approval_response: "$LOOP_PREV.plan-approval.output"
           trigger_rule: all_done
           model: large
           context: fresh
@@ -676,6 +684,8 @@ nodes:
             nodes:
               - id: record-verification
                 command: record-verification
+                with:
+                  gate_response: "$LOOP_PREV.verify-gate.output"
                 when: "$LOOP_PREV.verify-gate.output.decision == 'approve' || $LOOP_PREV.verify-gate.output.decision == 'results'"
                 context: fresh
               - id: verification-status
