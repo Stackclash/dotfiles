@@ -18,7 +18,6 @@ node = "22"
 "aqua:yarnpkg/berry" = "latest"
 "aqua:nektos/act" = "latest"
 "github:ebullient/ttrpg-convert-cli" = "latest"
-"aqua:astral-sh/uv" = "latest"
 # Azure Tools
 "vfox:mise-plugins/vfox-azure-functions-core-tools" = "latest"
 # AI agent CLIs (generated from .chezmoidata/ai-agents.yaml -- edit that file, not here)
@@ -38,3 +37,6 @@ _.path = ['{{ "{{cwd}}" }}/node_modules/.bin']
 MISE_PWSH_CHPWD_WARNING = 0
 NAVI_CONFIG = "~/.config/navi/config.yml"
 UV_PRERELEASE = "allow"
+
+[settings]
+trusted_config_paths = ['{{ .projectPath }}']

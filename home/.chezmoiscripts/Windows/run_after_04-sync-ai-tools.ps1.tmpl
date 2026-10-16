@@ -22,6 +22,7 @@
 # not-yet-installed CLI.
 # -------------------------------------------------------
 # ai-tools.yaml + ai-agents.yaml hash: {{ list .aiTools .aiAgents | toString | sha256sum }}
+{{ template "mise-path" . }}
 
 $script:Notes = @()
 $script:Counts = @{ ok = 0; skip = 0; fail = 0 }

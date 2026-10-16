@@ -1,0 +1,3 @@
+#!/bin/zsh
+# Login setup (Homebrew, mise shims) lives in ~/.profile, shared with bash/sh.
+[ -f "$HOME/.profile" ] && emulate sh -c '. "$HOME/.profile"'
