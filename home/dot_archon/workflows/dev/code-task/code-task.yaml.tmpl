@@ -70,6 +70,11 @@ inputs:
   ado_project:
     default: {{ (dopplerProjectJson).AZURE_PROJECT | default "" | quote }}
     description: ADO project for bare IDs and AB# references. Defaults to the AZURE_PROJECT Doppler secret.
+  projects_dir:
+    default: {{ .projectPath | default "" | quote }}
+    description: >-
+      Folder holding your local projects; agents look for other repos here and
+      never search the whole filesystem. Defaults to chezmoi's projectPath.
 
 returns: write-report
 
