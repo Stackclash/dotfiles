@@ -26,7 +26,7 @@ from.
 - **Docs directory:** `$DOCS_DIR`
 - **Requester's reply to the previous round (empty on the first round):**
 
-$LOOP_PREV.interview-gate.output.text
+$INPUTS.reply
 
 ## Hard rules
 
@@ -170,6 +170,19 @@ mark anything you inferred as inferred:
 - `## Proposed glossary terms` — `**Term**: definition` + `_Avoid_: synonyms`
 - `## ADR candidates` — title, decision, alternatives, why
 - `## Code context` — files and `path:line` references a planner needs
+
+## Where to look
+
+Search only inside this repository and the projects folder
+`$INPUTS.projects_dir`, where the requester's other local projects live (a
+project the task names, such as a sibling repo, is a folder in it; check its
+immediate subfolders before going deeper). If the projects folder is empty,
+search only this repository.
+
+Never search the whole filesystem, your home directory, or a drive root: no
+`find /`, `find ~`, `find /c`, `ls -R /`, `dir /s` on a drive, or similar. Such
+searches can run for hours and hang this run. If what you need is in neither
+place, say so in your output instead of searching further.
 
 ## Output
 
