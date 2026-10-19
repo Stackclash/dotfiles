@@ -62,6 +62,16 @@ aiTools:
           - "@azure-devops/mcp@2.8.1"
           - "{{ (dopplerProjectJson).AZURE_ORG }}"
 
+    omniroute:
+      config:
+        type: stdio
+        command: omniroute
+        args:
+          - "--mcp"
+        env:
+          OMNIROUTE_BASE_URL: "http://localhost:20128"
+          OMNIROUTE_API_KEY: "{{ (dopplerProjectJson).OMNIROUTE_API_KEY }}"
+
   plugin:
     superpowers:
       claude:
@@ -112,6 +122,11 @@ aiTools:
         backend: npm
         package: "@fission-ai/openspec"
       projectNote: "Run `openspec init` inside each repo to scaffold its openspec/ folder."
+
+    # omniroute:
+    #   mise:
+    #     backend: npm
+    #     package: "omniroute"
 
   custom:
     # Author the content under home/dot_ai/skills/<name>/ (a skill) or
