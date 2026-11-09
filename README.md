@@ -51,11 +51,11 @@ Run this command on a fresh system to install chezmoi and initialize these dotfi
 
 Windows (PowerShell)
 ```
-powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr https://raw.githubusercontent.com/Stackclash/dotfiles/main/bootstrap.ps1 | iex"
+powershell -NoProfile -ExecutionPolicy Bypass -Command "iwr https://raw.githubusercontent.com/Stackclash/dotfiles/main/setup/bootstrap.ps1 | iex"
 ```
 macOS / Linux (Shell)
 ```
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/Stackclash/dotfiles/main/bootstrap.sh)"
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/Stackclash/dotfiles/main/setup/bootstrap.sh)"
 ```
 
 # To-Do

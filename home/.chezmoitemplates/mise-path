@@ -4,10 +4,11 @@
 $env:Path = @($env:Path, [Environment]::GetEnvironmentVariable('Path', 'Machine'), [Environment]::GetEnvironmentVariable('Path', 'User')) -join ';'
 {{- else -}}
 # Non-interactive: no rc file ran, so reach mise tools through its shims.
+{{- if eq .chezmoi.os "darwin" }}
+# macOS: mise comes from Homebrew, which may not be on PATH yet.
 if ! command -v mise >/dev/null 2>&1; then
-    for brew in /opt/homebrew/bin/brew /home/linuxbrew/.linuxbrew/bin/brew; do
-        if [ -x "$brew" ]; then eval "$("$brew" shellenv)"; break; fi
-    done
+    if [ -x /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
 fi
+{{- end }}
 export PATH="${MISE_DATA_DIR:-$HOME/.local/share/mise}/shims:$PATH"
 {{- end -}}

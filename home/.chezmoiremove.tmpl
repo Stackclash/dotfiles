@@ -1,0 +1,9 @@
+{{- /*
+  Omarchy seeds ~/.config/git/config with its defaults plus a gh credential
+  helper pinned to a versioned mise path that breaks on every gh upgrade.
+  ~/.gitconfig (dot_gitconfig.tmpl) now carries those defaults on every OS,
+  so drop the XDG copy on Omarchy.
+*/ -}}
+{{- if includeTemplate "is-omarchy" . }}
+.config/git/config
+{{- end }}

@@ -1,3 +1,5 @@
+{{- /* Work machines only: renders empty (so chezmoi skips it) otherwise. */ -}}
+{{- if .workComputer -}}
 {{- template "elevate-powershell" }}
 
 {{- $projectPath := .projectPath -}}
@@ -33,3 +35,4 @@ try {
 } catch {
     echo "An Error has occurred. Possibly due to the Github API rate limits. Wait a couple of minutes and try again."
 }
+{{- end }}
