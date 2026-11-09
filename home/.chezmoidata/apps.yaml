@@ -43,13 +43,6 @@ apps:
       id: "syncthing"
       method: "brew"
 
-  # Shells
-  fish:
-    forPersonal: false
-    darwin:
-      id: "fish"
-      method: "brew"
-
   # CLI Tools
   mise:
     forPersonal: false
@@ -77,12 +70,6 @@ apps:
     darwin:
       id: "git"
       method: "brew"
-
-  clink:
-    forPersonal: false
-    windows:
-      id: "chrisant996.Clink"
-      method: "winget"
 
   powershell:
     forPersonal: false

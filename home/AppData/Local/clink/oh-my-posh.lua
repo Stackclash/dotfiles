@@ -1,1 +1,0 @@
-load(io.popen('oh-my-posh init cmd --config "tokyo"'):read("*a"))()
