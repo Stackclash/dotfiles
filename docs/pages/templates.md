@@ -23,6 +23,7 @@ home/.chezmoitemplates/
 ├── mcp-server-toml         # AI tools: MCP config as a Codex TOML table
 ├── mcp-server-toml-value
 ├── mise-path               # put mise tools on PATH inside chezmoi scripts
+├── project-path            # projectPath with a leading ~ expanded
 ├── theme-helpers           # rgbToHex / rgbToFloat
 ├── vscode-keybindings
 ├── vscode-mcp
@@ -42,6 +43,15 @@ Prints `true` on Omarchy and nothing elsewhere. It is built on chezmoi's own dat
 
 ```gotmpl
 {{ if includeTemplate "is-omarchy" . }}...{{ end }}
+```
+
+### `project-path`
+Prints `projectPath` with a leading `~` expanded to the home directory. Neither
+bash nor PowerShell expands `~` inside quotes or when passing it to `gh`, so
+scripts use this instead of `.projectPath`:
+
+```gotmpl
+PROJECT_PATH="{{ includeTemplate "project-path" . }}/Personal"
 ```
 
 ### `mise-path`

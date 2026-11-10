@@ -87,7 +87,7 @@ To override the list on one machine, add it to `~/.config/chezmoi/chezmoi.json`:
 ```
 
 Adding a distro takes one entry. Adding a new manager also needs one `case`
-branch in `Linux/run_onchange_02-install-apps.sh.tmpl`.
+branch in `install_with` (and `upgrade_with`) in `Linux/run_02-install-apps.sh.tmpl`.
 
 ## omarchy.yaml
 

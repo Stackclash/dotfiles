@@ -1,4 +1,10 @@
 #!/bin/bash
+# Homebrew was installed by run_once_before_01 in another process, so its
+# Apple Silicon prefix may not be on PATH yet.
+if ! command -v brew >/dev/null 2>&1 && [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 brew update
 brew upgrade
 

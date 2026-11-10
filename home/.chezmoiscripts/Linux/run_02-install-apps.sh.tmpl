@@ -5,8 +5,10 @@
 # by .chezmoi.osRelease.id then .chezmoi.osRelease.idLike, or from the
 # per-machine `packageManagers` override in ~/.config/chezmoi/chezmoi.json.
 # Each app uses the first manager in that list it defines a key for.
+# Runs every apply and upgrades the system first, like `brew upgrade` on macOS
+# and `winget upgrade` on Windows. Arch only supports full upgrades, so this
+# is a system upgrade, through `omarchy update` on Omarchy.
 # -------------------------------------------------------
-# apps.yaml + linux-package-managers.yaml hash: {{ list .apps .linuxPackageManagers .packageManagers | toString | sha256sum }}
 {{- /* ---- choose the manager list ---- */}}
 {{- $pmMap := .linuxPackageManagers }}
 {{- $distro := .chezmoi.osRelease.id | default "" }}
@@ -93,13 +95,50 @@ queue {{ $m }} {{ range get $pkgs $m }}{{ . | quote }} {{ end }}
 queue_installer {{ index $parts 0 | quote }} {{ index $parts 1 | quote }} {{ index $parts 2 | quote }}
 {{- end }}
 
+aur_helper() {
+  if command -v yay >/dev/null 2>&1; then echo yay
+  elif command -v paru >/dev/null 2>&1; then echo paru
+  else return 1; fi
+}
+
+# Upgrades are checked without root too. checkupdates exits 0 when updates are
+# pending and 2 when there are none; without it (no pacman-contrib) the upgrade
+# always runs. apt reads its existing package lists, which apt-daily refreshes.
+UPGRADES=()
+pacman_pending() { if command -v checkupdates >/dev/null 2>&1; then checkupdates >/dev/null 2>&1; else return 0; fi; }
+aur_pending() { local h; h="$(aur_helper)" && [ -n "$("$h" -Qua 2>/dev/null)" ]; }
+if [ $OMARCHY -eq 1 ]; then
+  { pacman_pending || aur_pending; } && UPGRADES+=(omarchy)
+else
+  for m in "${MANAGER_ORDER[@]}"; do
+    case "$m" in
+      pacman) pacman_pending && UPGRADES+=(pacman) ;;
+      aur)    aur_pending && UPGRADES+=(aur) ;;
+      apt)    apt list --upgradable 2>/dev/null | grep -q 'upgradable from' && UPGRADES+=(apt) ;;
+      dnf)    dnf check-update -q >/dev/null 2>&1; [ $? -eq 100 ] && UPGRADES+=(dnf) ;;
+    esac
+  done
+fi
+
+# upgrade_with MANAGER
+upgrade_with() {
+  echo "  [$1] upgrading"
+  case "$1" in
+    omarchy) omarchy-update -y ;;
+    pacman)  sudo pacman -Syu --noconfirm ;;
+    aur)     "$(aur_helper)" -Sua --noconfirm ;;
+    apt)     sudo apt-get update && sudo apt-get upgrade -y ;;
+    dnf)     sudo dnf upgrade -y ;;
+  esac
+}
+
 # Ask for the sudo password once, then keep the cached credential fresh in the
 # background until this script exits. Long AUR builds or downloads can outlast
 # sudo's timestamp_timeout. pacman, yay and the Omarchy installers run in this
 # terminal, so they all reuse it.
 start_sudo_once() {
   [ "$(id -u)" -eq 0 ] && return 0
-  echo "  Root access is needed to install the apps above - enter your password once."
+  echo "  Root access is needed for the changes above - enter your password once."
   sudo -v || return 1
   ( while kill -0 "$$" 2>/dev/null; do sudo -n -v 2>/dev/null; sleep 60; done ) &
   SUDO_KEEPALIVE_PID=$!
@@ -136,21 +175,24 @@ run_installer() {
 }
 
 pending=0
+[ ${#UPGRADES[@]} -gt 0 ] && { echo "  To upgrade: ${UPGRADES[*]}"; pending=1; }
 for m in "${MANAGER_ORDER[@]}"; do
   if [ -n "${TODO[$m]:-}" ]; then echo "  To install with $m: ${TODO[$m]}"; pending=1; fi
 done
 for i in "${INSTALLERS[@]}"; do echo "  To install with omarchy-install: ${i%%|*}"; pending=1; done
 
 if [ $pending -eq 0 ]; then
-  echo "  Everything is already installed."
+  echo "  Everything is installed and up to date."
 elif start_sudo_once; then
+  # Upgrade first, so new installs come from the same package database.
+  for u in "${UPGRADES[@]}"; do upgrade_with "$u" || FAILED=1; done
   for m in "${MANAGER_ORDER[@]}"; do
     # shellcheck disable=SC2086 # word-split the queued package list
     [ -n "${TODO[$m]:-}" ] && { install_with "$m" ${TODO[$m]} || FAILED=1; }
   done
   for i in "${INSTALLERS[@]}"; do run_installer "$i" || FAILED=1; done
 else
-  echo "  sudo was not granted - skipping installs. Re-run 'chezmoi apply --force' to retry." >&2
+  echo "  sudo was not granted - skipping installs. Run 'chezmoi apply' to retry." >&2
   FAILED=1
 fi
 
@@ -166,6 +208,6 @@ echo "    - {{ . }}"
 {{- end }}
 
 if [ $FAILED -ne 0 ]; then
-  echo "Some apps failed to install - fix the errors above and re-run 'chezmoi apply --force'." >&2
+  echo "Some apps failed to install - fix the errors above and run 'chezmoi apply' again." >&2
 fi
 exit 0

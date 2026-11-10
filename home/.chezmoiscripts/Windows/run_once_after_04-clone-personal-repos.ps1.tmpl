@@ -1,7 +1,5 @@
-{{- template "elevate-powershell" }}
-
-{{- $projectPath := .projectPath }}
-
+# NOT elevated: repos cloned by an elevated process are owned by Administrators,
+# and git then refuses them as "dubious ownership" in a normal shell.
 {{ template "mise-path" . }}
 
 gh auth status >$null 2>&1
@@ -9,7 +7,7 @@ if ($LASTEXITCODE -ne 0) {
     gh auth login -p https --web
 }
 
-$projectPath = "{{ $projectPath }}\Personal"
+$projectPath = '{{ includeTemplate "project-path" . | replace "'" "''" }}' + "\Personal"
 $repos = gh repo list --source --json name,nameWithOwner -L 5 | ConvertFrom-Json
 
 foreach ($repo in $repos) {

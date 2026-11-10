@@ -27,9 +27,8 @@ Edit those files and run `chezmoi apply` — nothing else needs touching.
 | **chezmoi templates** | package tools and agent CLIs → mise config (`~/.config/mise/config.toml`); `vscode-json` agents' MCP servers → VS Code `mcp.json` (next to `settings.json`) |
 | **`run_onchange_after_04-sync-ai-tools` script** (per-OS: PowerShell + bash) | imperative installs: MCP registration, plugin installs, published skill installs (`npx skills add`), custom skill/agent copy, package post-install steps |
 
-The sync script inlines the tool list from `ai-tools.yaml` at render time (like
-`run_onchange_02-install-apps`), so it re-runs automatically whenever the data
-changes. Every external command it runs is **best-effort**: if a CLI (`claude`,
+The sync script inlines the tool list from `ai-tools.yaml` at render time, so it
+always reflects the current data. Every external command it runs is **best-effort**: if a CLI (`claude`,
 `codex`, …) isn't installed yet, it logs a follow-up note and moves on — a missing
 tool never fails `chezmoi apply`.
 

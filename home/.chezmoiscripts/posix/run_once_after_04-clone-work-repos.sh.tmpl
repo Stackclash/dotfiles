@@ -2,33 +2,32 @@
 {{- if .workComputer -}}
 #!/bin/bash
 
-{{- $projectPath := .projectPath -}}
-{{- $workGithubOrg := .workGithubOrg -}}
-{{- $githubUsername := .githubUsername }}
-
 {{ template "mise-path" . }}
 
 if ! gh auth status >/dev/null 2>&1; then
-    gh auth login -p ssh --web
+    gh auth login -p https --web
 fi
 
-PROJECT_PATH="{{ $projectPath }}/Work"
-WORK_GITHUB_ORG={{ $workGithubOrg | quote }}
-GITHUB_USERNAME={{ $githubUsername | quote }}
+PROJECT_PATH="{{ includeTemplate "project-path" . }}/Work"
+WORK_GITHUB_ORG={{ .workGithubOrg | quote }}
+GITHUB_USERNAME={{ .githubUsername | quote }}
 # GNU date (Linux) first, BSD date (macOS) second
 DATE_QUERY=">=$(date -d '1 year ago' +%F 2>/dev/null || date -v-1y +%F)" # 1 year ago
-REPOS=$(gh repo list $WORK_GITHUB_ORG --source --json name,nameWithOwner)
+REPOS=$(gh repo list "$WORK_GITHUB_ORG" --source --json name,nameWithOwner)
 
-for REPO in $(jq --compact-output '.[]' <<< $REPOS); do
-    REPO_NAME_WITH_OWNER=$(jq '.nameWithOwner' <<< $REPO | tr -d '"')
-    COMMITS=$(gh search commits --repo $REPO_NAME_WITH_OWNER --committer $GITHUB_USERNAME --committer-date $DATE_QUERY)
+for REPO in $(jq --compact-output '.[]' <<< "$REPOS"); do
+    REPO_NAME_WITH_OWNER=$(jq -r '.nameWithOwner' <<< "$REPO")
+    if ! COMMITS=$(gh search commits --repo "$REPO_NAME_WITH_OWNER" --committer "$GITHUB_USERNAME" --committer-date "$DATE_QUERY"); then
+        echo "Could not search $REPO_NAME_WITH_OWNER, possibly due to GitHub API rate limits. Wait a couple of minutes and try again." >&2
+        exit 1
+    fi
 
     if [ -n "$COMMITS" ]; then
-        REPO_NAME=$(jq '.name' <<< $REPO | tr -d '"')
+        REPO_NAME=$(jq -r '.name' <<< "$REPO")
         REPO_PATH="$PROJECT_PATH/$REPO_NAME"
 
-        if [ ! -d $REPO_PATH ]; then
-            gh repo clone $REPO_NAME_WITH_OWNER $REPO_PATH
+        if [ ! -d "$REPO_PATH" ]; then
+            gh repo clone "$REPO_NAME_WITH_OWNER" "$REPO_PATH"
         else
             echo "$REPO_PATH already exists"
         fi
