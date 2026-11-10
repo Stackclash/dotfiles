@@ -1,0 +1,41 @@
+#!/bin/bash
+# chezmoi modify script for ~/.config/omarchy/shell.json.
+# Omarchy migrations rewrite this file's layout during updates, so chezmoi
+# never replaces it. It reads the current file on stdin and only merges the
+# preferences in .chezmoidata/omarchy.yaml (omarchyPrefs.bar).
+set -u
+
+current="$(cat)"
+# No file yet (fresh install): start from Omarchy's default.
+if [ -z "${current//[[:space:]]/}" ]; then
+  current="$(cat "${OMARCHY_PATH:-/usr/share/omarchy}/config/omarchy/shell.json" 2>/dev/null || true)"
+fi
+
+# Without jq or valid JSON, leave the file exactly as it is.
+if ! command -v jq >/dev/null 2>&1 || ! printf '%s' "$current" | jq -e . >/dev/null 2>&1; then
+  printf '%s' "$current"
+  exit 0
+fi
+
+# Tray plugins, filtered to those actually installed.
+tray='[]'
+for id in {{ range .omarchyPrefs.bar.tray }}{{ . | quote }} {{ end }}; do
+  for manifest in "$HOME"/.config/omarchy/plugins/*/manifest.json; do
+    if [ -f "$manifest" ] && [ "$(jq -r '.id // empty' "$manifest" 2>/dev/null)" = "$id" ]; then
+      tray="$(jq -c --arg id "$id" '. + [$id]' <<<"$tray")"
+      break
+    fi
+  done
+done
+
+printf '%s' "$current" | jq \
+  --argjson cities {{ .omarchyPrefs.bar.elsewhenCities | toJson | squote }} \
+  --argjson tray "$tray" '
+  # Elsewhen cities, wherever the widget sits in the layout.
+  walk(if type == "object" and .id == "omarchy.elsewhen" then .cities = $cities else . end)
+  # Tray plugins: append the ones not already present.
+  | if ($tray | length) > 0 and (.bar.layout | type) == "object" then
+      .bar.layout.tray = reduce $tray[] as $id ((.bar.layout.tray // []);
+        if any(.[]; (type == "object" and .id == $id) or . == $id) then . else . + [{id: $id}] end)
+    else . end
+'
