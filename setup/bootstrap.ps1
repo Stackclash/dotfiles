@@ -30,7 +30,36 @@ if (-not (Get-Command chezmoi -ErrorAction SilentlyContinue)) {
     Write-Host "✔ chezmoi is already installed."
 }
 
-# --- 3. Initialize your repo ---
+# --- 3. Doppler CLI ---
+# Templates call dopplerProjectJson while chezmoi renders the target state,
+# which happens before any run_* script, so Doppler must exist and be logged
+# in first. It comes from mise, the same install apps.yaml uses.
+if (-not (Get-Command doppler -ErrorAction SilentlyContinue)) {
+    if (-not (Get-Command mise -ErrorAction SilentlyContinue)) {
+        Write-Host "📦 Installing mise with WinGet..."
+        winget install --id jdx.mise --exact --silent --accept-package-agreements --accept-source-agreements
+        $env:Path = @($env:Path, [Environment]::GetEnvironmentVariable('Path', 'Machine'), [Environment]::GetEnvironmentVariable('Path', 'User')) -join ';'
+    }
+    Write-Host "📦 Installing Doppler CLI with mise..."
+    mise use -g github:DopplerHQ/cli@latest
+    $env:Path = (Join-Path $env:LOCALAPPDATA 'mise\shims') + ';' + $env:Path
+    if (-not (Get-Command doppler -ErrorAction SilentlyContinue)) {
+        Write-Error "❌ Failed to install the Doppler CLI."
+        exit 1
+    }
+}
+# Windows PowerShell turns redirected native stderr into a terminating error
+# under "Stop", so relax it for this check.
+$ErrorActionPreference = "Continue"
+doppler me *> $null
+$dopplerLoggedIn = $LASTEXITCODE -eq 0
+$ErrorActionPreference = "Stop"
+if (-not $dopplerLoggedIn) {
+    Write-Host "🔑 Logging in to Doppler..."
+    doppler login
+}
+
+# --- 4. Initialize your repo ---
 Write-Host "🚀 Initializing Stackclash dotfiles..."
 chezmoi init --apply Stackclash
 

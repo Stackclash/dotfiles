@@ -1,12 +1,12 @@
-{{ template "elevate-powershell" }}
-
 # -------------------------------------------------------
 # VS Code Extension Sync Script (PowerShell, templated)
 # Reads profile definitions from .chezmoidata/vscode-profiles.yaml
 # Syncs extensions per VS Code profile.
+# NOT elevated: VS Code warns when run as Administrator, and extensions belong
+# to the current user.
 # -------------------------------------------------------
 
-# vscode profiles hash: {{ .vscodeProfiles | toYaml | sha256sum }}
+{{ template "mise-path" . }}
 
 # Toggle removal of extensions not declared in YAML
 $RemoveExtra = $true

@@ -94,6 +94,7 @@ Templates in `home/.chezmoitemplates/` are included with `{{ template "name" . }
 - **`elevate-powershell`** — Re-launches the script as Administrator if not already elevated
 - **`is-omarchy`** — Prints `true` on Omarchy, nothing elsewhere
 - **`mise-path`** — Puts mise tools on PATH inside scripts (no rc file is loaded there)
+- **`project-path`** — `projectPath` with a leading `~` expanded; use it instead of `.projectPath` in scripts (`includeTemplate`)
 - **`theme-helpers`** — Defines `rgbToHex` and `rgbToFloat` functions for color conversion
 - **`vscode-settings`** — Generates the VS Code `settings.json` content
 - **`vscode-keybindings`** — Generates VS Code `keybindings.json` content
@@ -120,9 +121,9 @@ If mise can install it (`mise registry <name>`), add it to `home/dot_config/mise
 
 
 1. Add an entry to `home/.chezmoidata/apps.yaml` with `windows:`, `darwin:` and/or `linux:` install info (`linux:` keys are package managers: `omarchy`, `pacman`, `aur`, `apt`, `dnf`)
-2. Run `chezmoi apply` — the `run_onchange_02-install-apps` script will re-run and install it
+2. Run `chezmoi apply` — the `run_02-install-apps` script runs on every apply and installs it
 
 ### Adding a New VS Code Profile
 
 1. Add the profile and its extensions to `home/.chezmoidata/vscode-profiles.yaml`
-2. Run `chezmoi apply` — the `run_onchange_03-setup-vscode-profiles` script syncs extensions
+2. Run `chezmoi apply` — the `run_03-setup-vscode-profiles` script syncs extensions on every apply

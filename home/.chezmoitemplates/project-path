@@ -1,0 +1,7 @@
+{{- /*
+  Prints projectPath with a leading ~ expanded to the home directory. Scripts
+  quote the path, and neither bash nor PowerShell expands ~ inside quotes or
+  when passing it to native commands like gh.
+  Usage: {{ includeTemplate "project-path" . }}
+*/ -}}
+{{- regexReplaceAll "^~" .projectPath .chezmoi.homeDir -}}

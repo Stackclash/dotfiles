@@ -31,11 +31,25 @@ else
     echo "✔ chezmoi is already installed."
 fi
 
-# --- 4. Doppler CLI (Linux) ---
+# --- 4. Doppler CLI ---
 # Templates call dopplerProjectJson while chezmoi renders the target state,
 # which happens before any run_* script, so Doppler must exist and be logged
-# in first. Omarchy ships mise; other distros need mise installed beforehand.
-if [ "$OS" = "linux" ] && ! command -v doppler >/dev/null 2>&1; then
+# in first. Omarchy ships mise; macOS gets it from Homebrew here (the same
+# install apps.yaml uses); other distros need mise installed beforehand.
+if [ "$OS" = "darwin" ] && ! command -v doppler >/dev/null 2>&1 && ! command -v mise >/dev/null 2>&1; then
+    if ! command -v brew >/dev/null 2>&1; then
+        if [ -x /opt/homebrew/bin/brew ]; then
+            eval "$(/opt/homebrew/bin/brew shellenv)"
+        else
+            echo "📦 Installing Homebrew..."
+            /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+            if [ -x /opt/homebrew/bin/brew ]; then eval "$(/opt/homebrew/bin/brew shellenv)"; fi
+        fi
+    fi
+    echo "📦 Installing mise with Homebrew..."
+    brew install mise
+fi
+if ! command -v doppler >/dev/null 2>&1; then
     if command -v mise >/dev/null 2>&1; then
         echo "📦 Installing Doppler CLI with mise..."
         mise use -g github:DopplerHQ/cli@latest

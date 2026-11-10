@@ -54,8 +54,8 @@ shows the difference and `chezmoi apply` restores your version.
 
 ## Setting up a new Omarchy machine
 
-1. Run the bootstrap one-liner from the README. On Linux it installs the Doppler
-   CLI with mise and runs `doppler login` first, because templates read Doppler
+1. Run the bootstrap one-liner from the README. It installs the Doppler CLI with
+   mise and runs `doppler login` first, because templates read Doppler
    while they render.
 2. Answer the `chezmoi init` prompts.
 3. Review before applying: `chezmoi diff --use-builtin-diff`. The configured diff
