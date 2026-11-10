@@ -39,7 +39,7 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/Stackclash/dotfiles/main/s
 
 - `home/` — Chezmoi source root; maps 1:1 to `~` after applying
 - `home/.chezmoidata/` — YAML data files consumed by all templates and scripts
-- `home/.chezmoiscripts/` — Automation scripts split by OS (`Darwin/`, `Windows/`)
+- `home/.chezmoiscripts/` — Automation scripts split by OS (`Windows/`, `Darwin/`, `Linux/`, plus `posix/` shared by macOS and Linux)
 - `home/.chezmoitemplates/` — Reusable Go template fragments (included via `{{ template "name" . }}`)
 - `setup/` — Bootstrap scripts for new machine provisioning
 - `docs/` — MkDocs documentation site
@@ -50,13 +50,15 @@ All dynamic configuration lives in `home/.chezmoidata/`:
 
 | File | Purpose |
 |------|---------|
-| `apps.yaml` | App definitions with per-OS install methods (winget/choco/brew) |
+| `apps.yaml` | App definitions with per-OS install methods (winget/choco/brew; `linux:` maps package manager → package name) |
+| `linux-package-managers.yaml` | Package managers to try per distro (keyed by os-release ID, matched on `id` then `idLike`) |
+| `omarchy.yaml` | Omarchy preferences (`omarchyPrefs`): theme and bar settings merged into `shell.json` |
 | `ai-tools.yaml` | AI tools to install (MCP servers, plugins, skills, packages); `agents:` limits which agents get one |
 | `ai-agents.yaml` | AI agent registry: per-agent CLI, MCP delivery method, skills/agents directories |
 | `themes.yaml` | Color themes with RGB/hex values (dracular, molokai, mojave_dark) |
 | `vscode-profiles.yaml` | VS Code profiles with per-profile extension lists |
 
-Scripts and templates reference these as `.apps`, `.aiTools`, `.aiAgents`, `.themes`, and `.vscodeProfiles`. Editing a data file and running `chezmoi apply` is enough to trigger relevant `run_onchange_*` scripts.
+Scripts and templates reference these as `.apps`, `.linuxPackageManagers`, `.omarchyPrefs`, `.aiTools`, `.aiAgents`, `.themes`, and `.vscodeProfiles`. Editing a data file and running `chezmoi apply` is enough to trigger relevant `run_onchange_*` scripts.
 
 ### Script Naming Convention
 
@@ -83,26 +85,37 @@ Key variables available in all `.tmpl` files (defined via prompts in `home/.chez
 | `.theme` | Selected theme name (`dracular` or `molokai`) |
 | `.chezmoi.os` | `windows`, `darwin`, or `linux` |
 
-Use `{{- if eq .chezmoi.os "windows" }}` for OS-conditional blocks.
+Use `{{- if eq .chezmoi.os "windows" }}` for OS-conditional blocks, and `{{ if includeTemplate "is-omarchy" . }}` for Omarchy-only content. Detect the OS only through chezmoi's built-in data (`.chezmoi.os`, `.chezmoi.osRelease.id` / `.idLike`). `.chezmoi.osRelease` exists only on Linux, so check `.chezmoi.os` first.
 
 ### Reusable Templates
 
 Templates in `home/.chezmoitemplates/` are included with `{{ template "name" . }}`:
 
 - **`elevate-powershell`** — Re-launches the script as Administrator if not already elevated
+- **`is-omarchy`** — Prints `true` on Omarchy, nothing elsewhere
+- **`mise-path`** — Puts mise tools on PATH inside scripts (no rc file is loaded there)
 - **`theme-helpers`** — Defines `rgbToHex` and `rgbToFloat` functions for color conversion
 - **`vscode-settings`** — Generates the VS Code `settings.json` content
 - **`vscode-keybindings`** — Generates VS Code `keybindings.json` content
 
 ### Cross-Platform Handling
 
-- OS-specific scripts live under `.chezmoiscripts/Darwin/` and `.chezmoiscripts/Windows/`
-- `.chezmoiignore.tmpl` excludes platform-irrelevant files (e.g., `AppData/**` on macOS, `Library/**` on Windows)
-- Apps in `apps.yaml` have separate `windows:` and `darwin:` blocks; apps with `forPersonal: true` are skipped on work machines
+- OS-specific scripts live under `.chezmoiscripts/{Windows,Darwin,Linux}/`. Bash shared by macOS and Linux goes in `posix/`.
+- `.chezmoiignore.tmpl` excludes platform-irrelevant files (`AppData/**` and `Documents/**` off Windows, `Library/**` off macOS, `.config/hypr|omarchy/**` off Omarchy)
+- Apps in `apps.yaml` have separate `windows:`, `darwin:` and `linux:` blocks. Apps with `forPersonal: true` are skipped on work machines.
+
+### Omarchy
+
+Omarchy (`$OMARCHY_PATH=/usr/share/omarchy`) owns its defaults. Never edit or manage anything under `/usr/share/omarchy`. See `docs/pages/omarchy.md`.
+- `~/.bashrc` must keep Omarchy's `env-bootstrap` and `$OMARCHY_PATH/default/bash/rc` source lines. Omarchy's rc already sets up mise and starship.
+- `~/.profile` and zsh files are not deployed on Omarchy, because `env-bootstrap` orders the login PATH itself.
+- Files that Omarchy migrations rewrite (such as `~/.config/omarchy/shell.json`) get `modify_` merge scripts, never whole-file ownership.
+- Use `omarchy-pkg-add` / `omarchy-pkg-aur-add` for packages. Omarchy-provided apps are `omarchy: shipped` in `apps.yaml`, with pacman/apt/dnf names so other Linux machines get them too.
+- Review changes with `chezmoi diff --use-builtin-diff`. The configured diff tool is `code --wait`.
 
 ### Adding a New App
 
-1. Add an entry to `home/.chezmoidata/apps.yaml` with `windows:` and/or `darwin:` install info
+1. Add an entry to `home/.chezmoidata/apps.yaml` with `windows:`, `darwin:` and/or `linux:` install info (`linux:` keys are package managers: `omarchy`, `pacman`, `aur`, `apt`, `dnf`)
 2. Run `chezmoi apply` — the `run_onchange_02-install-apps` script will re-run and install it
 
 ### Adding a New VS Code Profile

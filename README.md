@@ -15,7 +15,8 @@ This project is designed to be reproducible, maintainable, and well-documented �
 - OS-specific bootstrap scripts:
 - run_once_before_* automatic package manager setup
 - run_onchange_* for idempotent application installs
-- Separate workflows for macOS (Darwin) and Windows
+- Separate workflows for Windows, macOS (Darwin) and Linux, plus shared `posix/` scripts
+- First-class [Omarchy](https://github.com/omacom/omarchy) support: works alongside Omarchy's own defaults instead of overwriting them
 
 ## 🖌️ Theming & Configuration Data
 - Centralized theme variables for use across templates
@@ -25,6 +26,7 @@ This project is designed to be reproducible, maintainable, and well-documented �
 ## 🖥️ Shell & Terminal Environment
 - PowerShell profiles for Windows
 - Bash and Zsh configs (.bashrc, .zshrc)
+- Starship prompt with one shared config on every OS
 - Git templates
 
 ## 💻 Application & Environment Setup
@@ -34,6 +36,8 @@ Automated install of:
 Homebrew packages (macOS)
 
 Windows package manager + apps (Windows)
+
+Distro packages on Linux (Omarchy, Arch, Debian/Ubuntu, Fedora), chosen per distro from data
 
 VS Code extensions (cross-platform)
 

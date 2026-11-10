@@ -15,6 +15,7 @@ nav:
       - AI Tools: ai-tools.md
       - Archon code-task Workflow: archon-code-task.md
       - Themes: themes.md
+      - Omarchy: omarchy.md
 
   - Applications:
       - Visual Studio Code: applications/vscode.md

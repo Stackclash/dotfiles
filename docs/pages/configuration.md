@@ -4,104 +4,108 @@ title: Configuration Data
 
 # Configuration Data (`.chezmoidata` + `.chezmoi.json.tmpl`)
 
-This repository uses **data-driven configuration**, meaning the contents of `.chezmoidata/` define how templates are generated.
+Every dynamic setting lives in YAML under `home/.chezmoidata/`. Templates and
+scripts read each file's top-level key (for example `.apps`). Edit a file and run
+`chezmoi apply`: the `run_onchange_*` scripts embed a hash of the data they
+read, so they re-run on their own.
 
----
-
-## Directory Structure
 ```
 home/.chezmoidata/
-├── apps.yaml
-├── themes.yaml
-└── vscode-profiles.yaml
+├── apps.yaml                     # .apps
+├── linux-package-managers.yaml   # .linuxPackageManagers
+├── omarchy.yaml                  # .omarchyPrefs
+├── ai-tools.yaml                 # .aiTools   (see AI Tools)
+├── ai-agents.yaml                # .aiAgents  (see AI Tools)
+├── themes.yaml                   # .themes    (see Themes)
+└── vscode-profiles.yaml          # .vscodeProfiles
 ```
 
----
+## apps.yaml
 
-## apps.yaml — Application Lists
-
-Defines which apps to install for each OS.
-
-Example:
+One entry per app, with a block for each OS it installs on. An app with no block
+for an OS is skipped there. `forPersonal: true` skips the app on work machines.
 
 ```yaml
-windows:
-  packages:
-    - Microsoft.PowerShell
-    - Git.Git
-
-darwin:
-  brews:
-    - git
+apps:
+  vscode:
+    forPersonal: false
+    windows: { id: "Microsoft.VisualStudioCode", method: winget }   # winget | choco
+    darwin:  { id: "visual-studio-code", method: brew-cask }       # brew | brew-cask | brew-tap
+    linux:
+      omarchy: { installer: editor-vscode, package: visual-studio-code-bin }
+      aur: visual-studio-code-bin
 ```
-Used by run_onchange_02-install-apps scripts for each platform.
 
-## themes.yaml — Theme Definition
-Defines reusable theme variables, e.g.:
+The `linux:` block maps each **package manager to a package name**. The install
+script uses the first manager in this distro's list
+([below](#linux-package-managersyaml)) that the app defines. `omarchy:` takes one of:
+
+- `shipped`: Omarchy already provides the app, so nothing runs
+- `{ installer, package }`: runs `omarchy-install-<installer>` only when `<package>` is missing. Those installers also configure and launch the app.
+
+Omarchy's base CLI/dev tools (bat, eza, fzf, ripgrep, zoxide, lazygit, neovim…)
+are listed as `omarchy: shipped` plus pacman/apt/dnf names, so any other Linux
+machine gets the same setup.
+
+## linux-package-managers.yaml
+
+The package managers to try for each distro, keyed by `/etc/os-release` ID:
 
 ```yaml
-theme: "dark"
-
-colors:
-  primary: "#3B82F6"
-  background: "#0F0F0F"
-  text: "#E5E5E5"
+linuxPackageManagers:
+  omarchy: [omarchy, pacman, aur]
+  arch: [pacman, aur]
+  debian: [apt]
+  fedora: [dnf]
 ```
 
-Used in:
-- VS Code templates
-- Terminal themes
-- Any file requiring color definitions
+The script matches `.chezmoi.osRelease.id` first, then each word of
+`.chezmoi.osRelease.idLike`, so Manjaro uses `arch` and Ubuntu uses `debian`.
+On Omarchy, `pacman`/`aur` go through `omarchy-pkg-add` / `omarchy-pkg-aur-add`.
+Elsewhere they use `pacman`/`yay` (or `paru`). `apt` and `dnf` use `install -y`.
 
-See the Themes page for details.
+To override the list on one machine, add it to `~/.config/chezmoi/chezmoi.json`:
+
+```json
+{ "data": { "packageManagers": ["pacman", "aur"] } }
+```
+
+Adding a distro takes one entry. Adding a new manager also needs one `case`
+branch in `Linux/run_onchange_02-install-apps.sh.tmpl`.
+
+## omarchy.yaml
+
+Omarchy desktop preferences, applied only on Omarchy. See [Omarchy](omarchy.md).
 
 ## vscode-profiles.yaml
-Suggested structure:
 
-```yaml
-profiles:
-  - name: "Personal"
-    settings_file: "personal-settings.json"
-    extensions:
-      - ms-python.python
-      - esbenp.prettier-vscode
-```
+`common_extensions` go into base VS Code and every profile. `profiles.<name>.extensions`
+are added per profile. Synced by the `run_03-setup-vscode-profiles` scripts.
 
-This will allow your VS Code generator to:
-- create per-profile config directories
-- merge base settings + per-profile settings
-- install profile-specific extensions
+## .chezmoi.json.tmpl: machine variables
 
-## .chezmoi.json.tmpl — Machine Variables
-This file sets derived configuration values that other templates rely on.
+Prompts asked once on `chezmoi init`, stored in `~/.config/chezmoi/chezmoi.json`:
 
-Example:
+| Variable | Description |
+|----------|-------------|
+| `.name`, `.email` | Identity |
+| `.workComputer` | Skips `forPersonal` apps and enables work-repo cloning |
+| `.workEmail`, `.workGithubOrg` | Only asked when `workComputer` is true |
+| `.githubUsername`, `.projectPath` | Repo cloning |
+| `.context7ApiKey` | Optional MCP key |
+| `.theme` | Theme from `themes.yaml` (Windows Terminal / VS Code) |
 
-```json
-{
-  "os": "{{ .chezmoi.os }}",
-  "username": "{{ .chezmoi.username }}",
-  "homedir": "{{ .chezmoi.homeDir }}"
-}
-```
+To change an answer later, edit `~/.config/chezmoi/chezmoi.json`, or run
+`chezmoi init --prompt` to be asked every question again.
 
-You can also add machine-specific flags, such as:
-```json
-"workMachine": {{ eq .hostname "WORK-LAPTOP" }},
-"gpu": "{{ .cpu.gpu | default "none" }}"
-```
+## OS detection
 
-## Using Data in Templates
-Data inside .chezmoidata/ is available via:
+Use chezmoi's built-in data, not custom flags:
 
 ```gotmpl
-{{ .data.apps }}
-{{ .data.themes }}
+{{ if eq .chezmoi.os "linux" }}...{{ end }}                  {{/* windows | darwin | linux */}}
+{{ if includeTemplate "is-omarchy" . }}...{{ end }}         {{/* Omarchy only */}}
 ```
 
-The JSON from .chezmoi.json.tmpl becomes part of:
-```gotmpl
-{{ . }}
-```
-
-during template execution.
+`.chezmoi.osRelease` only exists on Linux. The `is-omarchy` template checks
+`.chezmoi.os` first, then `.chezmoi.osRelease.id == "omarchy"`.
