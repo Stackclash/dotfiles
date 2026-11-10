@@ -1,0 +1,20 @@
+{{- if includeTemplate "is-omarchy" . -}}
+#!/bin/bash
+# Applies the Omarchy theme from .chezmoidata/omarchy.yaml. Re-runs only when
+# that value changes, so picking another theme in the switcher sticks until the
+# data file is edited.
+# theme: {{ .omarchyPrefs.theme }}
+set -u
+
+want={{ .omarchyPrefs.theme | quote }}
+have="$(omarchy theme current 2>/dev/null || true)"
+
+if [ "${have,,}" = "${want,,}" ]; then
+  echo "Omarchy theme already '$have'"
+  exit 0
+fi
+
+echo "Setting Omarchy theme: $want"
+omarchy theme set "$want" || echo "Could not set Omarchy theme '$want' - see 'omarchy theme list'." >&2
+exit 0
+{{- end }}

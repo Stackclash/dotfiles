@@ -1,0 +1,22 @@
+# Omarchy desktop preferences (only applied on Omarchy).
+#
+# Omarchy owns its defaults and rewrites some of its user files during updates,
+# so chezmoi does not snapshot those files. It applies just these settings on
+# top of whatever Omarchy wrote:
+#   theme -> Linux/run_onchange_after_05-omarchy-theme.sh (omarchy theme set)
+#   bar   -> dot_config/omarchy/modify_shell.json.tmpl (merged into shell.json)
+
+omarchyPrefs:
+  # Display name as printed by `omarchy theme list`.
+  theme: Hackerman
+
+  bar:
+    # Cities on the Elsewhen world-clock widget, wherever it sits on the bar.
+    elsewhenCities:
+      - name: Chicago
+        zone: America/Chicago
+
+    # Plugin widgets to keep in the bar's tray section. Each is added only when
+    # a plugin with that manifest id is installed under ~/.config/omarchy/plugins.
+    tray:
+      - superwhisper.panel
