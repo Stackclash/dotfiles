@@ -6,6 +6,10 @@
 #            that the app defines is used. `omarchy:` is either `shipped` (Omarchy
 #            already provides it) or { installer: <omarchy-install-* suffix>, package }.
 # forPersonal: true skips the app on work machines.
+#
+# Anything mise can install belongs in dot_config/mise/config.toml.tmpl, not here.
+# Apps stay here when mise has no build for them, or when the OS package is
+# needed (Docker CLI plugins, syncthing's systemd unit, PowerShell as a system shell).
 apps:
 
   # Apps
@@ -75,27 +79,6 @@ apps:
       omarchy: shipped # as mise-bin
       pacman: mise
   
-  starship: # Omarchy ships it; shared config in dot_config/starship.toml
-    forPersonal: false
-    windows:
-      id: "Starship.Starship"
-      method: "winget"
-    darwin:
-      id: "starship"
-      method: "brew"
-    linux:
-      omarchy: shipped
-      pacman: starship
-
-  gh:
-    forPersonal: false
-    windows:
-      id: "Github.cli"
-      method: "winget"
-    darwin:
-      id: "gh"
-      method: "brew"
-
   git:
     forPersonal: false
     windows:
@@ -118,26 +101,6 @@ apps:
     forPersonal: false
     darwin:
       id: "zsh"
-      method: "brew"
-
-  DotNetSDK:
-    forPersonal: false
-    windows:
-      id: "Microsoft.DotNet.SDK"
-      method: "winget"
-    darwin:
-      id: "dotnet"
-      method: "brew"
-    linux:
-      pacman: dotnet-sdk
-
-  copilot-cli:
-    forPersonal: false
-    windows:
-      id: "GitHub.Copilot"
-      method: "winget"
-    darwin:
-      id: "copilot-cli"
       method: "brew"
 
   # Browser
@@ -306,40 +269,16 @@ apps:
       id: "zsh-autosuggestions"
       method: "brew"
 
-  7zip:
-    forPersonal: false
-    windows:
-      id: "7zip"
-      method: "choco"
-    darwin:
-      id: "p7zip"
-      method: "brew"
-    linux:
-      pacman: 7zip
-
-  # Omarchy base tools -- shipped with Omarchy (install/omarchy-base.packages),
-  # installed on every other Linux machine so the setup matches. Desktop pieces
-  # (Hyprland, quickshell, SDDM, fcitx, ...) are left to Omarchy itself.
+  # Omarchy base apps -- shipped with Omarchy (install/omarchy-base.packages),
+  # installed on every other Linux machine so the setup matches. Only what mise
+  # can't manage lives here; Omarchy's CLI tools are in dot_config/mise/config.toml.tmpl.
+  # Desktop pieces (Hyprland, quickshell, SDDM, fcitx, ...) are left to Omarchy itself.
   # apt/dnf names are only listed where verified; otherwise the app is skipped there.
-  bat:            { forPersonal: false, linux: { omarchy: shipped, pacman: bat, apt: bat, dnf: bat } }
-  btop:           { forPersonal: false, linux: { omarchy: shipped, pacman: btop, apt: btop, dnf: btop } }
   chromium:       { forPersonal: false, linux: { omarchy: shipped, pacman: chromium, apt: chromium, dnf: chromium } }
   docker-buildx:  { forPersonal: false, linux: { omarchy: shipped, pacman: docker-buildx } }
   docker-compose: { forPersonal: false, linux: { omarchy: shipped, pacman: docker-compose } }
-  eza:            { forPersonal: false, linux: { omarchy: shipped, pacman: eza, apt: eza } }
-  fastfetch:      { forPersonal: false, linux: { omarchy: shipped, pacman: fastfetch, apt: fastfetch, dnf: fastfetch } }
-  fd:             { forPersonal: false, linux: { omarchy: shipped, pacman: fd, apt: fd-find, dnf: fd-find } }
-  fzf:            { forPersonal: false, linux: { omarchy: shipped, pacman: fzf, apt: fzf, dnf: fzf } }
-  gum:            { forPersonal: false, linux: { omarchy: shipped, pacman: gum } }
-  jq:             { forPersonal: false, linux: { omarchy: shipped, pacman: jq, apt: jq, dnf: jq } }
-  lazygit:        { forPersonal: false, linux: { omarchy: shipped, pacman: lazygit } }
   localsend:      { forPersonal: false, linux: { omarchy: shipped, aur: localsend-bin } }
   mpv:            { forPersonal: false, linux: { omarchy: shipped, pacman: mpv, apt: mpv, dnf: mpv } }
-  neovim:         { forPersonal: false, linux: { omarchy: shipped, pacman: neovim, apt: neovim, dnf: neovim } }
   plocate:        { forPersonal: false, linux: { omarchy: shipped, pacman: plocate, apt: plocate, dnf: plocate } }
-  ripgrep:        { forPersonal: false, linux: { omarchy: shipped, pacman: ripgrep, apt: ripgrep, dnf: ripgrep } }
-  tldr:           { forPersonal: false, linux: { omarchy: shipped, pacman: tldr, apt: tldr, dnf: tldr } }
-  tmux:           { forPersonal: false, linux: { omarchy: shipped, pacman: tmux, apt: tmux, dnf: tmux } }
   unzip:          { forPersonal: false, linux: { omarchy: shipped, pacman: unzip, apt: unzip, dnf: unzip } }
   wl-clipboard:   { forPersonal: false, linux: { omarchy: shipped, pacman: wl-clipboard, apt: wl-clipboard, dnf: wl-clipboard } }
-  zoxide:         { forPersonal: false, linux: { omarchy: shipped, pacman: zoxide, apt: zoxide, dnf: zoxide } }
