@@ -1,0 +1,1873 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://stackclash.github.io/dotfiles/archon-code-task/">
+      
+      
+        <link rel="prev" href="../ai-tools/">
+      
+      
+        <link rel="next" href="../themes/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Archon code-task Workflow - My Cross-Platform Dotfiles</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#archon-code-task-workflow" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="My Cross-Platform Dotfiles" class="md-header__button md-logo" aria-label="My Cross-Platform Dotfiles" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            My Cross-Platform Dotfiles
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Archon code-task Workflow
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Stackclash/dotfiles" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="My Cross-Platform Dotfiles" class="md-nav__button md-logo" aria-label="My Cross-Platform Dotfiles" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    My Cross-Platform Dotfiles
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Stackclash/dotfiles" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../ai-tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archon code-task Workflow
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archon code-task Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-it-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where it lives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running it">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#work-item-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Work item references
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The nodes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The nodes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Planning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-close-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Close-out
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gates-youll-see" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gates you'll see
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#guarantees-enforced-in-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guarantees enforced in code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Artifacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../themes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Themes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../omarchy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Omarchy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Applications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Applications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../applications/vscode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visual Studio Code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    About
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Stackclash/dotfiles" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#where-it-lives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where it lives
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running it">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#inputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#work-item-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Work item references
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-nodes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The nodes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The nodes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Planning
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Build
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-close-out" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Close-out
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gates-youll-see" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gates you'll see
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#guarantees-enforced-in-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guarantees enforced in code
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#artifacts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Artifacts
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#customizing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Customizing
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#known-limitations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Known limitations
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="archon-code-task-workflow">Archon <code>code-task</code> workflow</h1>
+<p>An interactive <a href="https://archon.diy">Archon</a> workflow for general coding tasks.
+It takes a change from requirements to a validated, reviewed result on its own
+branch:</p>
+<ol>
+<li>Gather requirements from an Azure DevOps work item or an interview.</li>
+<li>Plan the work, with independent review and your approval.</li>
+<li>Build test-first, one task at a time.</li>
+<li>Validate with four separate reviews and verification steps.</li>
+<li>Write the glossary, ADRs, and a report, and optionally open a draft PR.</li>
+</ol>
+<p>It pauses at gates for your decisions, so it runs in the foreground.</p>
+<p>The workflow is generic. It discovers each repository's own test, lint, build,
+and typecheck commands instead of assuming a toolchain.</p>
+<h2 id="where-it-lives">Where it lives</h2>
+<table>
+<thead>
+<tr>
+<th>Source (this repo)</th>
+<th>Deployed to</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>home/dot_archon/workflows/dev/code-task/code-task.yaml.tmpl</code></td>
+<td><code>~/.archon/workflows/dev/code-task/code-task.yaml</code></td>
+</tr>
+<tr>
+<td><code>home/dot_archon/workflows/dev/code-task/commands/*.md</code></td>
+<td>AI prompts, one per AI node</td>
+</tr>
+<tr>
+<td><code>home/dot_archon/workflows/dev/code-task/scripts/*.ts</code></td>
+<td>Deterministic gates and glue (Bun)</td>
+</tr>
+<tr>
+<td><code>home/dot_archon/workflows/dev/code-task/fixtures/*.stubs.yaml</code></td>
+<td>Dry-run fixtures</td>
+</tr>
+<tr>
+<td><code>home/dot_archon/workflows/dev/dot_shared/*.ts</code></td>
+<td>Pack-level shared modules (<code>.shared/</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>The YAML is a chezmoi template only so that it can read one value: the default
+Azure DevOps project, from the <code>AZURE_PROJECT</code> secret in Doppler (project
+<code>personal</code>, config <code>default</code>). This is the same way the <code>azure-ado</code> MCP server
+gets <code>AZURE_ORG</code>. Leave the secret unset if you don't use Azure DevOps; the
+default is then empty.</p>
+<h2 id="running-it">Running it</h2>
+<div class="highlight"><pre><span></span><code>archon<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>code-task<span class="w"> </span>--branch<span class="w"> </span>my-change<span class="w"> </span><span class="s2">"Add retry to the uploader"</span>
+</code></pre></div>
+<p>With an Azure DevOps work item:</p>
+<div class="highlight"><pre><span></span><code>archon<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>code-task<span class="w"> </span>--branch<span class="w"> </span>task-4521<span class="w"> </span><span class="s2">"AB#4521"</span>
+</code></pre></div>
+<p>Interactive workflows refuse <code>--detach</code> on a fresh launch. Run it in the
+foreground (or as a background task of your harness), then answer each gate
+with <code>archon workflow approve</code>.</p>
+<h3 id="inputs">Inputs</h3>
+<table>
+<thead>
+<tr>
+<th>Input</th>
+<th>Default</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>work_item</code></td>
+<td><code>""</code></td>
+<td>ADO work item ID (<code>1234</code>) or URL. Overrides any reference in the message.</td>
+</tr>
+<tr>
+<td><code>ado_project</code></td>
+<td>Doppler <code>AZURE_PROJECT</code></td>
+<td>ADO project for bare IDs and <code>AB#</code> references.</td>
+</tr>
+<tr>
+<td><code>projects_dir</code></td>
+<td>chezmoi <code>projectPath</code></td>
+<td>Folder holding your local projects. Agents look for other repos here, and are told never to search the whole filesystem, which can hang a run.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="work-item-references">Work item references</h3>
+<p>Archon checks these in order. The first match wins:</p>
+<ol>
+<li><code>--input work_item=1234</code>, or <code>--input work_item=&lt;work item URL&gt;</code></li>
+<li>A work item URL in the message:
+   <code>https://dev.azure.com/{org}/{project}/_workitems/edit/1234</code> or
+   <code>https://{org}.visualstudio.com/{project}/_workitems/edit/1234</code></li>
+<li><code>AB#1234</code> in the message</li>
+</ol>
+<p>A bare <code>#1234</code> is <strong>not</strong> treated as a work item, so "fix the bug from #12" is
+never misread.</p>
+<h3 id="prerequisites">Prerequisites</h3>
+<ul>
+<li><code>archon</code> and <code>bun</code> on <code>PATH</code> (both managed through mise).</li>
+<li>The Claude provider. The ADO fetch and the PR step use Claude's user-level
+  MCP servers.</li>
+<li>Optional: the <code>azure-ado</code> MCP server from <code>ai-tools.yaml</code>. If it's missing or
+  disconnected, the workflow falls back to the interview and says why.</li>
+<li>The <code>gh</code> CLI, only if you want draft PRs opened on GitHub.</li>
+</ul>
+<h2 id="the-nodes">The nodes</h2>
+<p>The run moves through five stages. Each stage has its own chart below. In
+every chart, <strong>blue</strong> is an AI node, <strong>grey</strong> is a deterministic script, and an
+<strong>amber hexagon</strong> is a gate where you decide. A box labelled <em>loop</em> repeats as
+a unit (an Archon <code>loop_group</code>).</p>
+<pre class="mermaid"><code>flowchart TD
+    classDef stage fill:#f3f4f6,stroke:#6b7280,color:#111827
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    R["1. Requirements&lt;br/&gt;ticket or interview&lt;br/&gt;→ proposal.md"]:::stage
+    P["2. Planning&lt;br/&gt;baseline, plan, review&lt;br/&gt;→ plan.md"]:::stage
+    PA{{"plan-approval"}}:::gate
+    CM{{"commit-mode"}}:::gate
+    B["3. Build&lt;br/&gt;test-first, per task"]:::stage
+    V["4. Validation&lt;br/&gt;checks, 4 reviews,&lt;br/&gt;verification"]:::stage
+    FG{{"findings-gate"}}:::gate
+    C["5. Close-out&lt;br/&gt;docs, report, PR"]:::stage
+
+    R --&gt; P --&gt; PA --&gt; CM --&gt; B --&gt; V --&gt; FG --&gt; C
+    PA -. "Back to interview" .-&gt; P
+    FG -. "Fix" .-&gt; V</code></pre>
+<h3 id="1-requirements">1. Requirements</h3>
+<p>Every path ends in one <code>proposal.md</code>, the single brief the rest of the run
+works from. This stage is read-only.</p>
+<pre class="mermaid"><code>flowchart TD
+    classDef ai fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    classDef script fill:#f3f4f6,stroke:#6b7280,color:#111827
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    intake["intake"]:::script
+    fetch["fetch-ado"]:::ai
+    checkfetch["check-fetch&lt;br/&gt;(fails run on bad fetch)"]:::script
+    reconcile["reconcile-ticket"]:::ai
+    ready["ticket-ready"]:::script
+    subgraph INT["interview (loop)"]
+        iround["interview-round"]:::ai --&gt; igate{{"interview-gate&lt;br/&gt;Send answers / Ready"}}:::gate
+    end
+    writeprop["write-proposal"]:::ai
+    fromticket["proposal-from-ticket"]:::ai
+    checkprop["check-proposal"]:::script
+
+    intake -- "work item + MCP connected" --&gt; fetch --&gt; checkfetch --&gt; reconcile --&gt; ready
+    intake -- "no work item, or fallback" --&gt; INT
+    ready -- "gaps or conflicts" --&gt; INT
+    ready -- "complete" --&gt; fromticket
+    INT --&gt; writeprop --&gt; checkprop
+    fromticket --&gt; checkprop</code></pre>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Type</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>intake</code></td>
+<td>script</td>
+<td>Parses the work item reference and resolves the ADO project. Probes <code>claude mcp get azure-ado</code>. Routes to <code>ado</code> or <code>interview</code>; a failed probe or a missing project falls back to the interview with a stated reason.</td>
+</tr>
+<tr>
+<td><code>fetch-ado</code></td>
+<td>AI (small, read-only ADO tools)</td>
+<td>Transcribes the work item, its parent and children, related titles, and the last 20 comments into <code>work-item.md</code>. Reports gaps.</td>
+</tr>
+<tr>
+<td><code>check-fetch</code></td>
+<td>script</td>
+<td><strong>Fails the run</strong> if the fetch failed (not found, auth, wrong org). Writes <code>ticket-gaps.md</code>.</td>
+</tr>
+<tr>
+<td><code>reconcile-ticket</code></td>
+<td>AI</td>
+<td>Checks the ticket against the code, the context files, the glossary, and the ADRs. Reports only conflicts it can cite on both sides.</td>
+</tr>
+<tr>
+<td><code>ticket-ready</code></td>
+<td>script</td>
+<td><code>complete</code> = no gaps and no conflicts.</td>
+</tr>
+<tr>
+<td><code>interview</code></td>
+<td>loop</td>
+<td>Grilling-style rounds: the frontier of open decisions, each with a recommended answer. Starts with read-only recon of the context files, glossary, and ADRs. In <em>ticket-review</em> mode it confirms each acceptance criterion, then the gaps, then the conflicts. Ends only when you choose <strong>Ready</strong>.</td>
+</tr>
+<tr>
+<td><code>write-proposal</code> / <code>proposal-from-ticket</code></td>
+<td>AI</td>
+<td>Write <code>proposal.md</code>: acceptance criteria as <code>### AC-n</code> GIVEN/WHEN/THEN scenarios, invariants, goals and non-goals, decisions, glossary and ADR candidates.</td>
+</tr>
+<tr>
+<td><code>check-proposal</code></td>
+<td>script</td>
+<td>Validates the AC format and unique IDs, and that the worktree is unchanged.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-planning">2. Planning</h3>
+<pre class="mermaid"><code>flowchart TD
+    classDef ai fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    classDef script fill:#f3f4f6,stroke:#6b7280,color:#111827
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    tool["discover-toolchain"]:::ai --&gt; base["baseline"]:::script --&gt; prep
+    subgraph PLOOP["planning (loop until Approve plan)"]
+        prep["prepare-clarify"]:::script
+        subgraph CLAR["clarify (loop)"]
+            cround["clarify-round"]:::ai --&gt; cgate{{"clarify-gate&lt;br/&gt;Send answers / Ready"}}:::gate
+        end
+        revprop["revise-proposal"]:::ai --&gt; recheck["recheck-proposal"]:::script
+        plan["plan"]:::ai --&gt; checkplan["check-plan"]:::script
+        subgraph REV["plan-review (loop, max 3)"]
+            rplan["review-plan"]:::ai --&gt; revplan["revise-plan"]:::ai --&gt; rround["review-round"]:::script
+        end
+        fcheck["final-check-plan"]:::script --&gt; summary["gate-summary"]:::script
+        papprove{{"plan-approval&lt;br/&gt;Approve / Revise plan /&lt;br/&gt;Back to interview"}}:::gate
+
+        prep -- "issues or Back to interview" --&gt; CLAR --&gt; revprop
+        prep -- "first pass or Revise plan" --&gt; plan
+        recheck --&gt; plan
+        checkplan -- "no proposal issues" --&gt; REV --&gt; fcheck
+        summary --&gt; papprove
+        checkplan -. "proposal issues: next pass" .-&gt; prep
+        papprove -. "not approved: next pass" .-&gt; prep
+    end</code></pre>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Type</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>discover-toolchain</code></td>
+<td>AI (small, read-only)</td>
+<td>Finds the repo's declared test, lint, build, and typecheck commands, plus <code>has_tests</code>. Never invents a command.</td>
+</tr>
+<tr>
+<td><code>baseline</code></td>
+<td>script</td>
+<td>Runs those commands on the untouched branch. <strong>Pre-existing failures are recorded, not fatal</strong>; later stages judge only new failures.</td>
+</tr>
+<tr>
+<td><code>planning</code></td>
+<td>loop</td>
+<td>One pass: clarify (only when reopened), plan, <code>check-plan</code>, review, and your approval. Repeats until you choose <strong>Approve plan</strong>.</td>
+</tr>
+<tr>
+<td><code>plan</code></td>
+<td>AI (large)</td>
+<td>One task per test-first cycle (<code>### T-n</code>), each with Files, Satisfies (<code>AC-n</code>), Tests (or Verification steps when the repo has no tests), Depends on, and Done when. Blocking problems go under <code>## Proposal issues</code>.</td>
+</tr>
+<tr>
+<td><code>check-plan</code></td>
+<td>script</td>
+<td>Every AC is covered, references are valid, required fields are present. Proposal issues send the next pass back to clarification.</td>
+</tr>
+<tr>
+<td><code>plan-review</code></td>
+<td>loop (max 3)</td>
+<td>An independent fresh-context reviewer, plus a reviser. <strong>After 3 rounds it hands open findings to your gate</strong> instead of failing.</td>
+</tr>
+<tr>
+<td><code>plan-approval</code></td>
+<td>gate</td>
+<td><strong>Approve plan</strong> / <strong>Revise plan</strong> (your text is feedback) / <strong>Back to interview</strong>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="3-build">3. Build</h3>
+<pre class="mermaid"><code>flowchart TD
+    classDef ai fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    classDef script fill:#f3f4f6,stroke:#6b7280,color:#111827
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    cmode{{"commit-mode&lt;br/&gt;Each task / At end / Don't commit"}}:::gate --&gt; next
+    subgraph BLOOP["build (loop per task attempt, until all tasks done)"]
+        next["next-task"]:::script
+        wtests["write-tests"]:::ai
+        red["red-check&lt;br/&gt;(tests must fail)"]:::script
+        subgraph IMPL["implement-task (loop, max 3 attempts)"]
+            impl["implement"]:::ai --&gt; green["green-check&lt;br/&gt;(tests pass, unchanged)"]:::script
+            green -- "check red at baseline" --&gt; rjudge["regression-judge"]:::ai --&gt; verdict["green-verdict"]:::script
+            green -- "otherwise" --&gt; verdict
+        end
+        finish["finish-task"]:::script
+        stucks["stuck-summary"]:::script
+        sgate{{"stuck-gate&lt;br/&gt;Retry / I fixed it / Abort"}}:::gate
+
+        next -- "repo has tests" --&gt; wtests --&gt; red
+        next -- "no tests, or tests already red" --&gt; red
+        red -- "ready" --&gt; IMPL --&gt; finish
+        red -- "red check failed" --&gt; finish
+        finish -- "task not done" --&gt; stucks --&gt; sgate
+        sgate -. "next pass" .-&gt; next
+    end</code></pre>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Type</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>commit-mode</code></td>
+<td>gate</td>
+<td>Asked once, before any code: <strong>Commit after each task</strong> / <strong>Commit once at the end</strong> / <strong>Don't commit</strong>.</td>
+</tr>
+<tr>
+<td><code>next-task</code></td>
+<td>script</td>
+<td>Picks the next task in dependency order, carries stuck-gate guidance forward, and acts on <strong>Abort</strong>.</td>
+</tr>
+<tr>
+<td><code>write-tests</code></td>
+<td>AI</td>
+<td>Writes only the task's tests and declares a targeted test command.</td>
+</tr>
+<tr>
+<td><code>red-check</code></td>
+<td>script</td>
+<td>Only the declared test files changed, and the targeted tests <strong>fail</strong>. Records the test file hashes.</td>
+</tr>
+<tr>
+<td><code>implement-task</code></td>
+<td>loop (max 3)</td>
+<td><code>implement</code> (AI), then <code>green-check</code>: the targeted tests pass <strong>with the test files unchanged</strong>; checks that passed at baseline still pass; checks that failed at baseline go to <code>regression-judge</code> (AI), which compares the logs.</td>
+</tr>
+<tr>
+<td><code>finish-task</code></td>
+<td>script</td>
+<td>Marks the task done and commits it if per-task commits were chosen.</td>
+</tr>
+<tr>
+<td><code>stuck-gate</code></td>
+<td>gate</td>
+<td>After 3 failed attempts, or a red check that couldn't be satisfied: <strong>Retry with guidance</strong> / <strong>I fixed it, re-check</strong> / <strong>Abort run</strong>.</td>
+</tr>
+</tbody>
+</table>
+<p>Repos without tests skip the test steps. Lint, build, and typecheck still run
+after every task.</p>
+<h3 id="4-validation">4. Validation</h3>
+<pre class="mermaid"><code>flowchart TD
+    classDef ai fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    classDef script fill:#f3f4f6,stroke:#6b7280,color:#111827
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    subgraph VAL["validation (loop until clean or Accept as-is)"]
+        vstart["validation-start"]:::script
+        fixes["apply-fixes"]:::ai --&gt; cfix["commit-fixes"]:::script
+        fchecks["final-checks"]:::script
+        fjudge["final-judge"]:::ai
+        racc["review-acceptance"]:::ai
+        rqual["review-quality"]:::ai
+        rsec["review-security"]:::ai
+        rerr["review-errors"]:::ai
+        vsetup["verification-setup"]:::script
+        vprep["prepare-verification"]:::ai
+        subgraph VER["verification (loop until every step has a result)"]
+            vrec["record-verification"]:::ai --&gt; vstat["verification-status"]:::script --&gt; vgate{{"verify-gate&lt;br/&gt;Run these scripts /&lt;br/&gt;My manual results"}}:::gate
+        end
+        fsum["findings-summary"]:::script
+        fgate{{"findings-gate&lt;br/&gt;Fix / Accept as-is / Abort"}}:::gate
+
+        vstart -- "Fix chosen" --&gt; fixes
+        vstart --&gt; fchecks
+        cfix --&gt; fchecks
+        fchecks -- "check red at baseline" --&gt; fjudge
+        fchecks --&gt; racc &amp; rqual &amp; rsec &amp; rerr
+        fjudge --&gt; racc
+        racc --&gt; vsetup -- "no tests, or uncovered behavior" --&gt; vprep --&gt; VER
+        VER --&gt; fsum
+        rqual &amp; rsec &amp; rerr --&gt; fsum
+        fsum -- "findings" --&gt; fgate
+        fgate -. "next pass" .-&gt; vstart
+    end</code></pre>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Type</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validation-start</code></td>
+<td>script</td>
+<td>Acts on the previous findings gate: records <strong>Fix</strong> direction, or ends the run on <strong>Abort</strong>.</td>
+</tr>
+<tr>
+<td><code>apply-fixes</code> / <code>commit-fixes</code></td>
+<td>AI / script</td>
+<td>Fix only what you chose. Committed if you chose per-task commits.</td>
+</tr>
+<tr>
+<td><code>final-checks</code> (+ <code>final-judge</code>)</td>
+<td>script (+ AI)</td>
+<td>Every check over the whole change, against the baseline. Also fails if any proven-failing test was edited.</td>
+</tr>
+<tr>
+<td><code>review-acceptance</code></td>
+<td>AI (large)</td>
+<td>Traces each <code>AC-n</code> to evidence, checks invariants and scope, and <strong>lists behavior no test covers</strong>.</td>
+</tr>
+<tr>
+<td><code>review-quality</code></td>
+<td>AI</td>
+<td>Fit with conventions, reuse, simplicity, clarity, test quality.</td>
+</tr>
+<tr>
+<td><code>review-security</code></td>
+<td>AI (large)</td>
+<td>Injection, secrets, authorization, input validation, unsafe defaults, dependencies, data exposure.</td>
+</tr>
+<tr>
+<td><code>review-errors</code></td>
+<td>AI</td>
+<td>Swallowed errors, propagation, failure paths, edge cases, resource cleanup.</td>
+</tr>
+<tr>
+<td><code>verification</code></td>
+<td>loop</td>
+<td>For repos without tests, and for behavior no test covers. Each step has manual instructions and, where possible, an <em>explained</em> script. <strong>Nothing runs unless you ask.</strong> Passed steps keep their result across fix passes.</td>
+</tr>
+<tr>
+<td><code>findings-gate</code></td>
+<td>gate</td>
+<td>Findings grouped by review: <strong>Fix</strong> (optionally say which) / <strong>Accept as-is</strong> / <strong>Abort run</strong>. It also flags verified steps whose files a fix touched.</td>
+</tr>
+</tbody>
+</table>
+<p>The four reviews run in parallel, each from its own command file
+(<code>review-*.md</code>), so you can tune each one independently.</p>
+<h3 id="5-close-out">5. Close-out</h3>
+<pre class="mermaid"><code>flowchart TD
+    classDef ai fill:#dbeafe,stroke:#2563eb,color:#1e3a8a
+    classDef script fill:#f3f4f6,stroke:#6b7280,color:#111827
+    classDef gate fill:#fef3c7,stroke:#d97706,color:#78350f
+
+    cend["commit-end"]:::script --&gt; dstart["docs-start"]:::script --&gt; wdocs["write-docs"]:::ai --&gt; cdocs["check-docs"]:::script
+    cdocs --&gt; wreport["write-report"]:::ai --&gt; creport["check-report"]:::script --&gt; prc["pr-check"]:::script
+    prc -- "branch has commits" --&gt; pgate{{"pr-gate&lt;br/&gt;Open a draft PR / Don't"}}:::gate --&gt; pdec["pr-decision"]:::script
+    pdec -- "open" --&gt; openpr["open-pr"]:::ai</code></pre>
+<table>
+<thead>
+<tr>
+<th>Node</th>
+<th>Type</th>
+<th>What it does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>commit-end</code></td>
+<td>script</td>
+<td>The single commit, if you chose <strong>Commit once at the end</strong>. It runs after validation, so it includes the fixes.</td>
+</tr>
+<tr>
+<td><code>write-docs</code> + <code>check-docs</code></td>
+<td>AI + script</td>
+<td>Updates <code>$DOCS_DIR/GLOSSARY.md</code> and writes ADRs to <code>$DOCS_DIR/adr/</code>. The AI decides what qualifies as an ADR: hard to reverse, surprising without context, and a real trade-off. Confined to <code>$DOCS_DIR</code> and <strong>never committed</strong>.</td>
+</tr>
+<tr>
+<td><code>write-report</code> + <code>check-report</code></td>
+<td>AI + script</td>
+<td><code>report.md</code>: summary, every AC with its evidence, tests added, checks, verification, accepted findings, commits, docs, and branch.</td>
+</tr>
+<tr>
+<td><code>pr-check</code> / <code>pr-gate</code> / <code>open-pr</code></td>
+<td>script / gate / AI</td>
+<td>Only when the branch has commits: <strong>Open a draft PR</strong> / <strong>Don't open a PR</strong>. Opening one pushes the branch. Supports GitHub (<code>gh</code>) and Azure DevOps (ADO MCP).</td>
+</tr>
+</tbody>
+</table>
+<h2 id="gates-youll-see">Gates you'll see</h2>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>When</th>
+<th>Choices</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>interview-gate</code></td>
+<td>Each interview round</td>
+<td>Send answers / Ready: write proposal</td>
+</tr>
+<tr>
+<td><code>clarify-gate</code></td>
+<td>When planning reopens requirements</td>
+<td>Send answers / Ready: update proposal</td>
+</tr>
+<tr>
+<td><code>plan-approval</code></td>
+<td>Each planning pass without proposal issues</td>
+<td>Approve plan / Revise plan / Back to interview</td>
+</tr>
+<tr>
+<td><code>commit-mode</code></td>
+<td>Once, before building</td>
+<td>Commit after each task / Commit once at the end / Don't commit</td>
+</tr>
+<tr>
+<td><code>stuck-gate</code></td>
+<td>A task that can't be completed</td>
+<td>Retry with guidance / I fixed it, re-check / Abort run</td>
+</tr>
+<tr>
+<td><code>verify-gate</code></td>
+<td>Pending verification steps</td>
+<td>Run these scripts (step IDs or <code>all</code>) / Here are my manual results</td>
+</tr>
+<tr>
+<td><code>findings-gate</code></td>
+<td>Validation found something</td>
+<td>Fix / Accept as-is / Abort run</td>
+</tr>
+<tr>
+<td><code>pr-gate</code></td>
+<td>The branch has commits</td>
+<td>Open a draft PR / Don't open a PR</td>
+</tr>
+</tbody>
+</table>
+<h2 id="guarantees-enforced-in-code">Guarantees enforced in code</h2>
+<p>These checks are scripts, not AI judgment:</p>
+<ul>
+<li>Requirements gathering and planning never change the worktree.</li>
+<li>A failed ADO fetch fails the run. It is never silently replaced.</li>
+<li>Every acceptance criterion has an ID, GIVEN/WHEN/THEN lines, and at least one
+  planned task.</li>
+<li>A task's tests are written before its code, touch only test files, and fail
+  before implementation.</li>
+<li>An implementation passes only with its proven-failing tests <strong>unchanged</strong>.</li>
+<li>Checks that passed at baseline must keep passing. Pre-existing failures never
+  count against the change.</li>
+<li>Commits never include <code>$DOCS_DIR</code> or files left behind by the baseline.</li>
+<li>The workflow never writes to the Azure DevOps board. The PR description names
+  the work item in plain text, not with <code>AB#</code>.</li>
+<li>The run always works in its own worktree (<code>worktree.enabled: true</code>).</li>
+</ul>
+<h2 id="artifacts">Artifacts</h2>
+<p>Everything lands in the run's <code>$ARTIFACTS_DIR</code>:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Produced by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>work-item.md</code>, <code>ticket-gaps.md</code>, <code>ticket-conflicts.md</code></td>
+<td>ADO path</td>
+</tr>
+<tr>
+<td><code>interview-notes.md</code>, <code>clarify-notes.md</code></td>
+<td>Interview and clarification rounds</td>
+</tr>
+<tr>
+<td><code>proposal.md</code></td>
+<td>The brief; the contract for the whole run</td>
+</tr>
+<tr>
+<td><code>baseline.md</code>, <code>baseline-&lt;check&gt;.log</code></td>
+<td>Baseline run</td>
+</tr>
+<tr>
+<td><code>plan.md</code>, <code>plan-review.md</code></td>
+<td>Planning</td>
+</tr>
+<tr>
+<td><code>build-state.json</code>, <code>current-task.md</code>, <code>green-report.md</code>, <code>*.log</code></td>
+<td>Build and validation checks</td>
+</tr>
+<tr>
+<td><code>findings.md</code>, <code>verification.md</code></td>
+<td>Validation</td>
+</tr>
+<tr>
+<td><code>report.md</code></td>
+<td>Final report (also the workflow's returned output)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="customizing">Customizing</h2>
+<p><strong>Prompts.</strong> Edit <code>commands/&lt;node&gt;.md</code>. The review prompts are separate on
+purpose, so you can tighten quality, security, or error handling on its own.</p>
+<p><strong>Gates and wiring.</strong> Edit <code>code-task.yaml.tmpl</code>. Load errors show up in:</p>
+<div class="highlight"><pre><span></span><code>archon<span class="w"> </span>workflow<span class="w"> </span>list
+</code></pre></div>
+<p>The 18 fixtures cover every routing branch without AI spend:</p>
+<div class="highlight"><pre><span></span><code>archon<span class="w"> </span>workflow<span class="w"> </span><span class="nb">test</span><span class="w"> </span>code-task
+</code></pre></div>
+<p><strong>Method credits.</strong> The interview adapts <code>grilling</code> and <code>domain-modeling</code> from
+<a href="https://github.com/mattpocock/skills">mattpocock/skills</a> (MIT) and
+<code>brainstorming</code> from <a href="https://github.com/obra/superpowers">obra/superpowers</a>.
+The text is vendored, so behavior is pinned to this repo rather than to whatever
+skill versions are installed.</p>
+<p><strong>Engineering discipline.</strong> The planning, test-writing, implementation, fix,
+and review prompts carry a paraphrased form of the guidelines in
+<a href="https://github.com/multica-ai/andrej-karpathy-skills/blob/main/CLAUDE.md">multica-ai/andrej-karpathy-skills</a>:</p>
+<table>
+<thead>
+<tr>
+<th>Guideline</th>
+<th>Where it lives</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Think before coding: state assumptions, don't pick an interpretation silently, push back on needless complexity</td>
+<td><code>interview</code> and <code>clarify</code> put interpretations to you as questions. <code>plan</code> records an <code>## Assumptions</code> section, which the plan-approval gate shows you. <code>write-tests</code>, <code>implement</code>, and <code>apply-fixes</code> state their assumptions in their output or in test comments, since they run unattended.</td>
+</tr>
+<tr>
+<td>Simplicity first: minimum code, nothing speculative</td>
+<td><code>plan</code>, <code>revise-plan</code>, <code>implement</code>, <code>apply-fixes</code>, <code>write-tests</code>; checked by <code>review-plan</code> and <code>review-quality</code>. <code>review-errors</code> will not ask for handling of impossible scenarios.</td>
+</tr>
+<tr>
+<td>Surgical changes: every changed line traces to the task</td>
+<td><code>plan</code> (no cleanup tasks), <code>implement</code>, <code>apply-fixes</code>, <code>write-tests</code>; checked by <code>review-plan</code> and <code>review-quality</code>.</td>
+</tr>
+<tr>
+<td>Goal-driven execution: verifiable success criteria</td>
+<td>Built into the workflow: test-first tasks with <code>Done when</code> conditions, deterministic red and green checks. <code>implement</code> also lists its edits with the check that proves each one before starting.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="known-limitations">Known limitations</h2>
+<ul>
+<li><strong>Dry runs evaluate each loop once.</strong> Fixtures prove routing within a pass, but
+  second passes (interview rounds, a planning bounce, a stuck-gate retry,
+  validation fix passes) are proven only by real runs.</li>
+<li><strong>Two load warnings</strong> on <code>stuck-gate</code> and <code>verify-gate</code> are expected. Their
+  answers are acted on by the next pass (<code>next-task</code>, <code>record-verification</code>)
+  rather than by the loop's exit check, so Retry and Re-check can continue the
+  loop.</li>
+<li><strong>Abort</strong> ends the run as <em>failed</em> with an explicit message. Archon requires a
+  loop's gate to be its last node, so a cancel step can't follow it.</li>
+<li>The prompts are a first version. Refine them from what real runs show.</li>
+</ul>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

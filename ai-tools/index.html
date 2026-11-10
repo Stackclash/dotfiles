@@ -1,0 +1,1632 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+        <link rel="canonical" href="https://stackclash.github.io/dotfiles/ai-tools/">
+      
+      
+        <link rel="prev" href="../configuration/">
+      
+      
+        <link rel="next" href="../archon-code-task/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>AI Tools - My Cross-Platform Dotfiles</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.57a0d79d.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ai-tools-ai-toolsyaml" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="My Cross-Platform Dotfiles" class="md-header__button md-logo" aria-label="My Cross-Platform Dotfiles" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            My Cross-Platform Dotfiles
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              AI Tools
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Stackclash/dotfiles" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="My Cross-Platform Dotfiles" class="md-nav__button md-logo" aria-label="My Cross-Platform Dotfiles" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    My Cross-Platform Dotfiles
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Stackclash/dotfiles" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guides
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Guides
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../scripts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scripts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../templates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Templates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../configuration/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Tools
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    AI Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agents-ai-agentsyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agents (ai-agents.yaml)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Agents (ai-agents.yaml)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding an agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The schema
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mcp-mcp-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mcp — MCP servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#package-package-manager-clis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        package — package-manager CLIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plugin-marketplace-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plugin — marketplace plugins
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skill-published-skills-from-a-github-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skill — published skills from a GitHub repo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-your-own-skills-and-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        custom — your own skills and agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#removing-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starter-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starter tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#invalid-configuration-invalid-input-when-registering-an-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invalid configuration: : Invalid input when registering an MCP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#an-mcp-is-skipped-for-rendering-no-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An MCP is skipped for rendering &lt;no value&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-matching-skills-found-for-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No matching skills found for: &lt;name&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failed-to-install-plugin-access-is-denied-os-error-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failed to install plugin: Access is denied. (os error 5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../archon-code-task/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Archon code-task Workflow
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../themes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Themes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../omarchy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Omarchy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Applications
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Applications
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../applications/vscode/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visual Studio Code
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    About
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    About
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/Stackclash/dotfiles" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Repository
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How it works
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#agents-ai-agentsyaml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Agents (ai-agents.yaml)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Agents (ai-agents.yaml)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-an-agent" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding an agent
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-schema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The schema
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The schema">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#mcp-mcp-servers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        mcp — MCP servers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#package-package-manager-clis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        package — package-manager CLIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#plugin-marketplace-plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        plugin — marketplace plugins
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#skill-published-skills-from-a-github-repo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        skill — published skills from a GitHub repo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#custom-your-own-skills-and-agents" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        custom — your own skills and agents
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#removing-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Removing tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#starter-tools" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Starter tools
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#invalid-configuration-invalid-input-when-registering-an-mcp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Invalid configuration: : Invalid input when registering an MCP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#an-mcp-is-skipped-for-rendering-no-value" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An MCP is skipped for rendering &lt;no value&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#no-matching-skills-found-for-name" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        No matching skills found for: &lt;name&gt;
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#failed-to-install-plugin-access-is-denied-os-error-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Failed to install plugin: Access is denied. (os error 5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ai-tools-ai-toolsyaml">AI Tools (<code>ai-tools.yaml</code>)</h1>
+<p>A data-driven workflow for adding and managing AI developer tools — MCP servers,
+plugins, skills, agents, and package-manager CLIs — across any number of AI coding
+agents (Claude Code, GitHub Copilot, OpenAI Codex, …), the same way
+<a href="../scripts/"><code>apps.yaml</code></a> manages applications.</p>
+<p>Two files drive it:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Answers</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>home/.chezmoidata/ai-tools.yaml</code></strong></td>
+<td><em>What</em> to install: MCP servers, plugins, skills, packages</td>
+</tr>
+<tr>
+<td><strong><code>home/.chezmoidata/ai-agents.yaml</code></strong></td>
+<td><em>How each agent</em> receives things: its CLI, how MCP servers reach it, where skills go</td>
+</tr>
+</tbody>
+</table>
+<p>Edit those files and run <code>chezmoi apply</code> — nothing else needs touching.</p>
+<h2 id="how-it-works">How it works</h2>
+<p><code>chezmoi apply</code> does everything, in two ways:</p>
+<table>
+<thead>
+<tr>
+<th>Mechanism</th>
+<th>Handles</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>chezmoi templates</strong></td>
+<td>package tools and agent CLIs → mise config (<code>~/.config/mise/config.toml</code>); <code>vscode-json</code> agents' MCP servers → VS Code <code>mcp.json</code> (next to <code>settings.json</code>)</td>
+</tr>
+<tr>
+<td><strong><code>run_onchange_after_04-sync-ai-tools</code> script</strong> (per-OS: PowerShell + bash)</td>
+<td>imperative installs: MCP registration, plugin installs, published skill installs (<code>npx skills add</code>), custom skill/agent copy, package post-install steps</td>
+</tr>
+</tbody>
+</table>
+<p>The sync script inlines the tool list from <code>ai-tools.yaml</code> at render time, so it
+always reflects the current data. Every external command it runs is <strong>best-effort</strong>: if a CLI (<code>claude</code>,
+<code>codex</code>, …) isn't installed yet, it logs a follow-up note and moves on — a missing
+tool never fails <code>chezmoi apply</code>.</p>
+<h2 id="agents-ai-agentsyaml">Agents (<code>ai-agents.yaml</code>)</h2>
+<p>One entry per agent. The sync script and templates never name an agent; they
+loop over this registry, so <strong>adding an agent is one new entry</strong> — no script
+edits for any agent whose needs fit the existing options below.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">aiAgents</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">codex</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">displayName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OpenAI Codex</span>
+<span class="w">    </span><span class="nt">cli</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">codex</span><span class="w">                      </span><span class="c1"># binary probed before CLI-based installs</span>
+<span class="w">    </span><span class="nt">install</span><span class="p">:</span><span class="w">                        </span><span class="c1"># optional: install the CLI itself via mise</span>
+<span class="w">      </span><span class="nt">mise</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> tool</span><span class="p">:</span><span class="w"> </span><span class="nv">codex</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">         </span><span class="c1"># registry short name (same key Omarchy uses);</span>
+<span class="w">                                    </span><span class="c1"># or { backend: npm, package: "@openai/codex" }</span>
+<span class="w">    </span><span class="nt">mcp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">method</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">codex-toml</span><span class="w">            </span><span class="c1"># claude-cli | vscode-json | codex-toml | none</span>
+<span class="w">      </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.codex/config.toml</span><span class="w">      </span><span class="c1"># (codex-toml) relative to $HOME</span>
+<span class="w">    </span><span class="nt">plugins</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">supported</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span><span class="w">              </span><span class="c1"># has `&lt;cli&gt; plugin marketplace add` / `plugin install`?</span>
+<span class="w">    </span><span class="nt">skills</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">cliAgent</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">codex</span><span class="w">               </span><span class="c1"># `npx skills add --agent &lt;this&gt;` ("" = unsupported)</span>
+<span class="w">      </span><span class="nt">dir</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">.codex/skills</span><span class="w">            </span><span class="c1"># custom skills are copied here (relative to $HOME)</span>
+<span class="w">      </span><span class="nt">agentsDir</span><span class="p">:</span><span class="w"> </span><span class="s">""</span><span class="w">                 </span><span class="c1"># custom agents are copied here ("" = none)</span>
+<span class="w">      </span><span class="nt">manifest</span><span class="p">:</span><span class="w"> </span><span class="s">""</span><span class="w">                  </span><span class="c1"># optional skills manifest to update (relative to $HOME)</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th><code>mcp.method</code></th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>claude-cli</code></td>
+<td><code>claude mcp add-json --scope user</code> (best-effort; skipped if the CLI is missing)</td>
+</tr>
+<tr>
+<td><code>vscode-json</code></td>
+<td>the server is written to the managed VS Code <code>mcp.json</code> (Copilot reads it from there)</td>
+</tr>
+<tr>
+<td><code>codex-toml</code></td>
+<td>the servers are rendered as <code>[mcp_servers.&lt;name&gt;]</code> tables inside a marker-delimited block (<code># BEGIN/END chezmoi ai-tools mcp</code>) in <code>mcp.file</code>. Everything else in that file — Codex stores trust levels there — is left alone. <code>type</code> is dropped and <code>headers</code> becomes <code>http_headers</code>.</td>
+</tr>
+<tr>
+<td><code>none</code></td>
+<td>the agent receives no MCP servers from here</td>
+</tr>
+</tbody>
+</table>
+<p>Define an MCP server in a way the existing methods can't express (a different
+config format, say) by adding one branch for the new <code>mcp.method</code> in each of the
+two sync scripts and a rendering template if needed — everything else stays data.</p>
+<h3 id="adding-an-agent">Adding an agent</h3>
+<ol>
+<li>Add its entry to <code>ai-agents.yaml</code>.</li>
+<li>Run <code>chezmoi apply</code>. Every tool in <code>ai-tools.yaml</code> with no <code>agents:</code> list now
+   targets it automatically, and its CLI is installed if <code>install:</code> is set.</li>
+<li>Optional: a <code>plugin</code> entry gains support by declaring a subkey named after the
+   agent (and the agent needs <code>plugins.supported: true</code>).</li>
+</ol>
+<p>A misspelled agent name in an <code>agents:</code> list fails the render with the list of
+valid names, rather than silently installing nowhere.</p>
+<h2 id="the-schema">The schema</h2>
+<p><code>aiTools</code> is organized by category — the key under <code>aiTools</code> tells you what
+a tool is; there is no separate <code>type:</code> field.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">aiTools</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">mcp</span><span class="p">:</span><span class="w">     </span><span class="p p-Indicator">{</span><span class="nt"> &lt;name&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">...</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">plugin</span><span class="p">:</span><span class="w">  </span><span class="p p-Indicator">{</span><span class="nt"> &lt;name&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">...</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">skill</span><span class="p">:</span><span class="w">   </span><span class="p p-Indicator">{</span><span class="nt"> &lt;name&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">...</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">package</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> &lt;name&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">...</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">custom</span><span class="p">:</span><span class="w">  </span><span class="p p-Indicator">{</span><span class="nt"> &lt;name&gt;</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nv">...</span><span class="p p-Indicator">}</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<p>Every entry may set <code>forPersonal: false</code> to skip it on work machines.
+<code>mcp</code>, <code>skill</code> and <code>custom</code> entries may set <code>agents: [claude, codex]</code> to
+limit which agents (keys of <code>ai-agents.yaml</code>) receive them; <strong>omit it to target
+every agent</strong>, including ones added later. <code>plugin</code> entries target an agent by
+declaring a subkey named after it; <code>package</code> entries have no per-agent
+behavior. Neither <code>plugin</code> nor <code>package</code> entries carry <code>agents</code>.</p>
+<h3 id="mcp-mcp-servers"><code>mcp</code> — MCP servers</h3>
+<p>Delivered to each targeted agent by that agent's <code>mcp.method</code> (see
+<a href="#agents-ai-agentsyaml">Agents</a>). A single <code>config:</code> dict, written in the
+Claude/VS Code JSON shape, is the one source for all of them — any field those
+schemas support just works, and the <code>codex-toml</code> method translates it for Codex.</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">mcp</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">playwright-mcp</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">stdio</span>
+<span class="w">        </span><span class="nt">command</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npx</span>
+<span class="w">        </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"@playwright/mcp@latest"</span><span class="p p-Indicator">]</span>
+
+<span class="w">    </span><span class="nt">context7</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">config</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http</span>
+<span class="w">        </span><span class="nt">url</span><span class="p">:</span><span class="w"> </span><span class="s">"https://mcp.context7.com/mcp"</span>
+<span class="w">        </span><span class="nt">headers</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">CONTEXT7_API_KEY</span><span class="p">:</span><span class="w"> </span><span class="s">"{{</span><span class="nv"> </span><span class="s">(dopplerProjectJson</span><span class="nv"> </span><span class="s">\"dotfiles\"</span><span class="nv"> </span><span class="s">\"prd\").CONTEXT7_API_KEY</span><span class="nv"> </span><span class="s">}}"</span>
+</code></pre></div>
+<p><strong>Secrets</strong>: any string inside <code>config:</code> containing <code>{{</code> is executed as a
+real chezmoi template (via <code>chezmoi execute-template</code>) before being embedded
+in the rendered JSON — not simple <code>{{ .key }}</code> substitution, so any chezmoi
+template function works, including Doppler's. The Doppler CLI is already
+mise-managed (<code>github:DopplerHQ/cli</code>); authenticate it once per machine
+(<code>doppler login</code>, <code>doppler setup</code>) and reference secrets with
+<code>{{ (dopplerProjectJson "&lt;project&gt;" "&lt;config&gt;").&lt;SECRET_NAME&gt; }}</code>. Remove a
+<code>headers</code>/<code>env</code> entry entirely to run a server keyless.</p>
+<h3 id="package-package-manager-clis"><code>package</code> — package-manager CLIs</h3>
+<p>No <code>agents</code> field — package installs aren't per-agent:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">package</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">graphify</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">mise</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> backend</span><span class="p">:</span><span class="w"> </span><span class="nv">pipx</span><span class="p p-Indicator">,</span><span class="nt"> package</span><span class="p">:</span><span class="w"> </span><span class="nv">graphifyy</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">postInstall</span><span class="p">:</span><span class="w"> </span><span class="s">"graphify</span><span class="nv"> </span><span class="s">install"</span>
+</code></pre></div>
+<h3 id="plugin-marketplace-plugins"><code>plugin</code> — marketplace plugins</h3>
+<p>A plugin installs for whichever agents it declares a subkey for (and only
+agents with <code>plugins.supported: true</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">plugin</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">superpowers</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">claude</span><span class="p">:</span><span class="w">  </span><span class="p p-Indicator">{</span><span class="nt"> marketplaceAdd</span><span class="p">:</span><span class="w"> </span><span class="s">"anthropics/claude-plugins-official"</span><span class="p p-Indicator">,</span><span class="nt"> install</span><span class="p">:</span><span class="w"> </span><span class="s">"superpowers@claude-plugins-official"</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">      </span><span class="nt">copilot</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> marketplaceAdd</span><span class="p">:</span><span class="w"> </span><span class="s">"obra/superpowers-marketplace"</span><span class="p p-Indicator">,</span><span class="nt"> install</span><span class="p">:</span><span class="w"> </span><span class="s">"superpowers@superpowers-marketplace"</span><span class="w"> </span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<h3 id="skill-published-skills-from-a-github-repo"><code>skill</code> — published skills from a GitHub repo</h3>
+<p>Installed with the <a href="https://github.com/vercel-labs/skills">skills CLI</a>, the
+package manager for agent skills:</p>
+<div class="highlight"><pre><span></span><code>npx<span class="w"> </span>--yes<span class="w"> </span>skills<span class="w"> </span>add<span class="w"> </span>&lt;repo&gt;<span class="w"> </span><span class="o">[</span>--skill<span class="w"> </span>&lt;skill&gt;<span class="o">]</span><span class="w"> </span>--agent<span class="w"> </span>&lt;skills.cliAgent&gt;<span class="w"> </span>-g<span class="w"> </span>-y
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">skill</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">brainstorming</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># agents: [claude, codex]  # optional -- omit for every agent</span>
+<span class="w">      </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">obra/superpowers</span><span class="w">    </span><span class="c1"># &lt;owner&gt;/&lt;repo&gt; on GitHub</span>
+<span class="w">      </span><span class="nt">skill</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">brainstorming</span><span class="w">      </span><span class="c1"># optional -- omit to install every skill in the repo</span>
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Required</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>repo</code></td>
+<td>yes</td>
+<td><code>&lt;owner&gt;/&lt;repo&gt;</code> to install from</td>
+</tr>
+<tr>
+<td><code>skill</code></td>
+<td>no</td>
+<td>a single skill inside that repo; omit to take them all</td>
+</tr>
+<tr>
+<td><code>agents</code></td>
+<td>no</td>
+<td>limit to these agents; default is all. Each agent's <code>skills.cliAgent</code> is the <code>--agent</code> value (<code>claude-code</code>, <code>github-copilot</code>, <code>codex</code>, …)</td>
+</tr>
+</tbody>
+</table>
+<p>The sync script runs one <code>npx skills add</code> per targeted agent, always with <code>-g</code>
+(user-level, so the skill applies to every project) and <code>-y</code> (no prompts, so
+<code>chezmoi apply</code> never blocks). If <code>npx</code> is missing or an install fails, the
+exact command is printed as a follow-up note instead of failing the apply.</p>
+<p>Use this for skills someone else publishes; use <code>custom</code> below for skills you
+write yourself.</p>
+<h3 id="custom-your-own-skills-and-agents"><code>custom</code> — your own skills and agents</h3>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">custom</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">my-skill</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skill</span><span class="w">        </span><span class="c1"># skill | agent</span>
+<span class="w">      </span><span class="c1"># agents: [claude, codex]  # optional -- omit for every agent</span>
+</code></pre></div>
+<p>Author the content once under the neutral source directory, then declare it:</p>
+<div class="highlight"><pre><span></span><code>home/dot_ai/skills/&lt;name&gt;/SKILL.md     -&gt;  ~/.ai/skills/&lt;name&gt;/
+home/dot_ai/agents/&lt;name&gt;/             -&gt;  ~/.ai/agents/&lt;name&gt;/
+</code></pre></div>
+<p>The sync script <strong>copies</strong> it into each targeted agent's location (copy, not
+symlink — so it works on Windows without Developer Mode). The destination comes
+from the agent's <code>skills.dir</code> (skills) or <code>skills.agentsDir</code> (agents); an agent
+with an empty <code>agentsDir</code> simply skips agents. Today:</p>
+<table>
+<thead>
+<tr>
+<th>kind</th>
+<th>Claude</th>
+<th>Copilot</th>
+<th>Codex</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>skill</td>
+<td><code>~/.claude/skills/&lt;name&gt;</code></td>
+<td><code>~/.agents/skills/&lt;name&gt;</code> (+ registered in its skills manifest if present)</td>
+<td><code>~/.codex/skills/&lt;name&gt;</code></td>
+</tr>
+<tr>
+<td>agent</td>
+<td><code>~/.claude/agents/&lt;name&gt;</code></td>
+<td>— (Copilot agents are extension-defined)</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h2 id="running-it">Running it</h2>
+<div class="highlight"><pre><span></span><code>chezmoi<span class="w"> </span>apply<span class="w">    </span><span class="c1"># renders configs + runs the sync when ai-tools.yaml changes</span>
+</code></pre></div>
+<p>To force a re-sync without changing the data (e.g. to pick up latest plugin/package
+versions), re-run all onchange scripts:</p>
+<div class="highlight"><pre><span></span><code>chezmoi<span class="w"> </span>apply<span class="w"> </span>--force
+</code></pre></div>
+<p>Verify:</p>
+<div class="highlight"><pre><span></span><code>claude<span class="w"> </span>mcp<span class="w"> </span>list<span class="w">          </span><span class="c1"># playwright + context7 registered</span>
+mise<span class="w"> </span>ls<span class="w">                  </span><span class="c1"># graphifyy + @fission-ai/openspec present</span>
+codex<span class="w"> </span>mcp<span class="w"> </span>list<span class="w">           </span><span class="c1"># Codex servers from the managed block</span>
+ls<span class="w"> </span>~/.claude/skills<span class="w"> </span>~/.agents/skills<span class="w"> </span>~/.codex/skills<span class="w">  </span><span class="c1"># installed + custom skills present</span>
+</code></pre></div>
+<h2 id="removing-tools">Removing tools</h2>
+<p>Delete an entry from <code>ai-tools.yaml</code> and run <code>chezmoi apply</code>: the sync script
+uninstalls what it previously installed and no longer finds in the data. It covers
+Claude MCP servers, plugins, skills and custom skills/agents; <code>package</code> entries are
+not removed (use <code>mise uninstall</code>).</p>
+<p>How it works: each run records every tool it targets as a <code>type|agent-or-method|name|extra</code> line in
+<code>~/.local/state/chezmoi-ai-tools.state</code>. Lines missing from the next run are
+removed (<code>claude mcp remove</code>, <code>&lt;cli&gt; plugin uninstall</code>, <code>npx skills remove</code>, or deleting
+the copied custom directory). A removal that fails stays in the file and is retried on
+the next apply.</p>
+<ul>
+<li>Only tools this script installed are touched. Anything you added by hand is left alone.</li>
+<li>The first run after upgrading has no state file, so it removes nothing and just starts tracking.</li>
+<li>Narrowing an entry's <code>agents:</code> list also removes it from the dropped agents.</li>
+<li>Skills with no <code>skill:</code> field (whole-repo installs) are not tracked, because their names are unknown.</li>
+<li>Plugin marketplaces are not removed; run <code>&lt;cli&gt; plugin marketplace remove &lt;name&gt;</code> yourself.</li>
+<li>Codex and Copilot MCP servers need no tracking: their config is regenerated on every apply.</li>
+</ul>
+<h2 id="starter-tools">Starter tools</h2>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Type</th>
+<th>Agents</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>playwright-mcp</td>
+<td>mcp</td>
+<td>all</td>
+<td>browser automation</td>
+</tr>
+<tr>
+<td>context7</td>
+<td>mcp</td>
+<td>all</td>
+<td>docs lookup; optional API key</td>
+</tr>
+<tr>
+<td>github</td>
+<td>mcp</td>
+<td>all</td>
+<td>GitHub API; needs a PAT</td>
+</tr>
+<tr>
+<td>superpowers</td>
+<td>plugin</td>
+<td>claude, copilot</td>
+<td>skills/workflow bundle (Codex: no plugin support yet)</td>
+</tr>
+<tr>
+<td>vercel-react-best-practices</td>
+<td>skill</td>
+<td>all</td>
+<td>from <code>vercel-labs/agent-skills</code></td>
+</tr>
+<tr>
+<td>web-design-guidelines</td>
+<td>skill</td>
+<td>all</td>
+<td>from <code>vercel-labs/agent-skills</code></td>
+</tr>
+<tr>
+<td>graphify</td>
+<td>package (pipx)</td>
+<td>—</td>
+<td><code>graphify install</code> post-step</td>
+</tr>
+<tr>
+<td>openspec</td>
+<td>package (npm)</td>
+<td>—</td>
+<td>per-repo <code>openspec init</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="troubleshooting">Troubleshooting</h2>
+<h3 id="invalid-configuration-invalid-input-when-registering-an-mcp"><code>Invalid configuration: : Invalid input</code> when registering an MCP</h3>
+<p>Fixed — but worth knowing why, because it will bite any new PowerShell code that
+passes JSON to a native command. Windows PowerShell reconstructs a command line
+from the argument strings and does <strong>not</strong> escape embedded double quotes, so
+<code>{"type":"stdio"}</code> reached <code>claude</code> as <code>{type:stdio}</code> (and any config with a
+space in it — a <code>Bearer &lt;token&gt;</code> header — was split into several arguments).
+<code>claude mcp add-json</code> then failed schema validation on the garbage it parsed.</p>
+<p>The Windows sync script routes JSON through <code>ConvertTo-NativeArg</code>, which escapes
+to the <code>CommandLineToArgvW</code> rules. PowerShell 7.3+ handles this natively via
+<code>$PSNativeCommandArgumentPassing</code>, except in its default <code>Windows</code> mode when the
+target is a <code>.cmd</code>/<code>.bat</code> shim — which is exactly how npm-installed CLIs land on
+<code>PATH</code> — so the helper checks both before deciding to escape.</p>
+<h3 id="an-mcp-is-skipped-for-rendering-no-value">An MCP is skipped for rendering <code>&lt;no value&gt;</code></h3>
+<p>A <code>{{ ... }}</code> expression inside <code>config:</code> resolved to nothing — nearly always a
+Doppler secret that doesn't exist under the name given, since <code>missingkey=zero</code>
+turns a missing key into the literal text <code>&lt;no value&gt;</code>. Check what the config
+actually renders to:</p>
+<div class="highlight"><pre><span></span><code>chezmoi<span class="w"> </span>execute-template<span class="w"> </span><span class="s1">'{{ includeTemplate "mcp-server-json" .aiTools.mcp.github.config }}'</span>
+</code></pre></div>
+<p>Fix the secret name (or add the secret in Doppler) and re-run <code>chezmoi apply --force</code>.</p>
+<p>The sync script refuses to register a server in this state. That guard matters
+more than it looks on Windows: <code>&lt;</code> and <code>&gt;</code> are cmd.exe redirection operators, so
+an unresolved value doesn't just store a broken server — it corrupts the command
+line on the way to a <code>.cmd</code>-shimmed <code>claude</code>, which surfaces as the same
+<code>Invalid configuration: : Invalid input</code> described above. The same hazard applies
+to any secret containing <code>&amp;</code>, <code>|</code>, <code>^</code>, <code>&lt;</code> or <code>&gt;</code>; if you hit that, configure the
+server in <code>~/.claude.json</code> directly rather than through the CLI.</p>
+<h3 id="no-matching-skills-found-for-name"><code>No matching skills found for: &lt;name&gt;</code></h3>
+<p>The <code>skill:</code> key must be the published skill name <strong>exactly</strong>; the CLI does not
+fuzzy-match. Run <code>npx --yes skills add &lt;owner&gt;/&lt;repo&gt;</code> with no <code>--skill</code> to list
+what the repo actually offers, then copy the name verbatim. (Vercel's skills are
+all <code>vercel-</code>-prefixed: <code>vercel-react-best-practices</code>, not <code>react-best-practices</code>.)</p>
+<h3 id="failed-to-install-plugin-access-is-denied-os-error-5"><code>Failed to install plugin: Access is denied. (os error 5)</code></h3>
+<p>A <a href="https://github.com/github/copilot-cli/issues/4095">known Copilot CLI bug on Windows</a>:
+the installer swaps the installed-plugins folder, and Windows refuses to replace
+a directory while VS Code's Copilot extension or a live <code>copilot</code> session holds
+watcher handles on it. Close VS Code and any running <code>copilot</code> session, then:</p>
+<div class="highlight"><pre><span></span><code>chezmoi<span class="w"> </span>apply<span class="w"> </span>--force
+</code></pre></div>
+
+
+
+
+
+
+
+  
+  
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
