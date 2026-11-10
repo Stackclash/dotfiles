@@ -106,7 +106,8 @@ Prompts asked once on `chezmoi init`, stored in `~/.config/chezmoi/chezmoi.json`
 |----------|-------------|
 | `.name`, `.email` | Identity |
 | `.workComputer` | Skips `forPersonal` apps and enables work-repo cloning |
-| `.workEmail`, `.workGithubOrg` | Only asked when `workComputer` is true |
+| `.setupWork` | Only asked when `workComputer` is false. Enables work identity and work-repo cloning without skipping `forPersonal` apps |
+| `.workEmail`, `.workGithubOrg` | Only asked when `workComputer` or `setupWork` is true |
 | `.githubUsername`, `.projectPath` | Repo cloning |
 | `.context7ApiKey` | Optional MCP key |
 | `.theme` | Theme from `themes.yaml` (Windows Terminal / VS Code) |
