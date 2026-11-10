@@ -53,6 +53,15 @@ apps:
       id: "mise"
       method: "brew"
   
+  starship: # Omarchy ships it; shared config in dot_config/starship.toml
+    forPersonal: false
+    windows:
+      id: "Starship.Starship"
+      method: "winget"
+    darwin:
+      id: "starship"
+      method: "brew"
+
   gh:
     forPersonal: false
     windows:

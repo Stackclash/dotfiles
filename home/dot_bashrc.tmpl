@@ -12,6 +12,9 @@ source "$OMARCHY_PATH/default/bash/rc"
 #!/bin/bash
 #### INITIALIZE MISE
 eval "$(mise activate bash)"
+
+#### INITIALIZE STARSHIP
+command -v starship >/dev/null 2>&1 && eval "$(starship init bash)"
 {{- end }}
 
 #### ADD TAB COMPLETIONS

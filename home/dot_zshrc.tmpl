@@ -2,6 +2,9 @@
 #### INITIALIZE MISE
 eval "$(mise activate zsh)"
 
+#### INITIALIZE STARSHIP
+command -v starship >/dev/null 2>&1 && eval "$(starship init zsh)"
+
 #### ADD TAB COMPLETIONS
 autoload -U compinit
 compinit -i
