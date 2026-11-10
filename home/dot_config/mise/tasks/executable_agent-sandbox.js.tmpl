@@ -12,7 +12,7 @@ const path = require("path")
 
 // toJson, not quote: the Windows projectPath contains backslashes that would
 // otherwise be read as JS escape sequences.
-const PROJECTS_PATH = {{ .projectPath | toJson }}
+const PROJECTS_PATH = {{ includeTemplate "project-path" . | toJson }}
 
 const REPO_PATH = path.join(PROJECTS_PATH, "Work", "biae-agent-container")
 const LAUNCHER_PATH = path.join(REPO_PATH, "agent-sandbox")
