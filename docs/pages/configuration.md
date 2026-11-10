@@ -43,9 +43,25 @@ script uses the first manager in this distro's list
 - `shipped`: Omarchy already provides the app, so nothing runs
 - `{ installer, package }`: runs `omarchy-install-<installer>` only when `<package>` is missing. Those installers also configure and launch the app.
 
-Omarchy's base CLI/dev tools (bat, eza, fzf, ripgrep, zoxide, lazygit, neovim…)
-are listed as `omarchy: shipped` plus pacman/apt/dnf names, so any other Linux
+> [!IMPORTANT]
+> `apps.yaml` holds only what **mise can't manage**: apps with no mise build, or
+> ones that need the OS package (Docker CLI plugins, syncthing's systemd unit,
+> PowerShell as a system shell). Everything mise can install goes in
+> `dot_config/mise/config.toml.tmpl`.
+
+Omarchy's base apps that mise can't install (chromium, mpv, localsend, …) are
+listed as `omarchy: shipped` plus pacman/apt/dnf names, so any other Linux
 machine gets the same setup.
+
+### Omarchy and the mise config
+
+Omarchy also ships CLI tools of its own:
+
+- **Through pacman:** bat, eza, fzf, ripgrep, zoxide, lazygit, neovim, starship and others. The mise config puts these in an `{{ if not (includeTemplate "is-omarchy" .) }}` block, so they're installed everywhere except Omarchy.
+- **Through mise itself** (`/etc/mise/conf.d/omarchy-tools.toml`): gh, copilot, node, uv and others. When you declare one of these, use the same short key (`gh`, not `github:cli/cli`), so your entry overrides Omarchy's instead of installing a second copy.
+
+When a tool has no build for every OS, limit it with mise's `os` option, for
+example `tmux = { version = "latest", os = ["linux", "macos"] }`.
 
 ## linux-package-managers.yaml
 

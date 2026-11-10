@@ -111,9 +111,13 @@ Omarchy (`$OMARCHY_PATH=/usr/share/omarchy`) owns its defaults. Never edit or ma
 - `~/.profile` and zsh files are not deployed on Omarchy, because `env-bootstrap` orders the login PATH itself.
 - Files that Omarchy migrations rewrite (such as `~/.config/omarchy/shell.json`) get `modify_` merge scripts, never whole-file ownership.
 - Use `omarchy-pkg-add` / `omarchy-pkg-aur-add` for packages. Omarchy-provided apps are `omarchy: shipped` in `apps.yaml`, with pacman/apt/dnf names so other Linux machines get them too.
+- Tools Omarchy ships with pacman go in the mise config's non-Omarchy block. Tools Omarchy ships through mise (`/etc/mise/conf.d/omarchy-tools.toml`) must use the same short key, so they override instead of duplicating.
 - Review changes with `chezmoi diff --use-builtin-diff`. The configured diff tool is `code --wait`.
 
 ### Adding a New App
+
+If mise can install it (`mise registry <name>`), add it to `home/dot_config/mise/config.toml.tmpl` instead. `apps.yaml` is only for what mise can't manage.
+
 
 1. Add an entry to `home/.chezmoidata/apps.yaml` with `windows:`, `darwin:` and/or `linux:` install info (`linux:` keys are package managers: `omarchy`, `pacman`, `aur`, `apt`, `dnf`)
 2. Run `chezmoi apply` — the `run_onchange_02-install-apps` script will re-run and install it
