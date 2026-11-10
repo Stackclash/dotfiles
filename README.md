@@ -24,8 +24,7 @@ This project is designed to be reproducible, maintainable, and well-documented �
 
 ## 🖥️ Shell & Terminal Environment
 - PowerShell profiles for Windows
-- Bash, Zsh, and Fish configs (.bashrc, .zshrc, fish/config.fish)
-- Oh My Posh setup
+- Bash and Zsh configs (.bashrc, .zshrc)
 - Git templates
 
 ## 💻 Application & Environment Setup
@@ -38,7 +37,7 @@ Windows package manager + apps (Windows)
 
 VS Code extensions (cross-platform)
 
-Support for mise, npm defaults, navi, and more
+Support for mise, npm defaults, and more
 
 ## 🔐 SSH & Private Configs
 
@@ -71,3 +70,9 @@ sh -c "$(curl -fsSL https://raw.githubusercontent.com/Stackclash/dotfiles/main/b
 - control startup apps and pinned apps and pinned folders
 - upgrade powershell
 - icloud isn't installed using choco (can we install using microsoft store)
+- Windows: set ExecutionPolicy before running bootstrap
+- Windows: gh isn't found during repo cloning
+- Windows: set up WSL and enable virtualization
+- Install az cli
+- Windows: disable OneDrive syncing
+- Replace 'wmic' usage (removed from recent Windows builds)

@@ -76,8 +76,6 @@ Or use helper functions:
 ## Where Themes Are Used
 - VS Code
 - Windows Terminal
-- Oh My Posh
-- Clink
 - Shell prompts
 - JSON/YAML-based config files
 - Any file that supports colors

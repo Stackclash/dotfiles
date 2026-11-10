@@ -33,7 +33,6 @@ windows:
 darwin:
   brews:
     - git
-    - fish
 ```
 Used by run_onchange_02-install-apps scripts for each platform.
 
@@ -52,7 +51,6 @@ colors:
 Used in:
 - VS Code templates
 - Terminal themes
-- Oh My Posh config
 - Any file requiring color definitions
 
 See the Themes page for details.
