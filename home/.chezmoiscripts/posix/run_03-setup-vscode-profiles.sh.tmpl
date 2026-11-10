@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+{{ template "mise-path" . }}
+
 # Toggle removal of extensions not declared in template data
 REMOVE_EXTRA=true
 
@@ -34,9 +36,19 @@ get_profile_extensions() {
     esac
 }
 
+# json_string_list KEY FILE -> the string array at KEY, one per line
+json_string_list() {
+    if command -v jq >/dev/null 2>&1; then
+        jq -r --arg k "$1" '(.[$k] // [])[]' "$2" 2>/dev/null || true
+    elif command -v plutil >/dev/null 2>&1; then
+        plutil -extract "$1" json -o - "$2" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' || true
+    fi
+}
+
 # Prints declared extensions plus their extensionPack / extensionDependencies
 # members (recursively), one lowercase id per line, so bundle members aren't
-# treated as undeclared. Uses plutil (always present on macOS) to read JSON.
+# treated as undeclared. Reads JSON with jq (Omarchy ships it; mise installs it
+# on macOS), falling back to plutil on a fresh Mac before mise has run.
 get_protected_extensions() {
     local ext_dir="$HOME/.vscode/extensions"
     local -a queue=("$@")
@@ -58,7 +70,7 @@ get_protected_extensions() {
         [[ -n "$dir" && -f "$pkg" ]] || continue
 
         for key in extensionPack extensionDependencies; do
-            members="$(plutil -extract "$key" json -o - "$pkg" 2>/dev/null | grep -o '"[^"]*"' | tr -d '"' || true)"
+            members="$(json_string_list "$key" "$pkg")"
             while IFS= read -r m; do
                 [[ -n "$m" ]] && queue+=("$m")
             done <<< "$members"

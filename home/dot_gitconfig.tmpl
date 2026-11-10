@@ -96,13 +96,16 @@
 [pull]
 	rebase = true
 
+{{- if ne .chezmoi.os "linux" }}
+
 [gpg]
-	# I need to think of a way to avoid hard coding the path
-	{{ if eq .chezmoi.os "windows" }}
+	# Linux finds gpg on PATH; Windows and macOS installs live off PATH.
+	{{- if eq .chezmoi.os "windows" }}
 	program = D:\\Program Files\\GnuPG\\bin\\gpg.exe
-	{{ else }}
+	{{- else }}
 	program = /opt/homebrew/bin/gpg
 	{{- end }}
+{{- end }}
 
 [init]
 	defaultBranch = main
@@ -128,3 +131,22 @@
 
 [push]
 	autoSetupRemote = true
+
+# Defaults adopted from Omarchy's git config, applied on every OS
+[diff]
+	algorithm = histogram    # Clearer diffs on moved/edited lines
+	colorMoved = plain       # Highlight moved blocks in diffs
+	mnemonicPrefix = true    # More intuitive refs in diff output
+
+[column]
+	ui = auto                # Output in columns when possible
+
+[branch]
+	sort = -committerdate    # Most recently committed branches first
+
+[tag]
+	sort = -version:refname  # Sort version numbers naturally
+
+[rerere]
+	enabled = true           # Record and reuse conflict resolutions
+	autoupdate = true

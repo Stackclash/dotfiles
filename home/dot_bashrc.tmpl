@@ -1,8 +1,20 @@
+{{- if includeTemplate "is-omarchy" . -}}
+# Omarchy environment (OMARCHY_PATH + PATH), needed even for non-interactive shells
+[[ -r /usr/share/omarchy/default/bash/env-bootstrap ]] && source /usr/share/omarchy/default/bash/env-bootstrap
+
+# If not running interactively, don't do anything else (leave this above the rc source)
+[[ $- != *i* ]] && return
+
+# All the default Omarchy aliases and functions, including mise, starship,
+# zoxide and fzf setup (don't mess with these directly, override them below)
+source "$OMARCHY_PATH/default/bash/rc"
+{{- else -}}
 #!/bin/bash
 #### INITIALIZE MISE
 eval "$(mise activate bash)"
+{{- end }}
 
 #### ADD TAB COMPLETIONS
-source <(gh completion -s bash)
-source <(kubectl completion bash)
+command -v gh >/dev/null 2>&1 && source <(gh completion -s bash)
+command -v kubectl >/dev/null 2>&1 && source <(kubectl completion bash)
 {{ completion "bash" }}

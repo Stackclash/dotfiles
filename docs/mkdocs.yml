@@ -1,7 +1,7 @@
 site_name: My Cross-Platform Dotfiles
 site_url: https://stackclash.github.io/dotfiles
 repo_url: https://github.com/Stackclash/dotfiles
-edit_uri: blob/master/docs/pages/
+edit_uri: blob/main/docs/pages/
 remote_branch: gh-pages
 docs_dir: ./pages
 nav:

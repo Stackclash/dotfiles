@@ -1,3 +1,5 @@
+{{- /* Work machines only: renders empty (so chezmoi skips it) otherwise. */ -}}
+{{- if .workComputer -}}
 #!/bin/bash
 
 {{- $projectPath := .projectPath -}}
@@ -13,7 +15,8 @@ fi
 PROJECT_PATH="{{ $projectPath }}/Work"
 WORK_GITHUB_ORG={{ $workGithubOrg | quote }}
 GITHUB_USERNAME={{ $githubUsername | quote }}
-DATE_QUERY=">=$(date -v-1y +%F)" # 1 year ago
+# GNU date (Linux) first, BSD date (macOS) second
+DATE_QUERY=">=$(date -d '1 year ago' +%F 2>/dev/null || date -v-1y +%F)" # 1 year ago
 REPOS=$(gh repo list $WORK_GITHUB_ORG --source --json name,nameWithOwner)
 
 for REPO in $(jq --compact-output '.[]' <<< $REPOS); do
@@ -31,3 +34,4 @@ for REPO in $(jq --compact-output '.[]' <<< $REPOS); do
         fi
     fi
 done
+{{- end }}

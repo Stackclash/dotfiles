@@ -1,16 +1,38 @@
-{{- if eq .chezmoi.os "windows" -}}
+{{- /* Windows-only files */ -}}
+{{- if ne .chezmoi.os "windows" }}
+AppData/**
+Documents/**
+.chezmoiscripts/Windows/**
+{{- end }}
+
+{{- /* POSIX shells and shared bash scripts (macOS + Linux) */ -}}
+{{- if eq .chezmoi.os "windows" }}
 .bashrc
 .zshrc
 .zprofile
 .profile
+.chezmoiscripts/posix/**
+{{- end }}
+
+{{- /* macOS-only files */ -}}
+{{- if ne .chezmoi.os "darwin" }}
 Library/**
 .chezmoiscripts/Darwin/**
-{{- end -}}
-{{- if ne .chezmoi.os "windows" -}}
-AppData/**
-.chezmoiscripts/Windows/**
-Documents/**
 {{- end }}
-setup
-README.md
-docs
+
+{{- /* Linux-only scripts */ -}}
+{{- if ne .chezmoi.os "linux" }}
+.chezmoiscripts/Linux/**
+{{- end }}
+
+{{- /* Omarchy: its env-bootstrap owns login-shell PATH (mise command-wrappers
+       first, shims last), so ~/.profile and zsh files are left to Omarchy.
+       Omarchy override files are only managed on Omarchy. */ -}}
+{{- if includeTemplate "is-omarchy" . }}
+.profile
+.zprofile
+.zshrc
+{{- else }}
+.config/hypr/**
+.config/omarchy/**
+{{- end }}
