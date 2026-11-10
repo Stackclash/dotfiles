@@ -1,5 +1,5 @@
-{{- /* Work machines only: renders empty (so chezmoi skips it) otherwise. */ -}}
-{{- if .workComputer -}}
+{{- /* Work setup only: renders empty (so chezmoi skips it) otherwise. */ -}}
+{{- if or .workComputer .setupWork -}}
 # NOT elevated: repos cloned by an elevated process are owned by Administrators,
 # and git then refuses them as "dubious ownership" in a normal shell.
 {{ template "mise-path" . }}

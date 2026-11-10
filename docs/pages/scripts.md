@@ -18,7 +18,7 @@ home/.chezmoiscripts/
 Naming follows `{run_type}_{sequence}-{name}.{ext}[.tmpl]`. chezmoi runs the
 scripts in name order, so the numeric prefix controls ordering. A script that
 renders to nothing but whitespace is skipped. The work-only clone scripts use
-this to skip themselves unless `workComputer` is true.
+this to skip themselves unless `workComputer` or `setupWork` is true.
 
 ## Script types
 

@@ -1,5 +1,5 @@
-{{- /* Work machines only: renders empty (so chezmoi skips it) otherwise. */ -}}
-{{- if .workComputer -}}
+{{- /* Work setup only: renders empty (so chezmoi skips it) otherwise. */ -}}
+{{- if or .workComputer .setupWork -}}
 #!/bin/bash
 
 {{ template "mise-path" . }}

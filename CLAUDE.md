@@ -79,7 +79,8 @@ Key variables available in all `.tmpl` files (defined via prompts in `home/.chez
 | `.name` | User's full name |
 | `.email` | Personal email |
 | `.workComputer` | Boolean — is this a work machine? |
-| `.workEmail` / `.workGithubOrg` | Work identity (only when `workComputer` is true) |
+| `.setupWork` | Boolean — set up work identity and repos on a non-work machine (only asked when `workComputer` is false) |
+| `.workEmail` / `.workGithubOrg` | Work identity (only when `workComputer` or `setupWork` is true) |
 | `.githubUsername` | GitHub username |
 | `.projectPath` | Local projects directory |
 | `.theme` | Selected theme name (`dracular` or `molokai`) |

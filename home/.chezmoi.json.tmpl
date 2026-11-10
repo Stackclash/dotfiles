@@ -2,11 +2,22 @@
   {{- $name := promptStringOnce . "name" "Name" -}}
   {{- $email := promptStringOnce . "email" "Personal email address" -}}
   {{- $workComputer := promptBoolOnce . "workComputer" "Is this a work computer" -}}
+  {{- $setupWork := false -}}
+  {{- if not $workComputer -}}
+    {{- $setupWork = promptBoolOnce . "setupWork" "Set up work (git identity and work repos) on this computer" -}}
+  {{- end -}}
   {{- $workEmail := "" -}}
   {{- $workGithubOrg := "" -}}
-  {{- if $workComputer -}}
-    {{- $workEmail = promptStringOnce . "workEmail" "Work email address" -}}
-    {{- $workGithubOrg = promptStringOnce . "workGithubOrg" "Work Github Org" -}}
+  {{- if or $workComputer $setupWork -}}
+    {{- /* Not promptStringOnce: it keeps a previously stored empty string instead of asking. */ -}}
+    {{- $workEmail = get . "workEmail" | default "" -}}
+    {{- if not $workEmail -}}
+      {{- $workEmail = promptString "Work email address" -}}
+    {{- end -}}
+    {{- $workGithubOrg = get . "workGithubOrg" | default "" -}}
+    {{- if not $workGithubOrg -}}
+      {{- $workGithubOrg = promptString "Work Github Org" -}}
+    {{- end -}}
   {{- end -}}
   {{- $githubUsername := promptStringOnce . "githubUsername" "Github username" -}}
   {{- $projectPath := promptStringOnce . "projectPath" "What path to use for Projects" -}}
@@ -18,6 +29,9 @@
     "name": {{ $name | quote }},
     "email": {{ $email | quote }},
     "workComputer": {{ $workComputer }},
+    {{- if not $workComputer }}
+    "setupWork": {{ $setupWork }},
+    {{- end }}
     "workEmail": {{ $workEmail | quote }},
     "workGithubOrg": {{ $workGithubOrg | quote }},
     "githubUsername": {{ $githubUsername | quote }},
