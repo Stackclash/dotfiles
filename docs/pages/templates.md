@@ -16,34 +16,46 @@ Chezmoi templates allow dynamic generation of files using:
 ## Template Directory Structure
 ```
 home/.chezmoitemplates/
-├── elevate-powershell
-├── theme-colors
+├── ai-targets              # AI tools: does this entry target this agent?
+├── elevate-powershell      # re-launch a PowerShell script as Administrator
+├── is-omarchy              # "true" on Omarchy, empty elsewhere
+├── mcp-server-json         # AI tools: MCP config as JSON
+├── mcp-server-toml         # AI tools: MCP config as a Codex TOML table
+├── mcp-server-toml-value
+├── mise-path               # put mise tools on PATH inside chezmoi scripts
+├── theme-helpers           # rgbToHex / rgbToFloat
 ├── vscode-keybindings
 ├── vscode-mcp
 └── vscode-settings
 ```
-yaml
-Copy code
 
-Each file defines reusable template fragments or functions.
+Each file defines a reusable template fragment or function.
 
 ---
 
 ## Key Templates
 
-### `theme-colors`
-Provides helper functions for working with theme colors defined in:
+### `is-omarchy`
+Prints `true` on Omarchy and nothing elsewhere. It is built on chezmoi's own data
+(`.chezmoi.os`, then `.chezmoi.osRelease.id`), so it is safe on Windows/macOS, where
+`.chezmoi.osRelease` doesn't exist.
 
-home/.chezmoidata/themes.yaml
+```gotmpl
+{{ if includeTemplate "is-omarchy" . }}...{{ end }}
+```
 
-yaml
-Copy code
+### `mise-path`
+Scripts run without any shell rc file, so they can't see mise tools by default.
+This puts the mise shims on PATH (on macOS it loads Homebrew first, on Windows it
+re-reads PATH from the registry). Include it at the top of any script that calls
+a mise-managed tool:
 
-Includes helpers such as:
+```gotmpl
+{{ template "mise-path" . }}
+```
 
-- `hexToRGB`
-- `rgbToHex`
-- Shade/opacity helpers (optional depending on your implementation)
+### `theme-helpers`
+Defines `rgbToHex` and `rgbToFloat` for the colors in `.chezmoidata/themes.yaml`.
 
 ---
 
@@ -56,13 +68,8 @@ These templates unify:
 
 Used to generate:
 
-~/AppData/Roaming/Code/User/settings.json
-~/AppData/Roaming/Code/User/keybindings.json
-
-yaml
-Copy code
-
-And their macOS equivalents.
+- `~/AppData/Roaming/Code/User/{settings,keybindings}.json` (Windows)
+- `~/Library/Application Support/Code/User/{settings,keybindings}.json` (macOS)
 
 ---
 

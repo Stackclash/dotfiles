@@ -4,82 +4,62 @@ title: Scripts
 
 # Automation Scripts (`.chezmoiscripts`)
 
-Chezmoi supports **run_once**, **run_onchange**, and **run_before** scripts that automate system setup.  
-This repository organizes these scripts by platform:
+Scripts are grouped by the OSes they run on. `.chezmoiignore.tmpl` hides every
+folder that doesn't apply to the current machine:
+
 ```
 home/.chezmoiscripts/
-├── Darwin/
-└── Windows/
+├── Windows/   # windows only (PowerShell)
+├── Darwin/    # macOS only (Homebrew)
+├── Linux/     # Linux only (distro package managers, Omarchy)
+└── posix/     # macOS + Linux (shared bash scripts)
 ```
----
 
-## Script Types
+Naming follows `{run_type}_{sequence}-{name}.{ext}[.tmpl]`. chezmoi runs the
+scripts in name order, so the numeric prefix controls ordering. A script that
+renders to nothing but whitespace is skipped. The work-only clone scripts use
+this to skip themselves unless `workComputer` is true.
 
-### `run_once_*.sh` / `.ps1`
-Runs **only once**, after `chezmoi init --apply`.  
-Used for tasks that should never repeat, such as:
+## Script types
 
-- Installing Homebrew or Windows package manager
-- Initial machine bootstrap
-- Cloning personal/work repos
+| Prefix | Runs |
+|--------|------|
+| `run_` | every `chezmoi apply` |
+| `run_once_` | once per unique script content |
+| `run_onchange_` | whenever the rendered content changes (scripts embed a hash of the data they read) |
+| `…_before_` / `…_after_` | before / after files are written |
 
-### `run_onchange_*.sh` / `.ps1`
-Runs **whenever the script file changes**.  
-Useful for:
+## Scripts by folder
 
-- App installation lists
-- VS Code extension installation
-- Machine-specific system updates
+### `Windows/`
+- `run_once_before_01-install-package-manager.ps1.tmpl`: winget/choco bootstrap
+- `run_02-install-apps.ps1.tmpl`: installs `apps.yaml` `windows:` entries
+- `run_03-setup-vscode-profiles.ps1.tmpl`: VS Code profile extension sync
+- `run_onchange_after_03-mise-install.ps1.tmpl`: `mise install`
+- `run_after_04-sync-ai-tools.ps1.tmpl`: see [AI Tools](ai-tools.md)
+- `run_once_after_04-clone-{personal,work}-repos.ps1.tmpl`
+- `run_once_after_06-windows-setup.ps1.tmpl`: debloat and OS settings
 
-### `run_before_*.sh`
-Runs **before files are applied**.  
-Ideal for:
+### `Darwin/`
+- `run_once_before_01-install-brew.sh`: installs Homebrew
+- `run_02-install-apps.sh.tmpl`: `brew bundle` from `apps.yaml` `darwin:` entries
 
-- Bootstrapping package managers
-- Installing dependencies required for generating certain templates
+### `Linux/`
+- `run_onchange_02-install-apps.sh.tmpl`: installs `apps.yaml` `linux:` entries with this distro's package managers (see [Configuration](configuration.md#linux-package-managersyaml))
+- `run_onchange_after_05-omarchy-theme.sh.tmpl`: Omarchy only, applies `omarchyPrefs.theme` (see [Omarchy](omarchy.md))
 
----
+### `posix/` (macOS + Linux)
+- `run_03-setup-vscode-profiles.sh.tmpl`: VS Code profile extension sync. It reads JSON with `jq`, falling back to `plutil`.
+- `run_onchange_after_03-mise-install.sh.tmpl`: `mise install`
+- `run_after_04-sync-ai-tools.sh.tmpl`: see [AI Tools](ai-tools.md)
+- `run_once_after_04-clone-{personal,work}-repos.sh.tmpl`
 
-## macOS Scripts
+> [!WARNING]
+> The VS Code sync has `REMOVE_EXTRA=true`, so it uninstalls extensions that
+> aren't declared in `vscode-profiles.yaml`.
 
-Examples:
+## Adding a script
 
-- **`run_once_before_01-install-brew.sh`**  
-  Installs Homebrew if missing.
-
-- **`run_onchange_02-install-mac-apps.sh.tmpl`**  
-  Installs apps defined in `.chezmoidata/apps.yaml`.
-
-- **`run_onchange_after_04-sync-ai-tools.sh.tmpl`**  
-  Syncs AI tools defined in `.chezmoidata/ai-tools.yaml` (see [AI Tools](ai-tools.md)).
-
-- **Repo cloning scripts**  
-  `run_once_after_04_clone-personal-repos.sh.tmpl`
-
----
-
-## Windows Scripts
-
-Examples:
-
-- **`run_once_before_01-install-package-manager.ps1.tmpl`**  
-  Bootstraps Winget / package manager.
-
-- **`run_onchange_02-install-apps.ps1.tmpl`**  
-  Installs apps declared in `.chezmoidata/apps.yaml`.
-
-- **`run_onchange_after_04-sync-ai-tools.ps1.tmpl`**  
-  Syncs AI tools declared in `.chezmoidata/ai-tools.yaml` (see [AI Tools](ai-tools.md)).
-
-- **Terminal and shell setup**  
-  `run_once_after_04-setup-terminal.ps1.tmpl`
-
----
-
-## Adding Your Own Scripts
-
-Just place your script under:
-
-home/.chezmoiscripts/<OS>/<type>_*.sh
-
-Chezmoi will automatically detect and execute it during the apply phase
+Put it in the folder for the OSes it should run on. Use `posix/` for bash that
+works on both macOS and Linux. Scripts that need mise tools should include
+`{{ template "mise-path" . }}`, because chezmoi's environment has no rc file loaded.

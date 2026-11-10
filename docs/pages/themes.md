@@ -4,78 +4,53 @@ title: Themes
 
 # Theme System
 
-This dotfiles setup includes a **data-driven theme system** built from:
+There are two theme systems, one per platform family:
 
-- `themes.yaml` — defines theme colors
-- `theme-colors` template — provides helper functions for color manipulation
+- **Windows / macOS (VS Code)**: `home/.chezmoidata/themes.yaml` plus the
+  `theme-helpers` template, selected by the `.theme` prompt.
+- **Omarchy**: Omarchy's own themes (`omarchy theme list`), selected by
+  `omarchyPrefs.theme` in `home/.chezmoidata/omarchy.yaml`. See [Omarchy](omarchy.md).
+  Omarchy already re-themes VS Code, terminals and the bar when the theme changes.
 
----
+The Starship prompt (`~/.config/starship.toml`) only uses ANSI colors, so it
+follows whichever terminal theme is active on every OS.
 
 ## themes.yaml
 
-Example:
+Each theme (`dracular`, `molokai`, `mojave_dark`) defines `background` and
+`foreground` as `[R, G, B]` arrays, plus the 16 terminal colors as hex strings
+without `#` (`d_*` normal, `l_*` light/bright):
 
 ```yaml
-active: "gruvbox"
-
 themes:
-  gruvbox:
-    primary: "#fabd2f"
-    background: "#1d2021"
-    text: "#ebdbb2"
-
-  nord:
-    primary: "#88C0D0"
-    background: "#2E3440"
-    text: "#ECEFF4"
+  dracular:
+    background: [40, 42, 54]
+    foreground: [248, 248, 242]
+    d_red: [255, 85, 85]
+    d_blue: BD93F9
+    l_blue: CAA9FA
+    # ...
 ```
 
-You can add:
-- accents
-- borders
-- opacity variants
-- RGB arrays
-- semantic color names
+## theme-helpers template
 
-## theme-colors Template
-Provides functions such as:
-- hexToRGB
-- rgbToHex
-- shade/darken/lighten
-- color extraction utilities
-- reusable color structures for JSON/YAML templates
+Defines two named templates for the RGB arrays:
 
-Example usage in a VS Code settings template:
+- `rgbToHex`: `[R,G,B]` to `#RRGGBB`
+- `rgbToFloat`: `[R,G,B]` to `[r, g, b]` floats from 0 to 1 (iTerm2 format)
+
+## Using a theme in a template
 
 ```gotmpl
-"activityBar.background": "{{ themeColor "background" }}",
-"activityBar.foreground": "{{ themeColor "text" }}",
-"button.background": "{{ themeColor "primary" }}",
+{{- template "theme-helpers" -}}
+{{- $themeColors := index .themes .theme -}}
+"editor.background": "{{ template "rgbToHex" $themeColors.background }}",
+"terminal.ansiBlue": "#{{ $themeColors.d_blue }}",
 ```
 
-## Using Themes in Other Templates
-You access the active theme via:
-
-```gotmpl
-{{ $theme := index .data.themes.themes .data.themes.active }}
-```
-
-Then access colors:
-
-```gotmpl
-{{ $theme.primary }}
-```
-
-Or use helper functions:
-
-```gotmpl
-{{ colorHex "primary" }}
-{{ hexToRGB $theme.primary }}
-```
-
-## Where Themes Are Used
-- VS Code
-- Windows Terminal
-- Shell prompts
-- JSON/YAML-based config files
-- Any file that supports colors
+> [!NOTE]
+> **Current state:** no template uses these colors yet. `vscode-settings` looks up
+> `$themeColors` but never reads it, and nothing calls `theme-helpers`. The `.theme`
+> prompt (`promptChoice` in `.chezmoi.json.tmpl`, offering `dracular` / `molokai`)
+> is asked on every `chezmoi init`. Either wire the colors into VS Code / Windows
+> Terminal or remove `themes.yaml`, `theme-helpers` and the prompt.
