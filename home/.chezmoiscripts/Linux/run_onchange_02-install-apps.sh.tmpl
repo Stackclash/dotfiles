@@ -1,0 +1,123 @@
+#!/bin/bash
+# -------------------------------------------------------
+# Installs apps.yaml `linux:` entries with this distro's package managers.
+# The manager list comes from .chezmoidata/linux-package-managers.yaml, keyed
+# by .chezmoi.osRelease.id then .chezmoi.osRelease.idLike, or from the
+# per-machine `packageManagers` override in ~/.config/chezmoi/chezmoi.json.
+# Each app uses the first manager in that list it defines a key for.
+# -------------------------------------------------------
+# apps.yaml + linux-package-managers.yaml hash: {{ list .apps .linuxPackageManagers .packageManagers | toString | sha256sum }}
+{{- /* ---- choose the manager list ---- */}}
+{{- $pmMap := .linuxPackageManagers }}
+{{- $distro := .chezmoi.osRelease.id | default "" }}
+{{- $managers := list }}
+{{- if .packageManagers }}
+{{-   $managers = .packageManagers }}
+{{- else if hasKey $pmMap $distro }}
+{{-   $managers = index $pmMap $distro }}
+{{- else }}
+{{-   range splitList " " (.chezmoi.osRelease.idLike | default "") }}
+{{-     if and (not $managers) (hasKey $pmMap .) }}
+{{-       $managers = index $pmMap . }}
+{{-     end }}
+{{-   end }}
+{{- end }}
+{{- /* ---- bucket each app by its chosen manager ---- */}}
+{{- $pkgs := dict }}
+{{- $installers := list }}
+{{- $shipped := list }}
+{{- $skipped := list }}
+{{- $workComputer := .workComputer }}
+{{- range $name, $app := .apps }}
+{{-   if and $workComputer $app.forPersonal }}
+{{-     $skipped = append $skipped (printf "%s (personal app on a work computer)" $name) }}
+{{-   else if $app.linux }}
+{{-     $chosen := "" }}
+{{-     range $m := $managers }}
+{{-       if and (not $chosen) (hasKey $app.linux $m) }}{{ $chosen = $m }}{{ end }}
+{{-     end }}
+{{-     if not $chosen }}
+{{-       $skipped = append $skipped (printf "%s (no linux entry for: %s)" $name (join ", " $managers)) }}
+{{-     else if eq $chosen "omarchy" }}
+{{-       $entry := index $app.linux "omarchy" }}
+{{-       if kindIs "string" $entry }}
+{{-         $shipped = append $shipped $name }}
+{{-       else }}
+{{-         $installers = append $installers (printf "%s|%s|%s" $name $entry.installer $entry.package) }}
+{{-       end }}
+{{-     else }}
+{{-       $_ := set $pkgs $chosen (append (get $pkgs $chosen | default list) (index $app.linux $chosen)) }}
+{{-     end }}
+{{-   end }}
+{{- end }}
+
+set -u
+FAILED=0
+{{- if includeTemplate "is-omarchy" . }}
+OMARCHY=1
+{{- else }}
+OMARCHY=0
+{{- end }}
+
+echo "Installing Linux apps ({{ $distro }}: {{ join ", " $managers | default "no package managers configured" }})"
+{{- if not $managers }}
+echo "  No package manager list for '{{ $distro }}' (idLike: '{{ .chezmoi.osRelease.idLike | default "" }}')." >&2
+echo "  Add it to .chezmoidata/linux-package-managers.yaml or set packageManagers in chezmoi.json." >&2
+exit 0
+{{- end }}
+
+# install_with MANAGER PKG...
+install_with() {
+  local manager="$1"; shift
+  [ $# -gt 0 ] || return 0
+  echo "  [$manager] $*"
+  case "$manager" in
+    pacman)
+      if [ $OMARCHY -eq 1 ]; then omarchy-pkg-add "$@"
+      else sudo pacman -S --needed --noconfirm -- "$@"; fi ;;
+    aur)
+      if [ $OMARCHY -eq 1 ]; then omarchy-pkg-aur-add "$@"
+      elif command -v yay >/dev/null 2>&1; then yay -S --needed --noconfirm -- "$@"
+      elif command -v paru >/dev/null 2>&1; then paru -S --needed --noconfirm -- "$@"
+      else echo "  no AUR helper (yay/paru) found" >&2; return 1; fi ;;
+    apt) sudo apt-get install -y "$@" ;;
+    dnf) sudo dnf install -y "$@" ;;
+    *)   echo "  unknown package manager '$manager'" >&2; return 1 ;;
+  esac
+}
+
+# run_installer NAME INSTALLER PACKAGE -- Omarchy installers also configure
+# and launch the app, so only run them when the package is missing.
+run_installer() {
+  if pacman -Q -- "$3" >/dev/null 2>&1; then
+    echo "  [omarchy] $1: already installed ($3)"
+    return 0
+  fi
+  echo "  [omarchy] $1: omarchy-install-$2"
+  "omarchy-install-$2"
+}
+{{- range $m := $managers }}
+{{-   if and (ne $m "omarchy") (get $pkgs $m) }}
+
+install_with {{ $m }} {{ range get $pkgs $m }}{{ . | quote }} {{ end }}|| FAILED=1
+{{-   end }}
+{{- end }}
+{{- range $installers }}
+{{-   $parts := splitList "|" . }}
+run_installer {{ index $parts 0 | quote }} {{ index $parts 1 | quote }} {{ index $parts 2 | quote }} || FAILED=1
+{{- end }}
+{{- if $shipped }}
+
+echo "  Provided by Omarchy: {{ join ", " $shipped }}"
+{{- end }}
+{{- if $skipped }}
+echo "  Skipped:"
+{{-   range $skipped }}
+echo "    - {{ . }}"
+{{-   end }}
+{{- end }}
+
+if [ $FAILED -ne 0 ]; then
+  echo "Some apps failed to install - fix the errors above and re-run 'chezmoi apply --force'." >&2
+fi
+exit 0

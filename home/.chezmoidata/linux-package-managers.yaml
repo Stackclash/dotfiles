@@ -1,0 +1,28 @@
+# Linux package managers, chosen per distro. Consumed by
+# .chezmoiscripts/Linux/run_onchange_02-install-apps.sh.tmpl.
+#
+# Keys are /etc/os-release IDs. The script looks up .chezmoi.osRelease.id first,
+# then each word of .chezmoi.osRelease.idLike, so derivatives fall through to
+# their parent (Manjaro/EndeavourOS -> arch, Ubuntu/Pop!_OS -> debian).
+#
+# Each value is the managers to try, in order. An app (apps.yaml `linux:`) is
+# installed with the FIRST manager in this list that the app defines a key for.
+#
+# Managers the script understands:
+#   omarchy  `omarchy-install-<installer>` (only if <package> is missing), or
+#            `shipped` = Omarchy already provides it, do nothing
+#   pacman   omarchy-pkg-add on Omarchy, else sudo pacman -S --needed
+#   aur      omarchy-pkg-aur-add on Omarchy, else yay -S --needed
+#   apt      sudo apt-get install -y
+#   dnf      sudo dnf install -y
+# Adding a distro = one entry here. Adding a manager = one entry here plus one
+# `case` branch in the install script.
+#
+# Per-machine override: set `packageManagers: [pacman, aur]` under "data" in
+# ~/.config/chezmoi/chezmoi.json to replace the detected list.
+
+linuxPackageManagers:
+  omarchy: [omarchy, pacman, aur]
+  arch: [pacman, aur]
+  debian: [apt]
+  fedora: [dnf]

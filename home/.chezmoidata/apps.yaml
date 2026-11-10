@@ -1,3 +1,15 @@
+# App definitions, one entry per app, with a block per OS:
+#   windows: { id, method: winget|choco }    darwin: { id, method: brew|brew-cask|brew-tap }
+#   linux:   one key per package manager -> package name, e.g.
+#            { omarchy: shipped, pacman: git, apt: git }
+#            The first manager in this distro's list (linux-package-managers.yaml)
+#            that the app defines is used. `omarchy:` is either `shipped` (Omarchy
+#            already provides it) or { installer: <omarchy-install-* suffix>, package }.
+# forPersonal: true skips the app on work machines.
+#
+# Anything mise can install belongs in dot_config/mise/config.toml.tmpl, not here.
+# Apps stay here when mise has no build for them, or when the OS package is
+# needed (Docker CLI plugins, syncthing's systemd unit, PowerShell as a system shell).
 apps:
 
   # Apps
@@ -6,6 +18,8 @@ apps:
     windows:
       id: "SoftFever.OrcaSlicer"
       method: "winget"
+    linux:
+      aur: orca-slicer-bin
 
   claude:
     forPersonal: false
@@ -21,18 +35,25 @@ apps:
     windows:
       id: "Valve.Steam"
       method: "winget"
+    linux:
+      omarchy: { installer: gaming-steam, package: steam }
+      pacman: steam
 
   blender:
     forPersonal: true
     windows:
       id: "BlenderFoundation.Blender"
       method: "winget"
+    linux:
+      pacman: blender
 
   calibre:
     forPersonal: true
     windows: 
       id: "calibre.calibre"
       method: "winget"
+    linux:
+      pacman: calibre
 
   syncthing:
     forPersonal: false
@@ -42,6 +63,8 @@ apps:
     darwin:
       id: "syncthing"
       method: "brew"
+    linux:
+      pacman: syncthing
 
   # CLI Tools
   mise:
@@ -52,25 +75,10 @@ apps:
     darwin:
       id: "mise"
       method: "brew"
+    linux:
+      omarchy: shipped # as mise-bin
+      pacman: mise
   
-  starship: # Omarchy ships it; shared config in dot_config/starship.toml
-    forPersonal: false
-    windows:
-      id: "Starship.Starship"
-      method: "winget"
-    darwin:
-      id: "starship"
-      method: "brew"
-
-  gh:
-    forPersonal: false
-    windows:
-      id: "Github.cli"
-      method: "winget"
-    darwin:
-      id: "gh"
-      method: "brew"
-
   git:
     forPersonal: false
     windows:
@@ -79,6 +87,9 @@ apps:
     darwin:
       id: "git"
       method: "brew"
+    linux:
+      omarchy: shipped
+      pacman: git
 
   powershell:
     forPersonal: false
@@ -92,24 +103,6 @@ apps:
       id: "zsh"
       method: "brew"
 
-  DotNetSDK:
-    forPersonal: false
-    windows:
-      id: "Microsoft.DotNet.SDK"
-      method: "winget"
-    darwin:
-      id: "dotnet"
-      method: "brew"
-
-  copilot-cli:
-    forPersonal: false
-    windows:
-      id: "GitHub.Copilot"
-      method: "winget"
-    darwin:
-      id: "copilot-cli"
-      method: "brew"
-
   # Browser
   firefox-dev:
     forPersonal: false
@@ -119,6 +112,8 @@ apps:
     darwin:
       id: "firefox@developer-edition"
       method: "brew-cask"
+    linux:
+      pacman: firefox-developer-edition
 
   chrome:
     forPersonal: false
@@ -128,6 +123,8 @@ apps:
     darwin:
       id: "google-chrome"
       method: "brew-cask"
+    linux:
+      aur: google-chrome
 
   # Media
   icloud:
@@ -144,12 +141,17 @@ apps:
     darwin:
       id: "vlc"
       method: "brew-cask"
+    linux:
+      pacman: vlc
 
   open-office:
     forPersonal: false
     windows:
       id: "Apache.OpenOffice"
       method: "winget"
+    linux:
+      omarchy: shipped # as libreoffice-fresh
+      pacman: libreoffice-fresh
 
   # Developer Tools
   vscode:
@@ -160,6 +162,9 @@ apps:
     darwin:
       id: "visual-studio-code"
       method: "brew-cask"
+    linux:
+      omarchy: { installer: editor-vscode, package: visual-studio-code-bin }
+      aur: visual-studio-code-bin
 
   postman:
     forPersonal: false
@@ -169,12 +174,16 @@ apps:
     darwin:
       id: "postman"
       method: "brew-cask"
+    linux:
+      aur: postman-bin
 
   yubikey-manager:
     forPersonal: false
     windows:
       id: "Yubico.YubikeyManager"
       method: "winget"
+    linux:
+      pacman: yubikey-manager
 
   putty:
     forPersonal: false
@@ -190,6 +199,9 @@ apps:
     darwin:
       id: "docker"
       method: "brew-cask"
+    linux:
+      omarchy: shipped
+      pacman: docker
 
   iterm2:
     forPersonal: false
@@ -206,6 +218,9 @@ apps:
     darwin:
       id: "obsidian"
       method: "brew-cask"
+    linux:
+      omarchy: shipped
+      pacman: obsidian
   
   # Fonts
   fira-code-mono:
@@ -216,6 +231,8 @@ apps:
     darwin:
       id: "font-fira-mono"
       method: "brew-cask"
+    linux:
+      pacman: ttf-fira-mono
   
   nerd-fonts-firacode:
     forPersonal: false
@@ -225,7 +242,8 @@ apps:
     darwin:
       id: "font-fira-code-nerd-font"
       method: "brew-cask"
-      
+    linux:
+      pacman: ttf-firacode-nerd
   # Others
   glazewm:
     forPersonal: true
@@ -251,12 +269,16 @@ apps:
       id: "zsh-autosuggestions"
       method: "brew"
 
-  7zip:
-    forPersonal: false
-    windows:
-      id: "7zip"
-      method: "choco"
-    darwin:
-      id: "p7zip"
-      method: "brew"
-     
+  # Omarchy base apps -- shipped with Omarchy (install/omarchy-base.packages),
+  # installed on every other Linux machine so the setup matches. Only what mise
+  # can't manage lives here; Omarchy's CLI tools are in dot_config/mise/config.toml.tmpl.
+  # Desktop pieces (Hyprland, quickshell, SDDM, fcitx, ...) are left to Omarchy itself.
+  # apt/dnf names are only listed where verified; otherwise the app is skipped there.
+  chromium:       { forPersonal: false, linux: { omarchy: shipped, pacman: chromium, apt: chromium, dnf: chromium } }
+  docker-buildx:  { forPersonal: false, linux: { omarchy: shipped, pacman: docker-buildx } }
+  docker-compose: { forPersonal: false, linux: { omarchy: shipped, pacman: docker-compose } }
+  localsend:      { forPersonal: false, linux: { omarchy: shipped, aur: localsend-bin } }
+  mpv:            { forPersonal: false, linux: { omarchy: shipped, pacman: mpv, apt: mpv, dnf: mpv } }
+  plocate:        { forPersonal: false, linux: { omarchy: shipped, pacman: plocate, apt: plocate, dnf: plocate } }
+  unzip:          { forPersonal: false, linux: { omarchy: shipped, pacman: unzip, apt: unzip, dnf: unzip } }
+  wl-clipboard:   { forPersonal: false, linux: { omarchy: shipped, pacman: wl-clipboard, apt: wl-clipboard, dnf: wl-clipboard } }

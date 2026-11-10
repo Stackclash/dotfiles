@@ -9,9 +9,12 @@
 # Per-agent fields
 #   displayName   human label used in script output
 #   cli           binary the sync script probes with `command -v` / Get-Command
-#   install       optional { mise: { backend, package } } -- installs the CLI
-#                 itself via mise. Omit when the CLI is installed elsewhere
-#                 (apps.yaml, a native installer, ...).
+#   install       optional -- installs the CLI itself via mise, either as
+#                 { mise: { tool } } (a mise registry short name, preferred:
+#                 matches Omarchy's /etc/mise/conf.d/omarchy-tools.toml keys,
+#                 so it overrides instead of duplicating) or
+#                 { mise: { backend, package } }. Omit when the CLI is
+#                 installed elsewhere (a native installer, ...).
 #   mcp.method    how MCP servers reach the agent:
 #                   claude-cli  -- `claude mcp add-json --scope user`
 #                   vscode-json -- the managed VS Code mcp.json
@@ -60,8 +63,7 @@ aiAgents:
     cli: codex
     install:
       mise:
-        backend: npm
-        package: "@openai/codex"
+        tool: codex   # registry: aqua:openai/codex (same key Omarchy uses)
     mcp:
       method: codex-toml
       file: .codex/config.toml
