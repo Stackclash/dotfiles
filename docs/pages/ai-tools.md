@@ -45,7 +45,8 @@ aiAgents:
     displayName: OpenAI Codex
     cli: codex                      # binary probed before CLI-based installs
     install:                        # optional: install the CLI itself via mise
-      mise: { backend: npm, package: "@openai/codex" }
+      mise: { tool: codex }         # registry short name (same key Omarchy uses);
+                                    # or { backend: npm, package: "@openai/codex" }
     mcp:
       method: codex-toml            # claude-cli | vscode-json | codex-toml | none
       file: .codex/config.toml      # (codex-toml) relative to $HOME

@@ -1,7 +1,16 @@
+{{- /* Tools Omarchy already declares in its system mise config. Unpinned
+       ("latest") entries for those are skipped so Omarchy's own settings (lazy
+       install, auto_update) stay in charge and nothing installs twice. */ -}}
+{{- $omarchyMise := dict -}}
+{{- if stat "/etc/mise/conf.d/omarchy-tools.toml" -}}
+{{-   $omarchyMise = (include "/etc/mise/conf.d/omarchy-tools.toml" | fromToml).tools | default dict -}}
+{{- end -}}
 [tools]
 node = "22"
 "python" = "3.13"
+{{- if not (hasKey $omarchyMise "uv") }}
 "uv" = "latest"
+{{- end }}
 "aqua:kubernetes/kubernetes/kubectl" = "latest"
 "github:DopplerHQ/cli" = "latest"
 "aqua:hashicorp/terraform" = "latest"
@@ -14,10 +23,13 @@ node = "22"
 "core:bun" = "latest"
 dotnet = "latest"
 7zip = "latest"           # CLI: 7zz (macOS/Linux), 7za (Windows)
-# Same keys as Omarchy's /etc/mise/conf.d/omarchy-tools.toml, so on Omarchy these
-# override its entries instead of installing a second copy.
-gh = "latest"
-copilot = "latest"
+# Registry short names, the same keys Omarchy's /etc/mise/conf.d/omarchy-tools.toml
+# uses; skipped on Omarchy, which declares them itself.
+{{- range list "gh" "copilot" }}
+{{-   if not (hasKey $omarchyMise .) }}
+{{ . }} = "latest"
+{{-   end }}
+{{- end }}
 {{- if not (includeTemplate "is-omarchy" .) }}
 # CLI tools Omarchy ships with pacman (skipped there to avoid duplicate copies).
 bat = "latest"
@@ -41,7 +53,13 @@ zoxide = "latest"
 # AI agent CLIs (generated from .chezmoidata/ai-agents.yaml -- edit that file, not here)
 {{- range $name, $agent := .aiAgents }}
 {{- if $agent.install }}
+{{- if $agent.install.mise.tool }}
+{{- if not (hasKey $omarchyMise $agent.install.mise.tool) }}
+{{ $agent.install.mise.tool }} = "latest" # {{ $name }}
+{{- end }}
+{{- else }}
 "{{ $agent.install.mise.backend }}:{{ $agent.install.mise.package }}" = "latest" # {{ $name }}
+{{- end }}
 {{- end }}
 {{- end }}
 # AI Tools (generated from .chezmoidata/ai-tools.yaml -- edit that file, not here)
