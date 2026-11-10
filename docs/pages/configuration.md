@@ -58,7 +58,7 @@ machine gets the same setup.
 Omarchy also ships CLI tools of its own:
 
 - **Through pacman:** bat, eza, fzf, ripgrep, zoxide, lazygit, neovim, starship and others. The mise config puts these in an `{{ if not (includeTemplate "is-omarchy" .) }}` block, so they're installed everywhere except Omarchy.
-- **Through mise itself** (`/etc/mise/conf.d/omarchy-tools.toml`): gh, copilot, node, uv and others. When you declare one of these, use the same short key (`gh`, not `github:cli/cli`), so your entry overrides Omarchy's instead of installing a second copy.
+- **Through mise itself** (`/etc/mise/conf.d/omarchy-tools.toml`): gh, copilot, codex, node, uv and others, installed lazily and auto-updated. The mise template reads that file when it exists and skips any **unpinned** (`"latest"`) entry Omarchy already declares, so Omarchy stays in charge and nothing installs twice. Pinned entries such as `node = "22"` still apply. Declare these with their registry short names (`gh`, not `github:cli/cli`) so the keys match.
 
 When a tool has no build for every OS, limit it with mise's `os` option, for
 example `tmux = { version = "latest", os = ["linux", "macos"] }`.

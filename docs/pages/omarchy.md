@@ -18,7 +18,7 @@ Omarchy keeps its defaults, and chezmoi only adds your changes.
 | Prompt | Starship + `~/.config/starship.toml` | Owns `starship.toml`, the same file on every OS (ANSI colors follow the theme) |
 | Git | `~/.config/git/config` defaults | Moves those defaults into `~/.gitconfig` and removes the XDG copy (its gh helper path is pinned to a mise version) |
 | Packages | Base system (`install/omarchy-base.packages`) | Installs `apps.yaml` `linux:` extras (Omarchy-shipped apps are `omarchy: shipped`) |
-| CLI tools | pacman tools (bat, eza, fzf…) plus `/etc/mise/conf.d/omarchy-tools.toml` (gh, copilot, node, uv…) | The mise config skips the pacman-shipped tools on Omarchy, and uses Omarchy's own keys for gh/copilot so they override instead of duplicating |
+| CLI tools | pacman tools (bat, eza, fzf…) plus `/etc/mise/conf.d/omarchy-tools.toml` (gh, copilot, node, uv…) | The mise config skips the pacman-shipped tools on Omarchy, and skips unpinned tools that Omarchy's mise config already declares (gh, copilot, codex, uv) |
 | Theme | `omarchy theme set` | Applies `omarchyPrefs.theme` when it changes |
 | Bar (`omarchy/shell.json`) | Layout. Omarchy migrations rewrite it | Merges in `omarchyPrefs.bar` only (see below) |
 | `hypr/*.lua` overrides | Stock copies Omarchy never rewrites | Not managed until you customize one (`chezmoi add ~/.config/hypr/<file>`) |

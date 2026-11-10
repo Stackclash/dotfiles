@@ -111,7 +111,7 @@ Omarchy (`$OMARCHY_PATH=/usr/share/omarchy`) owns its defaults. Never edit or ma
 - `~/.profile` and zsh files are not deployed on Omarchy, because `env-bootstrap` orders the login PATH itself.
 - Files that Omarchy migrations rewrite (such as `~/.config/omarchy/shell.json`) get `modify_` merge scripts, never whole-file ownership.
 - Use `omarchy-pkg-add` / `omarchy-pkg-aur-add` for packages. Omarchy-provided apps are `omarchy: shipped` in `apps.yaml`, with pacman/apt/dnf names so other Linux machines get them too.
-- Tools Omarchy ships with pacman go in the mise config's non-Omarchy block. Tools Omarchy ships through mise (`/etc/mise/conf.d/omarchy-tools.toml`) must use the same short key, so they override instead of duplicating.
+- Tools Omarchy ships with pacman go in the mise config's non-Omarchy block. For tools Omarchy ships through mise (`/etc/mise/conf.d/omarchy-tools.toml`), use the registry short name. The template skips unpinned entries that Omarchy already declares.
 - Review changes with `chezmoi diff --use-builtin-diff`. The configured diff tool is `code --wait`.
 
 ### Adding a New App
