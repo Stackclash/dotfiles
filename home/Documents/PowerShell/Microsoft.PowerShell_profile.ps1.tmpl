@@ -1,6 +1,9 @@
 #### INITIALIZE MISE
 (&mise activate pwsh) | Out-String | Invoke-Expression
 
+#### INITIALIZE STARSHIP
+if (Get-Command starship -ErrorAction SilentlyContinue) { Invoke-Expression (&starship init powershell) }
+
 #### ADD TAB COMPLETIONS
 gh completion -s powershell | Out-String | Invoke-Expression
 kubectl completion powershell | Out-String | Invoke-Expression
