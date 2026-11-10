@@ -66,6 +66,46 @@ echo "  Add it to .chezmoidata/linux-package-managers.yaml or set packageManager
 exit 0
 {{- end }}
 
+# is_installed MANAGER PKG
+is_installed() {
+  case "$1" in
+    pacman|aur) pacman -Q -- "$2" >/dev/null 2>&1 ;;
+    apt) dpkg-query -W -f='${Status}' "$2" 2>/dev/null | grep -q "install ok installed" ;;
+    dnf) rpm -q "$2" >/dev/null 2>&1 ;;
+    *)   return 1 ;;
+  esac
+}
+
+# Plan first: queue only what is missing, so a run with nothing to do never
+# asks for sudo.
+declare -A TODO=()
+INSTALLERS=()
+queue() { local m="$1" p; shift; for p in "$@"; do is_installed "$m" "$p" || TODO[$m]+="$p "; done; }
+queue_installer() { pacman -Q -- "$3" >/dev/null 2>&1 || INSTALLERS+=("$1|$2|$3"); }
+MANAGER_ORDER=({{ range $managers }}{{ if ne . "omarchy" }}{{ . | quote }} {{ end }}{{ end }})
+{{- range $m := $managers }}
+{{-   if and (ne $m "omarchy") (get $pkgs $m) }}
+queue {{ $m }} {{ range get $pkgs $m }}{{ . | quote }} {{ end }}
+{{-   end }}
+{{- end }}
+{{- range $installers }}
+{{-   $parts := splitList "|" . }}
+queue_installer {{ index $parts 0 | quote }} {{ index $parts 1 | quote }} {{ index $parts 2 | quote }}
+{{- end }}
+
+# Ask for the sudo password once, then keep the cached credential fresh in the
+# background until this script exits. Long AUR builds or downloads can outlast
+# sudo's timestamp_timeout. pacman, yay and the Omarchy installers run in this
+# terminal, so they all reuse it.
+start_sudo_once() {
+  [ "$(id -u)" -eq 0 ] && return 0
+  echo "  Root access is needed to install the apps above - enter your password once."
+  sudo -v || return 1
+  ( while kill -0 "$$" 2>/dev/null; do sudo -n -v 2>/dev/null; sleep 60; done ) &
+  SUDO_KEEPALIVE_PID=$!
+  trap 'kill "$SUDO_KEEPALIVE_PID" 2>/dev/null' EXIT
+}
+
 # install_with MANAGER PKG...
 install_with() {
   local manager="$1"; shift
@@ -86,26 +126,34 @@ install_with() {
   esac
 }
 
-# run_installer NAME INSTALLER PACKAGE -- Omarchy installers also configure
-# and launch the app, so only run them when the package is missing.
+# run_installer NAME|INSTALLER|PACKAGE -- Omarchy installers also configure and
+# launch the app, so they are only queued when the package is missing.
 run_installer() {
-  if pacman -Q -- "$3" >/dev/null 2>&1; then
-    echo "  [omarchy] $1: already installed ($3)"
-    return 0
-  fi
-  echo "  [omarchy] $1: omarchy-install-$2"
-  "omarchy-install-$2"
+  local name installer package
+  IFS='|' read -r name installer package <<<"$1"
+  echo "  [omarchy] $name: omarchy-install-$installer"
+  "omarchy-install-$installer"
 }
-{{- range $m := $managers }}
-{{-   if and (ne $m "omarchy") (get $pkgs $m) }}
 
-install_with {{ $m }} {{ range get $pkgs $m }}{{ . | quote }} {{ end }}|| FAILED=1
-{{-   end }}
-{{- end }}
-{{- range $installers }}
-{{-   $parts := splitList "|" . }}
-run_installer {{ index $parts 0 | quote }} {{ index $parts 1 | quote }} {{ index $parts 2 | quote }} || FAILED=1
-{{- end }}
+pending=0
+for m in "${MANAGER_ORDER[@]}"; do
+  if [ -n "${TODO[$m]:-}" ]; then echo "  To install with $m: ${TODO[$m]}"; pending=1; fi
+done
+for i in "${INSTALLERS[@]}"; do echo "  To install with omarchy-install: ${i%%|*}"; pending=1; done
+
+if [ $pending -eq 0 ]; then
+  echo "  Everything is already installed."
+elif start_sudo_once; then
+  for m in "${MANAGER_ORDER[@]}"; do
+    # shellcheck disable=SC2086 # word-split the queued package list
+    [ -n "${TODO[$m]:-}" ] && { install_with "$m" ${TODO[$m]} || FAILED=1; }
+  done
+  for i in "${INSTALLERS[@]}"; do run_installer "$i" || FAILED=1; done
+else
+  echo "  sudo was not granted - skipping installs. Re-run 'chezmoi apply --force' to retry." >&2
+  FAILED=1
+fi
+
 {{- if $shipped }}
 
 echo "  Provided by Omarchy: {{ join ", " $shipped }}"
